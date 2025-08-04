@@ -1,16 +1,18 @@
-// layouts/MainLayout.jsx
-import { Outlet } from 'react-router-dom'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
-const MainLayout = () => (
-  <>
-    <Header />
-    <main>
-      <Outlet />
-    </main>
-    <Footer />
-  </>
-)
+const MainLayout = () => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  );
+};
 
-export default MainLayout
+export default MainLayout;
