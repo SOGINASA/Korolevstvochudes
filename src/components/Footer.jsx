@@ -56,7 +56,7 @@ const Footer = () => {
             {/* Социальные сети */}
             <div className="flex space-x-4">
               <a 
-                href="https://instagram.com/korolevstvo_chudes_pk"
+                href="https://www.instagram.com/korolevstvochudes/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
@@ -64,20 +64,12 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
               <a 
-                href="https://wa.me/77771234567"
+                href="wa.me/77055195222"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
               >
                 <MessageCircle size={20} />
-              </a>
-              <a 
-                href="https://t.me/korolevstvo_chudes"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
-              >
-                <Send size={20} />
               </a>
             </div>
           </div>
@@ -129,7 +121,8 @@ const Footer = () => {
                     href="tel:+77152123456" 
                     className="text-gray-300 hover:text-accent-300 transition-colors duration-200"
                   >
-                    +7 (7152) 123-456
+                    8 705 519 5 222
+                    8 705 519 5 444
                   </a>
                   <p className="text-sm text-gray-400">Основной номер</p>
                 </div>
