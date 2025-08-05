@@ -31,7 +31,7 @@ const HomePage = () => {
         <ProcessSection />
 
         {/* Временная секция для остальных компонентов */}
-        <section className="py-20 bg-gray-50">
+        {/* <section className="py-20 bg-gray-50">
           <div className="container-custom text-center">
             <h2 className="heading-2 text-gray-900 mb-8">
               Остальные секции в разработке
@@ -40,7 +40,7 @@ const HomePage = () => {
               Портфолио, отзывы, преимущества, акции и форма заказа будут добавлены в следующих версиях
             </p>
           </div>
-        </section>
+        </section> */}
       </div>
     </>
   );
