@@ -248,6 +248,139 @@ const ServicesPage = () => {
         { name: 'Стандарт', price: '45,000 ₸', features: ['Композиции', 'Подсветка', 'Фотозона', 'Стиль'] },
         { name: 'Люкс', price: '80,000 ₸', features: ['VIP декор', 'Инсталляции', 'Авторский дизайн', 'Эксклюзив'] }
       ]
+    },
+    {
+      id: 9,
+      title: 'Ростовые куклы',
+      category: 'characters',
+      duration: '1-3 часа',
+      minGuests: '5 детей',
+      rating: 5,
+      price: 'от 12,000 ₸',
+      priceDescription: 'за час',
+      description: 'Яркие и веселые ростовые куклы для детского праздника. Легкие костюмы из безопасных материалов не стесняют движений.',
+      features: ['Безопасные материалы', 'Легкие костюмы', 'Популярные персонажи', 'Интерактивное общение', 'Фото с героями', 'Игры и развлечения'],
+      subcategories: ['Супергерои', 'Мультперсонажи', 'Принцессы', 'Животные', 'Сказочные герои'],
+      images: [
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+      ],
+      coverImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      featured: true,
+      tags: ['куклы', 'персонажи', 'дети', 'герои'],
+      packages: [
+        { name: '1 персонаж', price: '12,000 ₸/час', features: ['1 ростовая кукла', 'Интерактив', 'Фото', 'Игры'] },
+        { name: '2 персонажа', price: '20,000 ₸/час', features: ['2 ростовых куклы', 'Мини-спектакль', 'Конкурсы', 'Подарки'] },
+        { name: 'Шоу персонажей', price: '35,000 ₸/час', features: ['3+ персонажей', 'Полноценное шоу', 'Сценарий', 'Декорации'] }
+      ]
+    },
+    {
+      id: 10,
+      title: 'Шоу "Блести-Сверкай"',
+      category: 'shows',
+      duration: '30-60 минут',
+      minGuests: '8 детей',
+      rating: 5,
+      price: 'от 18,000 ₸',
+      priceDescription: 'за шоу',
+      description: 'Невероятное шоу с переливающейся фольгой! Море эмоций, смеха и блеска. Гости могут бросаться мягкой фольгой и создавать фигуры.',
+      features: ['Много переливающейся фольги', 'Серебряная и золотая фольга', 'Творческие задания', 'Танцевальные батлы', 'Сражения фольгой', 'Яркий салют эмоций'],
+      subcategories: ['Детское шоу', 'Семейные мероприятия', 'Корпоративы', 'Дни рождения'],
+      images: [
+        'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1481240916879-cbf444df40ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+      ],
+      coverImage: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      featured: true,
+      tags: ['шоу', 'фольга', 'блеск', 'интерактив'],
+      packages: [
+        { name: 'Мини-шоу', price: '18,000 ₸', features: ['30 минут', 'Основная программа', 'Фольга', 'Аниматор'] },
+        { name: 'Полное шоу', price: '28,000 ₸', features: ['60 минут', 'Расширенная программа', 'Больше фольги', 'Призы'] },
+        { name: 'Мега-шоу', price: '45,000 ₸', features: ['90 минут', 'VIP программа', 'Много фольги', 'Подарки всем'] }
+      ]
+    },
+    {
+      id: 11,
+      title: 'Воздушные шары',
+      category: 'balloons',
+      duration: 'по договоренности',
+      minGuests: 'любое',
+      rating: 4,
+      price: 'от 200 ₸',
+      priceDescription: 'за шарик',
+      description: 'Большой выбор воздушных шаров под любой стиль праздника. Обычные, гелиевые и светящиеся шары различных цветов и рисунков.',
+      features: ['Большой выбор цветов', 'Различные рисунки', 'Гелиевые шары', 'Светящиеся шары', 'Фигурные шары', 'Букеты из шаров'],
+      subcategories: ['Обычные шары', 'Гелиевые шары', 'Светящиеся шары', 'Фигурные шары', 'Цифры из шаров'],
+      images: [
+        'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+      ],
+      coverImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      tags: ['шары', 'гелий', 'декор', 'праздник'],
+      packages: [
+        { name: 'Набор 50 шт', price: '8,000 ₸', features: ['50 обычных шаров', 'Разные цвета', 'Лента', 'Доставка'] },
+        { name: 'Гелиевый букет', price: '15,000 ₸', features: ['25 гелиевых шаров', 'Утяжелители', 'Красивые ленты', 'Композиция'] },
+        { name: 'VIP композиция', price: '35,000 ₸', features: ['100+ шаров', 'Фигурные элементы', 'Светящиеся шары', 'Авторский дизайн'] }
+      ]
+    },
+    {
+      id: 12,
+      title: 'Цифры и буквы из шаров',
+      category: 'balloons',
+      duration: 'изготовление 1 день',
+      minGuests: 'любое',
+      rating: 5,
+      price: 'от 3,500 ₸',
+      priceDescription: 'за цифру',
+      description: 'Яркие и индивидуальные цифры и буквы для украшения праздника или фотосессии. Создают прекрасную атмосферу и подчеркивают стиль мероприятия.',
+      features: ['Любые цифры и буквы', 'Различные цвета', 'Из обычных шаров', 'Фольгированные варианты', 'Крепление в комплекте', 'Индивидуальный дизайн'],
+      subcategories: ['Цифры возраста', 'Юбилейные даты', 'Имена', 'Поздравительные надписи'],
+      images: [
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',  
+  'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 
+  'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'  
+      ],
+      coverImage: 'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      tags: ['цифры', 'буквы', 'шары', 'фотозона'],
+      packages: [
+        { name: '1 цифра', price: '3,500 ₸', features: ['Высота 1м', 'Из шаров', 'Любой цвет', 'Крепление'] },
+        { name: 'Фольгированная', price: '5,500 ₸', features: ['Высота 80см', 'Фольга', 'Гелий в комплекте', 'Яркие цвета'] },
+        { name: 'Комплект цифр', price: '12,000 ₸', features: ['2-3 цифры', 'Композиция', 'Подставка', 'Декор дополнительно'] }
+      ]
+    },
+    {
+      id: 13,
+      title: 'Шоу мыльных пузырей',
+      category: 'shows',
+      duration: '30-45 минут',
+      minGuests: '5 детей',
+      rating: 5,
+      price: 'от 15,000 ₸',
+      priceDescription: 'за шоу',
+      description: 'Волшебное шоу с гигантскими мыльными пузырями! Гости увидят радужных гигантов и попробуют создать их сами. Отличное дополнение к любой программе.',
+      features: ['Гигантские мыльные пузыри', 'Интерактивное участие', 'Профессиональные растворы', 'Различные инструменты', 'Радужные эффекты', 'Безопасные материалы'],
+      subcategories: ['Детские праздники', 'Юмористическое шоу', 'Новогоднее шоу', 'Свадебное шоу'],
+      images: [
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+      ],
+      coverImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      featured: true,
+      tags: ['пузыри', 'шоу', 'интерактив', 'волшебство'],
+      packages: [
+        { name: 'Базовое шоу', price: '15,000 ₸', features: ['30 минут', 'Стандартная программа', 'Реквизит', 'Аниматор'] },
+        { name: 'Расширенное', price: '22,000 ₸', features: ['45 минут', 'Больше эффектов', 'Участие детей', 'Подарки'] },
+        { name: 'Премиум шоу', price: '35,000 ₸', features: ['60 минут', 'Эксклюзивная программа', 'Спецэффекты', 'Фото/видео'] }
+      ]
     }
   ];
 
@@ -260,7 +393,10 @@ const ServicesPage = () => {
     { id: 'seasonal', name: 'Праздники', count: servicesData.filter(s => s.category === 'seasonal').length, icon: Gift },
     { id: 'quests', name: 'Квесты', count: servicesData.filter(s => s.category === 'quests').length, icon: Gamepad2 },
     { id: 'photo', name: 'Фото/Видео', count: servicesData.filter(s => s.category === 'photo').length, icon: Camera },
-    { id: 'decoration', name: 'Декор', count: servicesData.filter(s => s.category === 'decoration').length, icon: Cake }
+    { id: 'decoration', name: 'Декор', count: servicesData.filter(s => s.category === 'decoration').length, icon: Cake },
+    { id: 'characters', name: 'Персонажи', count: servicesData.filter(s => s.category === 'characters').length, icon: Baby },
+    { id: 'shows', name: 'Шоу', count: servicesData.filter(s => s.category === 'shows').length, icon: PartyPopper },
+    { id: 'balloons', name: 'Шары', count: servicesData.filter(s => s.category === 'balloons').length, icon: Gift }
   ];
 
   const filteredServices = activeFilter === 'all' 

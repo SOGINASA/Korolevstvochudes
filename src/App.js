@@ -10,10 +10,13 @@ import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 
 // Услуги
-// import ServicesPage from './pages/services/ServicesPage';
-// import ChildrenPartiesPage from './pages/services/ChildrenPartiesPage';
-// import WeddingsPage from './pages/services/WeddingsPage';
-// import CorporateEventsPage from './pages/services/CorporateEventsPage';
+import ServicesPage from './pages/services/ServicesPage';
+import ChildrenPartiesPage from './pages/services/ChildrenPartiesPage';
+import WeddingsPage from './pages/services/WeddingsPage';
+import CorporateEventsPage from './pages/services/CorporateEventsPage';
+import AnniversaryCelebrationsPage from './pages/services/AnniversaryCelebrationsPage';
+import ShowProgsPage from './pages/services/ShowProgsPage';
+import QuestsPage from './pages/services/QuestsPage';
 
 // Другие страницы
 import PortfolioPage from './pages/PortfolioPage';
@@ -25,8 +28,7 @@ import ReviewsPage from './pages/ReviewsPage';
 // 404 страница
 import NotFoundPage from './pages/NotFoundPage';
 
-import AnniversaryCelebrationsPage from './pages/services/AnniversaryCelebrationsPage';
-import ShowProgsPage from './pages/services/ShowProgsPage';
+
 
 function App() {
   return (
@@ -42,10 +44,13 @@ function App() {
               <Route path="o-kompanii" element={<AboutPage />} />
               
               {/* Услуги */}
-              <Route path="uslugi" element={<PricingPage />} />
-              {/* <Route path="uslugi/detskie-prazdniki" element={<ChildrenPartiesPage />} />
+              <Route path="uslugi" element={<ServicesPage />} />
+              <Route path="uslugi/detskie-prazdniki" element={<ChildrenPartiesPage />} />
               <Route path="uslugi/svadby" element={<WeddingsPage />} />
-              <Route path="uslugi/korporativy" element={<CorporateEventsPage />} /> */}
+              <Route path="uslugi/korporativy" element={<CorporateEventsPage />} />
+              <Route path="uslugi/yubilei-torzhestva" element={<AnniversaryCelebrationsPage />} />
+              <Route path="uslugi/shou-programmy" element={<ShowProgsPage />} />
+              <Route path="uslugi/kvesty-igry" element={<QuestsPage />} />
               
               {/* Портфолио */}
               <Route path="portfolio" element={<PortfolioPage />} />
@@ -65,8 +70,6 @@ function App() {
               {/* 404 страница */}
               <Route path="*" element={<NotFoundPage />} />
 
-              <Route path="uslugi/yubilei-torzhestva" element={<AnniversaryCelebrationsPage />} />
-              <Route path="uslugi/shou-programmy" element={<ShowProgsPage />} />
             </Route>
           </Routes>
         </div>

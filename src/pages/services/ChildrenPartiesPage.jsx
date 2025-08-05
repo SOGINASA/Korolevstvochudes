@@ -234,19 +234,6 @@ const ChildrenPartiesPage = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50">
-        {/* Breadcrumbs */}
-        <div className="bg-white py-4 border-b border-gray-100">
-          <div className="container-custom">
-            <nav className="flex items-center space-x-2 text-sm text-gray-600">
-              <a href="/" className="hover:text-primary-600 transition-colors">Главная</a>
-              <span>/</span>
-              <a href="/uslugi" className="hover:text-primary-600 transition-colors">Услуги</a>
-              <span>/</span>
-              <span className="text-primary-600 font-medium">Детские праздники</span>
-            </nav>
-          </div>
-        </div>
-
         {/* Hero секция */}
         <section className="bg-gradient-to-br from-primary-500 via-secondary-500 to-accent-500 text-white py-20">
           <div className="container-custom">

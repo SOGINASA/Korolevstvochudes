@@ -242,7 +242,7 @@ const PortfolioPage = () => {
         </section>
 
         {/* Фильтры и управление */}
-        <section className="py-8 bg-white shadow-sm sticky top-0 z-40">
+        <section className="py-8 bg-white shadow-sm top-0 z-40">
           <div className="container-custom">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
               {/* Фильтры категорий */}
