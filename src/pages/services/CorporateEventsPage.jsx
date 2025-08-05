@@ -275,19 +275,6 @@ const CorporateEventsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumbs */}
-      <div className="bg-white py-4 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center space-x-2 text-sm text-gray-600">
-            <a href="/" className="hover:text-blue-600 transition-colors">Главная</a>
-            <span>/</span>
-            <a href="/uslugi" className="hover:text-blue-600 transition-colors">Услуги</a>
-            <span>/</span>
-            <span className="text-blue-600 font-medium">Корпоративные мероприятия</span>
-          </nav>
-        </div>
-      </div>
-
       {/* Hero секция */}
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
