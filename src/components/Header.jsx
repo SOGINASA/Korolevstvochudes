@@ -27,19 +27,19 @@ const Header = () => {
 
   const navItems = [
     { name: 'Главная', path: '/' },
-    {
-      name: 'Услуги',
-      path: '/uslugi',
-      children: [
-        { name: 'Детские праздники', path: '/uslugi/detskie-prazdniki' },
-        { name: 'Свадьбы', path: '/uslugi/svadby' },
-        { name: 'Корпоративы', path: '/uslugi/korporativy' },
-        { name: 'Юбилеи и торжества', path: '/uslugi/yubilei-torzhestva' },
-        { name: 'Шоу-программы', path: '/uslugi/shou-programmy' },
-      ]
-    },
+    // {
+    //   name: 'Услуги',
+    //   path: '/uslugi',
+    //   children: [
+    //     { name: 'Детские праздники', path: '/uslugi/detskie-prazdniki' },
+    //     { name: 'Свадьбы', path: '/uslugi/svadby' },
+    //     { name: 'Корпоративы', path: '/uslugi/korporativy' },
+    //     { name: 'Юбилеи и торжества', path: '/uslugi/yubilei-torzhestva' },
+    //     { name: 'Шоу-программы', path: '/uslugi/shou-programmy' },
+    //   ]
+    // },
     { name: 'Портфолио', path: '/portfolio' },
-    { name: 'Цены', path: '/tseny' },
+    { name: 'Услуги', path: '/uslugi' },
     { name: 'Отзывы', path: '/otzyvy-klientov' },
     { name: 'О нас', path: '/o-kompanii' },
     { name: 'Контакты', path: '/kontakty' },

@@ -10,10 +10,10 @@ import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 
 // Услуги
-import ServicesPage from './pages/services/ServicesPage';
-import ChildrenPartiesPage from './pages/services/ChildrenPartiesPage';
-import WeddingsPage from './pages/services/WeddingsPage';
-import CorporateEventsPage from './pages/services/CorporateEventsPage';
+// import ServicesPage from './pages/services/ServicesPage';
+// import ChildrenPartiesPage from './pages/services/ChildrenPartiesPage';
+// import WeddingsPage from './pages/services/WeddingsPage';
+// import CorporateEventsPage from './pages/services/CorporateEventsPage';
 
 // Другие страницы
 import PortfolioPage from './pages/PortfolioPage';
@@ -39,10 +39,10 @@ function App() {
               <Route path="o-kompanii" element={<AboutPage />} />
               
               {/* Услуги */}
-              <Route path="uslugi" element={<ServicesPage />} />
-              <Route path="uslugi/detskie-prazdniki" element={<ChildrenPartiesPage />} />
+              <Route path="uslugi" element={<PricingPage />} />
+              {/* <Route path="uslugi/detskie-prazdniki" element={<ChildrenPartiesPage />} />
               <Route path="uslugi/svadby" element={<WeddingsPage />} />
-              <Route path="uslugi/korporativy" element={<CorporateEventsPage />} />
+              <Route path="uslugi/korporativy" element={<CorporateEventsPage />} /> */}
               
               {/* Портфолио */}
               <Route path="portfolio" element={<PortfolioPage />} />
