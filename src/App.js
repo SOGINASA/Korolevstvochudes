@@ -25,6 +25,9 @@ import ReviewsPage from './pages/ReviewsPage';
 // 404 страница
 import NotFoundPage from './pages/NotFoundPage';
 
+import AnniversaryCelebrationsPage from './pages/services/AnniversaryCelebrationsPage';
+import ShowProgsPage from './pages/services/ShowProgsPage';
+
 function App() {
   return (
     <HelmetProvider>
@@ -61,6 +64,9 @@ function App() {
               
               {/* 404 страница */}
               <Route path="*" element={<NotFoundPage />} />
+
+              <Route path="uslugi/yubilei-torzhestva" element={<AnniversaryCelebrationsPage />} />
+              <Route path="uslugi/shou-programmy" element={<ShowProgsPage />} />
             </Route>
           </Routes>
         </div>
