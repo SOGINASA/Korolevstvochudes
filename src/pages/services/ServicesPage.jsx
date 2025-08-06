@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RapuntselImg from '../images/rapuntsel.jpeg';
+import ZajchikImg from '../images/zajchik-min.jpg';
+import Fiksiki from '../images/fiksiki.jpeg';
+import Luntik from '../images/luntik.jpeg';
+import Mikkiiminni from '../images/mikki-i-minni.jpeg';
+import minony from '../images/minony.jpeg';
+import lala from '../images/lalalupsi-min.jpg';
+import shhenyachki from '../images/shhenyachijj-patrul.jpg';
+import sofia from '../images/sofiya-prekrasnaya.jpeg';
 import { 
+  ChevronLeft as CalendarChevronLeft,
+  ChevronRight as CalendarChevronRight,
   Grid, 
   List, 
   Heart, 
@@ -28,19 +39,21 @@ import {
   Award,
   Eye,
   ArrowRight,
-  Check
+  Check,
+  Trophy,
+  Gem,
+  Wallet,
+  Target
 } from 'lucide-react';
-
-import lalaloopsy_1 from '../images/lalalupsi-min.jpg';
-// import lalaloopsy_2 from '../images/lalaloopsy-2.jpg';
-// import lalaloopsy_3 from '../images/lalaloopsy-3.jpg';
-// import lalaloopsy_4 from '../images/lalaloopsy-4.jpg';
 
 const ServicesPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedService, setSelectedService] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedServiceForCalendar, setSelectedServiceForCalendar] = useState(null);
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
   // Данные услуг
   const servicesData = [
@@ -388,249 +401,6 @@ const ServicesPage = () => {
       ]
     },
   {
-    id: 14,
-    title: 'Принцесса Lalaloopsy',
-    category: 'animators',
-    duration: '60-90 минут',
-    minGuests: '4 детей',
-    rating: 5,
-    price: 'от 18,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Окунитесь в красочный и необычный мир кукол Lalaloopsy! Самая красивая куколка Принцесса приготовила свою лучшую тиару для именинницы. Волшебная программа с проверкой настроения, дружным весельем и пуговичным поздравлением.',
-    features: ['Интерактивная игра с тиарой', 'Пуговичные поздравления', 'Красочные костюмы', 'Проверка настроения', 'Дружное веселье', 'Подарки от принцессы'],
-    subcategories: ['Детские праздники', 'День рождения', 'Тематические вечеринки', 'Принцессы'],
-    images: [
-      lalaloopsy_1,
-      // lalaloopsy_2,
-      // lalaloopsy_3,
-      // lalaloopsy_4,
-    ],
-    coverImage: '../images/lalalupsy_min.jpg',
-    featured: true,
-    tags: ['lalaloopsy', 'принцесса', 'куклы', 'тиара', 'интерактив'],
-    packages: [
-      { name: 'Базовая программа', price: '18,000 ₸', features: ['60 минут', 'Игры с тиарой', 'Поздравления', 'Реквизит'] },
-      { name: 'Расширенная', price: '25,000 ₸', features: ['75 минут', 'Дополнительные игры', 'Подарки детям', 'Фотосессия'] },
-      { name: 'Премиум', price: '35,000 ₸', features: ['90 минут', 'Эксклюзивная программа', 'Спецподарки', 'Видеосъемка'] }
-    ]
-  },
-  {
-    id: 15,
-    title: 'Лунтик',
-    category: 'animators',
-    duration: '60-75 минут',
-    minGuests: '3 детей',
-    rating: 5,
-    price: 'от 16,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Любознательный и добрый Лунтик – один из любимых героев детей! Устройте своему малышу настоящее торжество с этим необычайно милым персонажем, который подарит незабываемые эмоции.',
-    features: ['Добрый персонаж', 'Познавательные игры', 'Песни и танцы', 'Интерактивное общение', 'Воспитательные моменты', 'Подарки от Лунтика'],
-    subcategories: ['Детские праздники', 'День рождения', 'Развивающие программы', 'Мультперсонажи'],
-    images: [
-      '/images/animators/luntik-1.jpg',
-      '/images/animators/luntik-2.jpg',
-      '/images/animators/luntik-3.jpg',
-      '/images/animators/luntik-4.jpg'
-    ],
-    coverImage: '/images/animators/luntik-cover.jpg',
-    featured: false,
-    tags: ['лунтик', 'добрый', 'познавательно', 'развитие'],
-    packages: [
-      { name: 'Стандартная', price: '16,000 ₸', features: ['60 минут', 'Игры с Лунтиком', 'Песни', 'Реквизит'] },
-      { name: 'Познавательная', price: '22,000 ₸', features: ['75 минут', 'Обучающие игры', 'Подарки', 'Интерактив'] },
-      { name: 'Праздничная', price: '30,000 ₸', features: ['90 минут', 'Полная программа', 'Спецподарки', 'Фото/видео'] }
-    ]
-  },
-  {
-    id: 16,
-    title: 'Фиксики (Симка и Нолик)',
-    category: 'animators',
-    duration: '60-90 минут',
-    minGuests: '5 детей',
-    rating: 5,
-    price: 'от 20,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Подарите ребёнку незабываемый день рождения с Симкой или Ноликом! Фиксики — маленькие человечки, живущие в технике, устроят познавательно-игровое шоу с веселым тематическим реквизитом.',
-    features: ['Познавательное шоу', 'Тематический реквизит', 'Техническая тематика', 'Обучающие игры', 'Интерактивные эксперименты', 'Подарки-инструменты'],
-    subcategories: ['Детские праздники', 'Познавательные программы', 'Мультперсонажи', 'Обучающие шоу'],
-    images: [
-      '/images/animators/fixiki-1.jpg',
-      '/images/animators/fixiki-2.jpg', 
-      '/images/animators/fixiki-3.jpg',
-      '/images/animators/fixiki-4.jpg'
-    ],
-    coverImage: '/images/animators/fixiki-cover.jpg',
-    featured: true,
-    tags: ['фиксики', 'симка', 'нолик', 'техника', 'познавательно'],
-    packages: [
-      { name: 'Базовое шоу', price: '20,000 ₸', features: ['60 минут', 'Игры с техникой', 'Эксперименты', 'Реквизит'] },
-      { name: 'Познавательное', price: '28,000 ₸', features: ['75 минут', 'Больше экспериментов', 'Подарки', 'Фотосессия'] },
-      { name: 'Премиум шоу', price: '38,000 ₸', features: ['90 минут', 'Эксклюзивная программа', 'Спецреквизит', 'Видео'] }
-    ]
-  },
-  {
-    id: 17,
-    title: 'Щенячий патруль',
-    category: 'animators',
-    duration: '75-90 минут',
-    minGuests: '6 детей',
-    rating: 5,
-    price: 'от 22,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Отважная команда «Щенячий патруль» — смелые щенки, которым любое дело по плечу! Маршал или Гонщик набирают новую команду. Каждый щенок подготовил задание для новобранцев.',
-    features: ['Командные игры', 'Задания от щенков', 'Спасательные миссии', 'Смелость и смекалка', 'Тематические костюмы', 'Значки патруля'],
-    subcategories: ['Детские праздники', 'Командные игры', 'Мультперсонажи', 'Приключения'],
-    images: [
-      '/images/animators/paw-patrol-1.jpg',
-      '/images/animators/paw-patrol-2.jpg',
-      '/images/animators/paw-patrol-3.jpg',
-      '/images/animators/paw-patrol-4.jpg'
-    ],
-    coverImage: '/images/animators/paw-patrol-cover.jpg',
-    featured: true,
-    tags: ['щенячий патруль', 'маршал', 'гонщик', 'команда', 'приключения'],
-    packages: [
-      { name: 'Базовый патруль', price: '22,000 ₸', features: ['75 минут', 'Командные игры', 'Задания', 'Значки'] },
-      { name: 'Спасательная миссия', price: '30,000 ₸', features: ['90 минут', 'Больше заданий', 'Подарки', 'Фото'] },
-      { name: 'Премиум патруль', price: '40,000 ₸', features: ['120 минут', 'Полная программа', 'Спецподарки', 'Видео'] }
-    ]
-  },
-  {
-    id: 18,
-    title: 'Миньоны',
-    category: 'animators',
-    duration: '60-75 минут',
-    minGuests: '4 детей',
-    rating: 5,
-    price: 'от 19,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Миньоны – милые и смешные герои популярного мультфильма «Гадкий Я». Они полюбились всем за веселый язык и комичные ситуации. Когда дело касается вечеринки – они знают в них толк!',
-    features: ['Веселый миньон-язык', 'Комичные ситуации', 'Танцы миньонов', 'Смешные игры', 'Желтые костюмы', 'Подарки-бананы'],
-    subcategories: ['Детские праздники', 'Юмористическое шоу', 'Мультперсонажи', 'Веселые программы'],
-    images: [
-      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    ],
-    coverImage: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false,
-    tags: ['миньоны', 'веселье', 'юмор', 'танцы', 'смех'],
-    packages: [
-      { name: 'Веселая программа', price: '19,000 ₸', features: ['60 минут', 'Игры миньонов', 'Танцы', 'Реквизит'] },
-      { name: 'Банановая вечеринка', price: '26,000 ₸', features: ['75 минут', 'Больше веселья', 'Подарки', 'Фото'] },
-      { name: 'Премиум миньоны', price: '35,000 ₸', features: ['90 минут', 'Полная программа', 'Спецэффекты', 'Видео'] }
-    ]
-  },
-  {
-    id: 19,
-    title: 'Принцесса София',
-    category: 'animators',
-    duration: '60-90 минут',
-    minGuests: '4 детей',
-    rating: 5,
-    price: 'от 20,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Аниматор София приглашает всех в королевскую академию! Она недавно начала посещать дворцовые уроки и знает, как непросто на первых занятиях. Добрый и отзывчивый характер поможет во всем.',
-    features: ['Королевская академия', 'Дворцовые уроки', 'Добрый характер', 'Помощь и поддержка', 'Принцесские игры', 'Короны и подарки'],
-    subcategories: ['Детские праздники', 'Принцессы', 'Обучающие программы', 'Королевские игры'],
-    images: [
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    ],
-    coverImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: true,
-    tags: ['софия', 'принцесса', 'академия', 'королевская', 'обучение'],
-    packages: [
-      { name: 'Урок принцессы', price: '20,000 ₸', features: ['60 минут', 'Дворцовые игры', 'Уроки этикета', 'Корона'] },
-      { name: 'Королевская академия', price: '28,000 ₸', features: ['75 минут', 'Больше уроков', 'Подарки', 'Фото'] },
-      { name: 'Премиум принцесса', price: '38,000 ₸', features: ['90 минут', 'Полная программа', 'Спецподарки', 'Видео'] }
-    ]
-  },
-  {
-    id: 20,
-    title: 'Принцесса Рапунцель',
-    category: 'animators',
-    duration: '60-90 минут',
-    minGuests: '4 детей',
-    rating: 5,
-    price: 'от 21,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Принцесса Рапунцель — едва ли не самая желанная гостья на детском празднике! Она обладает веселым нравом, обожает приключения, и сами приключения следуют за ней по пятам.',
-    features: ['Длинные волосы', 'Веселый нрав', 'Приключения', 'Интерактивные игры', 'Принцесские танцы', 'Волшебные подарки'],
-    subcategories: ['Детские праздники', 'Принцессы', 'Приключенческие программы', 'Сказочные персонажи'],
-    images: [
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    ],
-    coverImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: true,
-    tags: ['рапунцель', 'принцесса', 'приключения', 'волосы', 'сказка'],
-    packages: [
-      { name: 'Сказочная программа', price: '21,000 ₸', features: ['60 минут', 'Приключения', 'Игры', 'Подарки'] },
-      { name: 'Волшебное приключение', price: '29,000 ₸', features: ['75 минут', 'Больше игр', 'Фотосессия', 'Сувениры'] },
-      { name: 'Премиум Рапунцель', price: '39,000 ₸', features: ['90 минут', 'Полная программа', 'Спецэффекты', 'Видео'] }
-    ]
-  },
-  {
-    id: 21,
-    title: 'Микки и Минни Маус',
-    category: 'animators',
-    duration: '75-90 минут',
-    minGuests: '5 детей',
-    rating: 5,
-    price: 'от 25,000 ₸',
-    priceDescription: 'за программу',
-    description: 'К вам в гости спешат аниматоры Микки Маус и его верная подружка Минни! Шутки, песни, танцы для маленьких участников чередуются с занимательными играми и конкурсами.',
-    features: ['Дуэт аниматоров', 'Шутки и песни', 'Танцы', 'Занимательные игры', 'Конкурсы', 'Подарки от Диснея'],
-    subcategories: ['Детские праздники', 'Дисней персонажи', 'Парные программы', 'Классические герои'],
-    images: [
-      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    ],
-    coverImage: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: true,
-    tags: ['микки маус', 'минни', 'дисней', 'классика', 'дуэт'],
-    packages: [
-      { name: 'Классическая программа', price: '25,000 ₸', features: ['75 минут', 'Два аниматора', 'Игры', 'Подарки'] },
-      { name: 'Расширенная', price: '35,000 ₸', features: ['90 минут', 'Больше игр', 'Конкурсы', 'Фото'] },
-      { name: 'Премиум Дисней', price: '45,000 ₸', features: ['120 минут', 'Полная программа', 'Спецподарки', 'Видео'] }
-    ]
-  },
-  {
-    id: 22,
-    title: 'Зайчик',
-    category: 'animators',
-    duration: '45-60 минут',
-    minGuests: '3 детей',
-    rating: 5,
-    price: 'от 14,000 ₸',
-    priceDescription: 'за программу',
-    description: 'Зайчик мил и прекрасен. Он искренен, честен и добр. Такой аниматор запомнится ребенку своим внешним видом, будет веселить малыша, наполнять энергией счастья, утешать и радовать.',
-    features: ['Милый персонаж', 'Искренность и доброта', 'Энергия счастья', 'Утешение и радость', 'Мягкие игры', 'Подарки-морковки'],
-    subcategories: ['Детские праздники', 'Малыши', 'Добрые персонажи', 'Мягкие программы'],
-    images: [
-      'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-    ],
-    coverImage: 'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    featured: false,
-    tags: ['зайчик', 'добрый', 'милый', 'малыши', 'счастье'],
-    packages: [
-      { name: 'Мягкая программа', price: '14,000 ₸', features: ['45 минут', 'Добрые игры', 'Утешение', 'Подарки'] },
-      { name: 'Радостная', price: '18,000 ₸', features: ['60 минут', 'Больше веселья', 'Морковки', 'Фото'] },
-      { name: 'Счастливая', price: '25,000 ₸', features: ['75 минут', 'Полная программа', 'Спецподарки', 'Видео'] }
-    ]
-  },
-  {
   id: 14,
     title: 'Принцесса Lalaloopsy',
     category: 'animators',
@@ -642,17 +412,15 @@ const ServicesPage = () => {
     description: 'Окунитесь в красочный и необычный мир кукол Lalaloopsy! Самая красивая куколка Принцесса приготовила свою лучшую тиару для именинницы. Волшебная программа с проверкой настроения, дружным весельем и пуговичным поздравлением.',
     features: ['Интерактивная игра с тиарой', 'Пуговичные поздравления', 'Красочные костюмы', 'Проверка настроения', 'Дружное веселье', 'Подарки от принцессы'],
     subcategories: ['Детские праздники', 'День рождения', 'Тематические вечеринки', 'Принцессы'],
-    images: [
-      '/images/lalalupsi-min.jpg'
-    ],
-    coverImage: '/images/lalalupsi-min.jpg',
+    images: [lala],
+    coverImage: lala,
     featured: true,
     tags: ['lalaloopsy', 'принцесса', 'куклы', 'тиара', 'интерактив'],
     packages: [
       { name: 'Базовая программа', price: '18,000 ₸', features: ['60 минут', 'Игры с тиарой', 'Поздравления', 'Реквизит'] },
       { name: 'Расширенная', price: '25,000 ₸', features: ['75 минут', 'Дополнительные игры', 'Подарки детям', 'Фотосессия'] },
       { name: 'Премиум', price: '35,000 ₸', features: ['90 минут', 'Эксклюзивная программа', 'Спецподарки', 'Видеосъемка'] }
-    ]
+    ],
   },
   {
     id: 15,
@@ -666,10 +434,8 @@ const ServicesPage = () => {
     description: 'Любознательный и добрый Лунтик – один из любимых героев детей! Устройте своему малышу настоящее торжество с этим необычайно милым персонажем, который подарит незабываемые эмоции.',
     features: ['Добрый персонаж', 'Познавательные игры', 'Песни и танцы', 'Интерактивное общение', 'Воспитательные моменты', 'Подарки от Лунтика'],
     subcategories: ['Детские праздники', 'День рождения', 'Развивающие программы', 'Мультперсонажи'],
-    images: [
-      '/images/luntik.jpeg'
-    ],
-    coverImage: '/images/luntik.jpeg',
+    images: [Luntik],
+    coverImage: Luntik,
     featured: false,
     tags: ['лунтик', 'добрый', 'познавательно', 'развитие'],
     packages: [
@@ -690,10 +456,8 @@ const ServicesPage = () => {
     description: 'Подарите ребёнку незабываемый день рождения с Симкой или Ноликом! Фиксики — маленькие человечки, живущие в технике, устроят познавательно-игровое шоу с веселым тематическим реквизитом.',
     features: ['Познавательное шоу', 'Тематический реквизит', 'Техническая тематика', 'Обучающие игры', 'Интерактивные эксперименты', 'Подарки-инструменты'],
     subcategories: ['Детские праздники', 'Познавательные программы', 'Мультперсонажи', 'Обучающие шоу'],
-    images: [
-      '/images/fiksiki.jpeg'
-    ],
-    coverImage: '/images/fiksiki.jpeg',
+    images: [Fiksiki],
+    coverImage: Fiksiki,
     featured: true,
     tags: ['фиксики', 'симка', 'нолик', 'техника', 'познавательно'],
     packages: [
@@ -714,10 +478,8 @@ const ServicesPage = () => {
     description: 'Отважная команда «Щенячий патруль» — смелые щенки, которым любое дело по плечу! Маршал или Гонщик набирают новую команду. Каждый щенок подготовил задание для новобранцев.',
     features: ['Командные игры', 'Задания от щенков', 'Спасательные миссии', 'Смелость и смекалка', 'Тематические костюмы', 'Значки патруля'],
     subcategories: ['Детские праздники', 'Командные игры', 'Мультперсонажи', 'Приключения'],
-    images: [
-      '/images/shhenyachij-patrol.jpg'
-    ],
-    coverImage: '/images/shhenyachij-patrol.jpg',
+    images: [shhenyachki],
+    coverImage: shhenyachki,
     featured: true,
     tags: ['щенячий патруль', 'маршал', 'гонщик', 'команда', 'приключения'],
     packages: [
@@ -738,10 +500,8 @@ const ServicesPage = () => {
     description: 'Миньоны – милые и смешные герои популярного мультфильма «Гадкий Я». Они полюбились всем за веселый язык и комичные ситуации. Когда дело касается вечеринки – они знают в них толк!',
     features: ['Веселый миньон-язык', 'Комичные ситуации', 'Танцы миньонов', 'Смешные игры', 'Желтые костюмы', 'Подарки-бананы'],
     subcategories: ['Детские праздники', 'Юмористическое шоу', 'Мультперсонажи', 'Веселые программы'],
-    images: [
-      '/images/minony.jpeg'
-    ],
-    coverImage: '/images/mikki-i-minni.jpeg',
+    images: [minony],
+    coverImage: minony,
     featured: false,
     tags: ['миньоны', 'веселье', 'юмор', 'танцы', 'смех'],
     packages: [
@@ -762,10 +522,8 @@ const ServicesPage = () => {
     description: 'Аниматор София приглашает всех в королевскую академию! Она недавно начала посещать дворцовые уроки и знает, как непросто на первых занятиях. Добрый и отзывчивый характер поможет во всем.',
     features: ['Королевская академия', 'Дворцовые уроки', 'Добрый характер', 'Помощь и поддержка', 'Принцесские игры', 'Короны и подарки'],
     subcategories: ['Детские праздники', 'Принцессы', 'Обучающие программы', 'Королевские игры'],
-    images: [
-      '/images/sofiya-prekrasnaya.jpeg'
-    ],
-    coverImage: '/images/sofiya-prekrasnaya.jpeg',
+    images: [sofia],
+    coverImage: sofia,
     featured: true,
     tags: ['софия', 'принцесса', 'академия', 'королевская', 'обучение'],
     packages: [
@@ -786,10 +544,8 @@ const ServicesPage = () => {
     description: 'Принцесса Рапунцель — едва ли не самая желанная гостья на детском празднике! Она обладает веселым нравом, обожает приключения, и сами приключения следуют за ней по пятам.',
     features: ['Длинные волосы', 'Веселый нрав', 'Приключения', 'Интерактивные игры', 'Принцесские танцы', 'Волшебные подарки'],
     subcategories: ['Детские праздники', 'Принцессы', 'Приключенческие программы', 'Сказочные персонажи'],
-    images: [
-      '/images/rapuntsel.jpeg'
-    ],
-    coverImage: '/images/rapuntsel.jpeg',
+    images: [RapuntselImg],
+    coverImage: RapuntselImg,
     featured: true,
     tags: ['рапунцель', 'принцесса', 'приключения', 'волосы', 'сказка'],
     packages: [
@@ -810,10 +566,8 @@ const ServicesPage = () => {
     description: 'К вам в гости спешат аниматоры Микки Маус и его верная подружка Минни! Шутки, песни, танцы для маленьких участников чередуются с занимательными играми и конкурсами.',
     features: ['Дуэт аниматоров', 'Шутки и песни', 'Танцы', 'Занимательные игры', 'Конкурсы', 'Подарки от Диснея'],
     subcategories: ['Детские праздники', 'Дисней персонажи', 'Парные программы', 'Классические герои'],
-    images: [
-      '/images/mikki-i-minni.jpeg'
-    ],
-    coverImage: '/images/mikki-i-minni.jpeg',
+    images: [Mikkiiminni],
+    coverImage: Mikkiiminni,
     featured: true,
     tags: ['микки маус', 'минни', 'дисней', 'классика', 'дуэт'],
     packages: [
@@ -834,10 +588,8 @@ const ServicesPage = () => {
     description: 'Зайчик мил и прекрасен. Он искренен, честен и добр. Такой аниматор запомнится ребенку своим внешним видом, будет веселить малыша, наполнять энергией счастья, утешать и радовать.',
     features: ['Милый персонаж', 'Искренность и доброта', 'Энергия счастья', 'Утешение и радость', 'Мягкие игры', 'Подарки-морковки'],
     subcategories: ['Детские праздники', 'Малыши', 'Добрые персонажи', 'Мягкие программы'],
-    images: [
-      '/images/zajchik-min.jpg'
-    ],
-    coverImage: '/images/zajchik-min.jpg',
+    images: [ZajchikImg],
+    coverImage: ZajchikImg,
     featured: false,
     tags: ['зайчик', 'добрый', 'милый', 'малыши', 'счастье'],
     packages: [
@@ -847,6 +599,28 @@ const ServicesPage = () => {
     ]
   }
   ];
+
+  const bookingData = {
+  14: { // ID услуги "Принцесса Lalaloopsy"
+    bookedDates: ['2024-08-12', '2024-08-18', '2024-08-24', '2024-09-01', '2024-09-08'],
+    availableSlots: {
+      '2024-08-12': ['15:00-17:00'],
+      '2024-08-18': ['14:00-16:00'],
+      '2024-08-24': ['16:00-18:00'],
+      '2024-09-01': ['13:00-15:00'],
+      '2024-09-08': ['15:00-17:00']
+    }
+  },
+  15: { // ID услуги "Лунтик"
+    bookedDates: ['2024-08-14', '2024-08-21', '2024-08-28', '2024-09-04'],
+    availableSlots: {
+      '2024-08-14': ['14:00-16:00'],
+      '2024-08-21': ['15:00-17:00'],
+      '2024-08-28': ['16:00-18:00'],
+      '2024-09-04': ['14:30-16:30']
+    }
+  }
+};
 
   const categories = [
     { id: 'all', name: 'Все услуги', count: servicesData.length, icon: Sparkles },
@@ -863,6 +637,8 @@ const ServicesPage = () => {
     { id: 'balloons', name: 'Шары', count: servicesData.filter(s => s.category === 'balloons').length, icon: Gift },
     { id: 'animators', name: 'Аниматоры', count: servicesData.filter(s => s.category === 'animators').length, icon: Sparkles }
   ];
+
+  const [selectedDate, setSelectedDate] = useState('');
 
   const filteredServices = activeFilter === 'all' 
     ? servicesData 
@@ -909,6 +685,256 @@ const ServicesPage = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedService, nextImage, prevImage, closeServiceModal]);
 
+  const openCalendar = (service, e) => {
+  e.stopPropagation();
+  setSelectedServiceForCalendar(service);
+  setCurrentCalendarDate(new Date());
+  setShowCalendar(true);
+  document.body.style.overflow = 'hidden';
+};
+
+const closeCalendar = useCallback(() => {
+  setShowCalendar(false);
+  setSelectedServiceForCalendar(null);
+  document.body.style.overflow = 'auto';
+}, []);
+
+const formatDate = (date) => {
+  return date.toISOString().split('T')[0];
+};
+
+const isDateBooked = (date) => {
+  if (!selectedServiceForCalendar) return false;
+  const dateStr = formatDate(date);
+  const serviceBookings = bookingData[selectedServiceForCalendar.id];
+  return serviceBookings?.bookedDates?.includes(dateStr) || false;
+};
+
+const getTimeSlots = (date) => {
+  if (!selectedServiceForCalendar) return [];
+  const dateStr = formatDate(date);
+  const serviceBookings = bookingData[selectedServiceForCalendar.id];
+  return serviceBookings?.availableSlots?.[dateStr] || [];
+};
+
+const generateCalendarDays = () => {
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+  
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDate = new Date(firstDay);
+  startDate.setDate(startDate.getDate() - firstDay.getDay());
+  
+  const days = [];
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    days.push(date);
+  }
+  
+  return days;
+};
+
+const navigateCalendar = (direction) => {
+  const newDate = new Date(currentCalendarDate);
+  newDate.setMonth(newDate.getMonth() + direction);
+  setCurrentCalendarDate(newDate);
+};
+
+const monthNames = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
+
+const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (showCalendar && e.key === 'Escape') {
+      closeCalendar();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, [showCalendar, closeCalendar]);
+
+const [bookingForm, setBookingForm] = useState({
+  selectedDate: '',
+  selectedTime: '',
+  selectedPackage: '',
+  clientName: '',
+  clientPhone: '',
+  clientEmail: '',
+  guestCount: '',
+  specialRequests: '',
+  totalPrice: 0
+});
+const [showBookingForm, setShowBookingForm] = useState(false);
+const [bookingStep, setBookingStep] = useState(1); // 1-дата, 2-пакет, 3-контакты, 4-подтверждение
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [bookingSuccess, setBookingSuccess] = useState(false);
+
+const openBookingForm = (service, selectedDate = '', selectedTime = '') => {
+  setSelectedServiceForCalendar(service);
+  setBookingForm({
+    selectedDate,
+    selectedTime,
+    selectedPackage: service.packages?.[0]?.name || '',
+    clientName: '',
+    clientPhone: '',
+    clientEmail: '',
+    guestCount: '',
+    specialRequests: '',
+    totalPrice: service.packages?.[0]?.price ? parseFloat(service.packages[0].price.replace(/[^\d]/g, '')) : 0
+  });
+  setBookingStep(1);
+  setShowBookingForm(true);
+  setShowCalendar(false);
+  document.body.style.overflow = 'hidden';
+};
+
+// Закрытие формы бронирования
+const closeBookingForm = () => {
+  setShowBookingForm(false);
+  setBookingSuccess(false);
+  setBookingStep(1);
+  setSelectedServiceForCalendar(null);
+  document.body.style.overflow = 'auto';
+};
+
+// Выбор даты и времени
+const selectDateTime = (date, timeSlot) => {
+  setBookingForm(prev => ({
+    ...prev,
+    selectedDate: date,
+    selectedTime: timeSlot
+  }));
+};
+
+// Выбор пакета услуг
+const selectPackage = (packageData) => {
+  const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
+  setBookingForm(prev => ({
+    ...prev,
+    selectedPackage: packageData.name,
+    totalPrice: price
+  }));
+};
+
+// Обновление формы
+const updateBookingForm = (field, value) => {
+  setBookingForm(prev => ({
+    ...prev,
+    [field]: value
+  }));
+};
+
+// Переход к следующему шагу
+const nextBookingStep = () => {
+  setBookingStep(prev => Math.min(prev + 1, 4));
+};
+
+// Возврат к предыдущему шагу
+const prevBookingStep = () => {
+  setBookingStep(prev => Math.max(prev - 1, 1));
+};
+
+// Отправка формы бронирования
+const submitBooking = async () => {
+  setIsSubmitting(true);
+  
+  try {
+    // Здесь должна быть отправка на сервер
+    // Пример:
+    // const response = await fetch('/api/bookings', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     serviceId: selectedServiceForCalendar.id,
+    //     ...bookingForm
+    //   })
+    // });
+    
+    // Симуляция отправки
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Для демо добавим бронирование в локальные данные
+    const newBooking = {
+      id: Date.now(),
+      serviceId: selectedServiceForCalendar.id,
+      serviceName: selectedServiceForCalendar.title,
+      ...bookingForm,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Сохранить в localStorage для демо
+    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
+    
+    setBookingSuccess(true);
+    setBookingStep(4);
+    
+  } catch (error) {
+    console.error('Ошибка бронирования:', error);
+    alert('Произошла ошибка при бронировании. Попробуйте еще раз.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (showBookingForm && e.key === 'Escape') {
+      closeBookingForm();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, [showBookingForm]);
+
+// 8. ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ЗАБРОНИРОВАННЫХ ДАННЫХ (для админ-панели)
+
+const getBookings = () => {
+  return JSON.parse(localStorage.getItem('bookings') || '[]');
+};
+
+const advantages = [
+  {
+    icon: <Trophy className="w-8 h-8 text-primary" />,
+    title: "7+ лет успешной работы",
+    description: "Богатый опыт организации более 1000 мероприятий различного масштаба и тематики"
+  },
+  {
+    icon: <Sparkles className="w-8 h-8 text-primary" />,
+    title: "Индивидуальный подход",
+    description: "Каждое мероприятие уникально. Мы учитываем все ваши пожелания и особенности"
+  },
+  {
+    icon: <Users className="w-8 h-8 text-primary" />,
+    title: "Команда профессионалов",
+    description: "Только опытные специалисты: ведущие, аниматоры, декораторы, фотографы"
+  },
+  {
+    icon: <Gem className="w-8 h-8 text-primary" />,
+    title: "Комплексный сервис",
+    description: "Полный цикл услуг от идеи до реализации. Вам остается только наслаждаться праздником"
+  },
+  {
+    icon: <Wallet className="w-8 h-8 text-primary" />,
+    title: "Честная цена",
+    description: "Прозрачное ценообразование без скрытых платежей. Различные пакеты на любой бюджет"
+  },
+  {
+    icon: <Target className="w-8 h-8 text-primary" />,
+    title: "Гарантия качества",
+    description: "Мы гарантируем высокое качество услуг и готовы нести ответственность за результат"
+  }
+];
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero секция */}
@@ -940,13 +966,15 @@ const ServicesPage = () => {
             className="text-center"
           >
             <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="inline-block text-6xl mb-6"
-            >
-              🎉✨🎊
-            </motion.div>
+  initial={{ scale: 0, rotate: -180 }}
+  animate={{ scale: 1, rotate: 0 }}
+  transition={{ duration: 1, delay: 0.2 }}
+  className="inline-flex gap-4 justify-center mb-6"
+>
+  <PartyPopper className="w-12 h-12 text-yellow-200" />
+  <Sparkles className="w-12 h-12 text-pink-200" />
+  <PartyPopper className="w-12 h-12 text-purple-200" />
+</motion.div>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-pink-200 to-purple-200">
               Наши услуги
@@ -1143,12 +1171,13 @@ const ServicesPage = () => {
                       
                       <div className="relative h-64 overflow-hidden">
                         <motion.img
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.6 }}
-                          src={service.coverImage}
-                          alt={service.title}
-                          className="w-full h-full object-cover"
-                        />
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.6 }}
+                        src={service.coverImage}
+                        alt={service.title}
+                        className="w-full h-full object-cover object-center" // изменено с object-cover на object-cover object-center
+                        style={{ objectFit: 'cover', objectPosition: 'center' }} // добавлен inline стиль
+                       />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         
                         {/* Оверлей с иконками */}
@@ -1166,9 +1195,10 @@ const ServicesPage = () => {
                             </motion.div>
                             <motion.div 
                               whileHover={{ scale: 1.2 }}
-                              className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center backdrop-blur-sm"
-                            >
-                              <Calendar className="w-6 h-6 text-purple-600" />
+                              className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center backdrop-blur-sm cursor-pointer"
+                                 onClick={(e) => openCalendar(service, e)}
+                                    >
+                            <Calendar className="w-6 h-6 text-purple-600" />
                             </motion.div>
                             <motion.div 
                               whileHover={{ scale: 1.2 }}
@@ -1223,12 +1253,13 @@ const ServicesPage = () => {
                     // Список вид
                     <>
                       <div className="flex-shrink-0 w-48 h-32 rounded-xl overflow-hidden relative">
-                        <motion.img
-                          whileHover={{ scale: 1.05 }}
-                          src={service.coverImage}
-                          alt={service.title}
-                          className="w-full h-full object-cover transition-transform duration-300"
-                        />
+                      <motion.img
+                         whileHover={{ scale: 1.05 }}
+                         src={service.coverImage}
+                         alt={service.title}
+                         className="w-full h-full object-cover object-center transition-transform duration-300"
+                         style={{ objectFit: 'cover', objectPosition: 'center' }} // добавлен inline стиль
+                      />
                         {service.featured && (
                           <span className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                             ХИТ
@@ -1303,6 +1334,488 @@ const ServicesPage = () => {
               </p>
             </motion.div>
           )}
+          {showCalendar && (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    onClick={closeCalendar}
+  >
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.9, opacity: 0 }}
+      className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col" // ✅ Добавлен max-h и flex
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Заголовок календаря - фиксированный */}
+      <div className="p-6 border-b flex-shrink-0"> {/* ✅ flex-shrink-0 для фиксации */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-gray-900">
+            Выбрать дату для "{selectedServiceForCalendar?.title}"
+          </h3>
+          <button
+            onClick={closeCalendar}
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        
+        {/* Навигация по месяцам */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => navigateCalendar(-1)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <CalendarChevronLeft size={20} />
+          </button>
+          <h4 className="text-lg font-semibold">
+            {monthNames[currentCalendarDate.getMonth()]} {currentCalendarDate.getFullYear()}
+          </h4>
+          <button
+            onClick={() => navigateCalendar(1)}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <CalendarChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Скроллируемое содержимое календаря */}
+      <div className="flex-1 overflow-y-auto p-6"> {/* ✅ Скроллируемая область */}
+        {/* Дни недели */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map(day => (
+            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+        
+        {/* Календарная сетка */}
+        <div className="grid grid-cols-7 gap-1">
+          {generateCalendarDays().map((date, index) => {
+            const isCurrentMonth = date.getMonth() === currentCalendarDate.getMonth();
+            const isToday = formatDate(date) === formatDate(new Date());
+            const isBooked = isDateBooked(date);
+            const timeSlots = getTimeSlots(date);
+            const isPast = date < new Date().setHours(0, 0, 0, 0);
+            
+            return (
+              <div
+                key={index}
+                className={`
+                  aspect-square flex items-center justify-center text-sm cursor-pointer rounded-lg transition-all
+                  ${!isCurrentMonth ? 'text-gray-300' : ''}
+                  ${isToday ? 'bg-blue-100 text-blue-600 font-bold' : ''}
+                  ${isBooked ? 'bg-purple-100 text-purple-600 font-semibold' : ''}
+                  ${isPast ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}
+                  ${!isCurrentMonth || isPast ? '' : 'hover:shadow-md'}
+                `}
+                onClick={() => {
+  if (isCurrentMonth && !isPast) {
+    const dateStr = formatDate(date);
+    const slots = getTimeSlots(date);
+    
+    if (slots.length > 0) {
+      // Показать доступные слоты времени
+      setSelectedDate(dateStr);
+    } else if (!isBooked) {
+      // Открыть форму бронирования для доступной даты
+      openBookingForm(selectedServiceForCalendar, dateStr);
+    }
+  }
+}}
+              >
+                {date.getDate()}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Информация о выбранной дате */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h5 className="font-semibold text-gray-900 mb-2">Легенда:</h5>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-100 rounded"></div>
+              <span>Занятые даты</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-100 rounded"></div>
+              <span>Сегодня</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-gray-100 rounded"></div>
+              <span>Доступные даты</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Дополнительная информация о услуге */}
+        {selectedServiceForCalendar && (
+          <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+            <h5 className="font-semibold text-purple-900 mb-2">Детали услуги:</h5>
+            <div className="space-y-1 text-sm text-purple-700">
+              <div>Длительность: {selectedServiceForCalendar.duration}</div>
+              <div>Минимум гостей: {selectedServiceForCalendar.minGuests}</div>
+              <div>Цена: {selectedServiceForCalendar.price}</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Кнопки действий - фиксированные внизу */}
+      <div className="p-6 border-t flex gap-3 flex-shrink-0"> {/* ✅ flex-shrink-0 для фиксации */}
+        <button
+          onClick={closeCalendar}
+          className="flex-1 py-3 px-4 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Отмена
+        </button>
+        <button
+  className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all"
+  onClick={() => openBookingForm(selectedServiceForCalendar)}
+>
+  Забронировать
+</button>
+      </div>
+    </motion.div>
+  </motion.div>
+)}
+{showBookingForm && (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    onClick={closeBookingForm}
+  >
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.9, opacity: 0 }}
+      className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Заголовок */}
+      <div className="p-6 border-b flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-gray-900">
+            Бронирование: {selectedServiceForCalendar?.title}
+          </h3>
+          <button onClick={closeBookingForm} className="text-gray-500 hover:text-gray-700">
+            <X size={24} />
+          </button>
+        </div>
+        
+        {/* Прогресс бронирования */}
+        <div className="flex items-center mt-4">
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="flex items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                bookingStep >= step 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-200 text-gray-600'
+              }`}>
+                {bookingStep > step ? <Check size={16} /> : step}
+              </div>
+              {step < 4 && (
+                <div className={`w-12 h-0.5 mx-2 ${
+                  bookingStep > step ? 'bg-purple-600' : 'bg-gray-200'
+                }`} />
+              )}
+            </div>
+          ))}
+        </div>
+        
+        <div className="text-sm text-gray-600 mt-2">
+          {bookingStep === 1 && 'Выберите дату и время'}
+          {bookingStep === 2 && 'Выберите пакет услуг'}
+          {bookingStep === 3 && 'Контактные данные'}
+          {bookingStep === 4 && 'Подтверждение'}
+        </div>
+      </div>
+
+      {/* Содержимое */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {bookingStep === 1 && (
+          <div className="space-y-6">
+            <h4 className="text-lg font-semibold">Дата и время</h4>
+            
+            {/* Календарь для выбора даты */}
+            <div className="grid grid-cols-7 gap-1 text-center">
+              <div className="text-sm font-medium text-gray-500 py-2">Пн</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Вт</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Ср</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Чт</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Пт</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Сб</div>
+              <div className="text-sm font-medium text-gray-500 py-2">Вс</div>
+            </div>
+            
+            {/* Доступные слоты времени */}
+            {bookingForm.selectedDate && (
+              <div>
+                <h5 className="font-medium mb-3">Доступное время:</h5>
+                <div className="grid grid-cols-3 gap-2">
+                  {['10:00-12:00', '14:00-16:00', '16:00-18:00', '18:00-20:00'].map(slot => (
+                    <button
+                      key={slot}
+                      onClick={() => updateBookingForm('selectedTime', slot)}
+                      className={`p-3 rounded-lg border text-center ${
+                        bookingForm.selectedTime === slot
+                          ? 'bg-purple-600 text-white border-purple-600'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300'
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {bookingStep === 2 && (
+          <div className="space-y-6">
+            <h4 className="text-lg font-semibold">Выберите пакет</h4>
+            <div className="grid gap-4">
+              {selectedServiceForCalendar?.packages?.map((pkg, index) => (
+                <div
+                  key={index}
+                  onClick={() => selectPackage(pkg)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    bookingForm.selectedPackage === pkg.name
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-purple-300 hover:shadow-sm'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h5 className="font-semibold text-lg">{pkg.name}</h5>
+                    <span className="text-xl font-bold text-purple-600">{pkg.price}</span>
+                  </div>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    {pkg.features.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2">
+                        <Check size={14} className="text-green-500" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Количество гостей
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={bookingForm.guestCount}
+                onChange={(e) => updateBookingForm('guestCount', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Введите количество гостей"
+              />
+            </div>
+          </div>
+        )}
+
+        {bookingStep === 3 && (
+          <div className="space-y-6">
+            <h4 className="text-lg font-semibold">Контактная информация</h4>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Имя *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={bookingForm.clientName}
+                  onChange={(e) => updateBookingForm('clientName', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Ваше имя"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Телефон *
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={bookingForm.clientPhone}
+                  onChange={(e) => updateBookingForm('clientPhone', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="+7 (___) ___-__-__"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={bookingForm.clientEmail}
+                onChange={(e) => updateBookingForm('clientEmail', e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="your@email.com"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Особые пожелания
+              </label>
+              <textarea
+                value={bookingForm.specialRequests}
+                onChange={(e) => updateBookingForm('specialRequests', e.target.value)}
+                rows={4}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Расскажите о ваших особых пожеланиях..."
+              />
+            </div>
+          </div>
+        )}
+
+        {bookingStep === 4 && (
+          <div className="space-y-6">
+            {bookingSuccess ? (
+              <div className="text-center py-8">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <Check size={32} className="text-green-600" />
+                </motion.div>
+                <h4 className="text-xl font-bold text-green-600 mb-2">
+                  Бронирование успешно отправлено!
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  Мы свяжемся с вами в ближайшее время для подтверждения деталей.
+                </p>
+                <div className="bg-gray-50 p-4 rounded-lg text-left">
+                  <h5 className="font-semibold mb-2">Детали бронирования:</h5>
+                  <div className="space-y-1 text-sm">
+                    <div>Услуга: {selectedServiceForCalendar?.title}</div>
+                    <div>Дата: {bookingForm.selectedDate}</div>
+                    <div>Время: {bookingForm.selectedTime}</div>
+                    <div>Пакет: {bookingForm.selectedPackage}</div>
+                    <div>Гостей: {bookingForm.guestCount}</div>
+                    <div className="font-semibold">Сумма: {bookingForm.totalPrice.toLocaleString()} ₸</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h4 className="text-lg font-semibold mb-4">Подтверждение бронирования</h4>
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Услуга:</span>
+                      <span className="font-medium">{selectedServiceForCalendar?.title}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Дата:</span>
+                      <span className="font-medium">{bookingForm.selectedDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Время:</span>
+                      <span className="font-medium">{bookingForm.selectedTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Пакет:</span>
+                      <span className="font-medium">{bookingForm.selectedPackage}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Количество гостей:</span>
+                      <span className="font-medium">{bookingForm.guestCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Клиент:</span>
+                      <span className="font-medium">{bookingForm.clientName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Телефон:</span>
+                      <span className="font-medium">{bookingForm.clientPhone}</span>
+                    </div>
+                    <hr className="my-3" />
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Итого:</span>
+                      <span className="text-purple-600">{bookingForm.totalPrice.toLocaleString()} ₸</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    <strong>Обратите внимание:</strong> После отправки заявки наш менеджер свяжется с вами 
+                    для подтверждения деталей и обсуждения условий оплаты.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Кнопки навигации */}
+      {!bookingSuccess && (
+        <div className="p-6 border-t flex gap-3 flex-shrink-0">
+          {bookingStep > 1 && (
+            <button
+              onClick={prevBookingStep}
+              className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Назад
+            </button>
+          )}
+          
+          {bookingStep < 4 ? (
+            <button
+              onClick={nextBookingStep}
+              disabled={
+                (bookingStep === 1 && (!bookingForm.selectedDate || !bookingForm.selectedTime)) ||
+                (bookingStep === 2 && (!bookingForm.selectedPackage || !bookingForm.guestCount)) ||
+                (bookingStep === 3 && (!bookingForm.clientName || !bookingForm.clientPhone))
+              }
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Далее
+            </button>
+          ) : (
+            <button
+              onClick={submitBooking}
+              disabled={isSubmitting}
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Отправка...
+                </div>
+              ) : (
+                'Подтвердить бронирование'
+              )}
+            </button>
+          )}
+        </div>
+      )}
+    </motion.div>
+  </motion.div>
+)}
+
         </div>
       </section>
 
@@ -1565,38 +2078,8 @@ const ServicesPage = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "🏆",
-                title: "7+ лет успешной работы",
-                description: "Богатый опыт организации более 1000 мероприятий различного масштаба и тематики"
-              },
-              {
-                icon: "✨",
-                title: "Индивидуальный подход",
-                description: "Каждое мероприятие уникально. Мы учитываем все ваши пожелания и особенности"
-              },
-              {
-                icon: "👥",
-                title: "Команда профессионалов",
-                description: "Только опытные специалисты: ведущие, аниматоры, декораторы, фотографы"
-              },
-              {
-                icon: "💎",
-                title: "Комплексный сервис",
-                description: "Полный цикл услуг от идеи до реализации. Вам остается только наслаждаться праздником"
-              },
-              {
-                icon: "💰",
-                title: "Честная цена",
-                description: "Прозрачное ценообразование без скрытых платежей. Различные пакеты на любой бюджет"
-              },
-              {
-                icon: "🎯",
-                title: "Гарантия качества",
-                description: "Мы гарантируем высокое качество услуг и готовы нести ответственность за результат"
-              }
-            ].map((advantage, index) => (
+  {advantages.map((advantage, index) => (
+
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
