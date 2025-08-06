@@ -101,3 +101,12 @@ code {
     overflow: hidden;
   }
 }
+
+body.admin-page .main-header {
+  display: none !important;
+}
+
+/* Или если хэдер имеет другой класс/селектор */
+body.admin-page header:not(.admin-header) {
+  display: none !important;
+}

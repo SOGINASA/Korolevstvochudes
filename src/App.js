@@ -8,6 +8,7 @@ import MainLayout from './layouts/MainLayout';
 // Pages
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
+import AdminPage from './pages/AdminPage';
 
 // Услуги
 import ServicesPage from './pages/services/ServicesPage';
@@ -39,6 +40,7 @@ function App() {
             {/* Главная страница */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
+              <Route path="admin" element={<AdminPage />} />
               
               {/* О компании */}
               <Route path="o-kompanii" element={<AboutPage />} />

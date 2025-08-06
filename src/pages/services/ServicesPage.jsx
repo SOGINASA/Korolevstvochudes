@@ -31,6 +31,11 @@ import {
   Check
 } from 'lucide-react';
 
+import lalaloopsy_1 from '../images/lalalupsi-min.jpg';
+// import lalaloopsy_2 from '../images/lalaloopsy-2.jpg';
+// import lalaloopsy_3 from '../images/lalaloopsy-3.jpg';
+// import lalaloopsy_4 from '../images/lalaloopsy-4.jpg';
+
 const ServicesPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
@@ -395,12 +400,12 @@ const ServicesPage = () => {
     features: ['Интерактивная игра с тиарой', 'Пуговичные поздравления', 'Красочные костюмы', 'Проверка настроения', 'Дружное веселье', 'Подарки от принцессы'],
     subcategories: ['Детские праздники', 'День рождения', 'Тематические вечеринки', 'Принцессы'],
     images: [
-      '/images/animators/lalaloopsy-1.jpg',
-      '/images/animators/lalaloopsy-2.jpg',
-      '/images/animators/lalaloopsy-3.jpg',
-      '/images/animators/lalaloopsy-4.jpg'
+      lalaloopsy_1,
+      // lalaloopsy_2,
+      // lalaloopsy_3,
+      // lalaloopsy_4,
     ],
-    coverImage: '/images/animators/lalaloopsy-cover.jpg',
+    coverImage: '../images/lalalupsy_min.jpg',
     featured: true,
     tags: ['lalaloopsy', 'принцесса', 'куклы', 'тиара', 'интерактив'],
     packages: [
