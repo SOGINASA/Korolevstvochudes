@@ -43,7 +43,9 @@ import {
   Trophy,
   Gem,
   Wallet,
-  Target
+  Target,
+  ClipboardList,
+  Palette
 } from 'lucide-react';
 
 const ServicesPage = () => {
@@ -934,6 +936,36 @@ const advantages = [
   }
 ];
 
+const steps = [
+  {
+    step: "01",
+    title: "Обращение",
+    description: "Вы оставляете заявку или звоните нам. Мы выясняем ваши пожелания и бюджет",
+    icon: <Phone className="w-8 h-8 text-white" />,
+    color: "from-blue-500 to-cyan-500"
+  },
+  {
+    step: "02", 
+    title: "Планирование",
+    description: "Составляем детальный план мероприятия с учетом всех ваших требований",
+    icon: <ClipboardList className="w-8 h-8 text-white" />,
+    color: "from-purple-500 to-pink-500"
+  },
+  {
+    step: "03",
+    title: "Подготовка",
+    description: "Готовим декор, подбираем артистов, бронируем площадку и оборудование",
+    icon: <Palette className="w-8 h-8 text-white" />,
+    color: "from-orange-500 to-red-500"
+  },
+  {
+    step: "04",
+    title: "Проведение",
+    description: "В день мероприятия наша команда воплощает все в жизнь. Вы просто наслаждаетесь!",
+    icon: <PartyPopper className="w-8 h-8 text-white" />,
+    color: "from-green-500 to-teal-500"
+  }
+];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1814,11 +1846,9 @@ const advantages = [
       )}
     </motion.div>
   </motion.div>
-)}
-
+               )}
         </div>
       </section>
-
       {/* Модальное окно деталей услуги */}
       <AnimatePresence>
         {selectedService && (
@@ -2127,96 +2157,38 @@ const advantages = [
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Обращение",
-                description: "Вы оставляете заявку или звоните нам. Мы выясняем ваши пожелания и бюджет",
-                icon: "📞",
-                color: "from-blue-500 to-cyan-500"
-              },
-              {
-                step: "02", 
-                title: "Планирование",
-                description: "Составляем детальный план мероприятия с учетом всех ваших требований",
-                icon: "📋",
-                color: "from-purple-500 to-pink-500"
-              },
-              {
-                step: "03",
-                title: "Подготовка",
-                description: "Готовим декор, подбираем артистов, бронируем площадку и оборудование",
-                icon: "🎨",
-                color: "from-orange-500 to-red-500"
-              },
-              {
-                step: "04",
-                title: "Проведение",
-                description: "В день мероприятия наша команда воплощает все в жизнь. Вы просто наслаждаетесь!",
-                icon: "🎉",
-                color: "from-green-500 to-teal-500"
-              }
-            ].map((step, index) => (
+            {steps.map((step, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
-                className="relative"
+                className="relative p-6 bg-white rounded-xl shadow-md text-center space-y-4"
               >
+                <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br ${step.color}`}>
+    {step.icon}
+  </div>
+
+  {/* Номер шага */}
+  <div className="text-sm font-semibold text-gray-500">
+    Шаг {step.step}
+  </div>
+
+  {/* Заголовок */}
+  <h3 className="text-lg font-bold text-gray-900">
+    {step.title}
+  </h3>
+
+  {/* Описание */}
+  <p className="text-gray-600 text-sm">
+    {step.description}
+  </p>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-center relative overflow-hidden"
                 >
-                  {/* Фоновый градиент */}
-                  <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${step.color}`}></div>
-                  
-                  {/* Номер шага */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
-                    viewport={{ once: true }}
-                    className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${step.color} text-white font-bold text-xl mb-4`}
-                  >
-                    {step.step}
-                  </motion.div>
-
-                  {/* Иконка */}
-                  <motion.div
-                    animate={{ 
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.1, 1]
-                    }}
-                    transition={{ 
-                      duration: 4, 
-                      repeat: Infinity,
-                      delay: index * 0.5
-                    }}
-                    className="text-4xl mb-4"
-                  >
-                    {step.icon}
-                  </motion.div>
-
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    {step.description}
-                  </p>
                 </motion.div>
-
-                {/* Соединительная линия */}
-                {index < 3 && (
-                  <motion.div
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    transition={{ duration: 0.8, delay: index * 0.2 + 0.5 }}
-                    viewport={{ once: true }}
-                    className="hidden lg:block absolute top-1/2 -right-4 w-8 h-0.5 bg-gradient-to-r from-purple-300 to-pink-300 z-10"
-                  />
-                )}
               </motion.div>
             ))}
           </div>
