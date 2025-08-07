@@ -28,6 +28,7 @@ import ReviewsPage from './pages/ReviewsPage';
 
 // 404 страница
 import NotFoundPage from './pages/NotFoundPage';
+import AdminAuthPage from './pages/AdminAuthPage';
 
 
 
@@ -40,6 +41,7 @@ function App() {
             {/* Главная страница */}
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
+              <Route path="admin_logreg" element={<AdminAuthPage />} />
               <Route path="admin" element={<AdminPage />} />
               
               {/* О компании */}
