@@ -287,17 +287,7 @@ const AdminAuthPage = () => {
             </button>
           </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              {isLogin ? 'Нет аккаунта?' : 'Уже есть аккаунт?'}
-              <button
-                onClick={toggleMode}
-                className="ml-1 text-purple-600 hover:text-purple-500 font-medium transition-colors"
-              >
-                {isLogin ? 'Зарегистрироваться' : 'Войти'}
-              </button>
-            </p>
-          </div>
+          
 
           {/* Информация о безопасности */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
