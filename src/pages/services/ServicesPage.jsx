@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RapuntselImg from '../images/rapuntsel.jpeg';
-import ZajchikImg from '../images/zajchik-min.jpg';
-import Fiksiki from '../images/fiksiki.jpeg';
-import Luntik from '../images/luntik.jpeg';
-import Mikkiiminni from '../images/mikki-i-minni.jpeg';
-import minony from '../images/minony.jpeg';
-import lala from '../images/lalalupsi-min.jpg';
-import shhenyachki from '../images/shhenyachijj-patrul.jpg';
-import sofia from '../images/sofiya-prekrasnaya.jpeg';
 import { 
   Grid, 
   List, 
@@ -41,9 +32,23 @@ import {
   Gamepad2,
   Building2,
   HeartHandshake,
+  Loader2,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 
+// Импортируем API сервис (предполагается, что он находится в utils/api)
+import { apiService } from '../../services/api';
+
 const ServicesPage = () => {
+  // Состояния для данных с сервера
+  const [servicesData, setServicesData] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Существующие состояния
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedService, setSelectedService] = useState(null);
@@ -64,191 +69,149 @@ const ServicesPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
+  const [showCategorySelect, setShowCategorySelect] = useState(false);
 
-  // Данные услуг
-  const servicesData = [
-    {
-      id: 1,
-      title: 'Детские праздники',
-      category: 'children',
-      duration: '3-4 часа',
-      minGuests: '10 детей',
-      rating: 5,
-      reviews: 124,
-      price: 'от 45,000 ₸',
-      priceDescription: 'базовый пакет',
-      description: 'Яркие и веселые детские праздники с профессиональными аниматорами, интерактивными играми и незабываемыми шоу-программами.',
-      fullDescription: 'Создаем незабываемые детские праздники с профессиональными аниматорами, интерактивными играми, шоу-программами и множеством сюрпризов. Каждое мероприятие адаптируется под возраст и интересы детей.',
-      features: ['Профессиональные аниматоры', 'Интерактивные игры', 'Шоу-программы', 'Аквагрим', 'Фото и видео', 'Праздничное оформление'],
-      subcategories: ['Дни рождения', 'Выпускные в детском саду', 'Школьные мероприятия', 'Семейные торжества'],
-      images: [
-        'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1464207687429-7505649dae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1607743386760-88ac62b89b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-      ],
-      coverImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      featured: true,
-      tags: ['дети', 'аниматоры', 'праздник', 'веселье'],
-      icon: <Baby className="w-5 h-5 text-purple-600" />,
-      packages: [
-        { name: 'Базовый', price: '45,000 ₸', duration: '2 часа', features: ['2 аниматора', '2 часа программы', 'Аквагрим', 'Игры'] },
-        { name: 'Стандарт', price: '65,000 ₸', duration: '3 часа', features: ['3 аниматора', '3 часа программы', 'Шоу мыльных пузырей', 'Фотограф', 'Декор'] },
-        { name: 'Премиум', price: '95,000 ₸', duration: '4 часа', features: ['4 аниматора', '4 часа программы', 'Кукольный театр', 'Видеосъемка', 'Торт в подарок'] }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Свадебные торжества',
-      category: 'weddings',
-      duration: '6-10 часов',
-      minGuests: '30 человек',
-      rating: 5,
-      reviews: 89,
-      price: 'от 150,000 ₸',
-      priceDescription: 'полный день',
-      description: 'Создаем свадьбы мечты: от выездной регистрации до торжественного банкета. Каждая деталь продумана до мелочей.',
-      fullDescription: 'Организуем свадьбы любого масштаба и стиля. От камерной церемонии до роскошного торжества. Полное сопровождение от планирования до реализации.',
-      features: ['Ведущий церемонии', 'Музыкальное сопровождение', 'Оформление зала', 'Фото и видеосъемка', 'Флористика', 'Свадебный торт'],
-      subcategories: ['Выездная регистрация', 'Банкет', 'Фотосессии', 'Девичники', 'Годовщины'],
-      images: [
-        'https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1520854221256-17451cc331bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-      ],
-      coverImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      featured: true,
-      tags: ['свадьба', 'торжество', 'любовь', 'церемония'],
-      icon: <HeartHandshake className="w-5 h-5 text-pink-600" />,
-      packages: [
-        { name: 'Камерная', price: '150,000 ₸', duration: '6 часов', features: ['Ведущий', 'Звук', 'Декор', 'Фотограф'] },
-        { name: 'Классическая', price: '280,000 ₸', duration: '8 часов', features: ['Полный день', 'Живая музыка', 'Видео', 'Флористика'] },
-        { name: 'Роскошная', price: '450,000 ₸', duration: '10 часов', features: ['VIP сервис', 'Фейерверк', 'Лимузин', 'Премиум локация'] }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Корпоративные мероприятия',
-      category: 'corporate',
-      duration: '4-8 часов',
-      minGuests: '20 человек',
-      rating: 5,
-      reviews: 156,
-      price: 'от 80,000 ₸',
-      priceDescription: 'за мероприятие',
-      description: 'Профессиональная организация корпоративных праздников, тимбилдингов и деловых мероприятий любого масштаба.',
-      fullDescription: 'Организуем корпоративные мероприятия любого формата: от деловых конференций до веселых корпоративов. Учитываем специфику компании и цели мероприятия.',
-      features: ['Профессиональный ведущий', 'Техническое оборудование', 'Кейтеринг', 'Развлекательная программа', 'Тимбилдинг активности', 'Призы и подарки'],
-      subcategories: ['Новогодние корпоративы', 'День компании', 'Тимбилдинг', 'Конференции', 'Презентации'],
-      images: [
-        'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-      ],
-      coverImage: 'https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      tags: ['корпоратив', 'бизнес', 'команда', 'тимбилдинг'],
-      icon: <Building2 className="w-5 h-5 text-blue-600" />,
-      packages: [
-        { name: 'Базовый', price: '80,000 ₸', duration: '4 часа', features: ['Ведущий', 'Звук', 'Развлечения', 'Фуршет'] },
-        { name: 'Бизнес', price: '150,000 ₸', duration: '6 часов', features: ['Тимбилдинг', 'Конкурсы', 'Фото', 'Банкет'] },
-        { name: 'Премиум', price: '280,000 ₸', duration: '8 часов', features: ['VIP программа', 'Артисты', 'Видео', 'Подарки'] }
-      ]
-    },
-    {
-      id: 14,
-      title: 'Принцесса Lalaloopsy',
-      category: 'animators',
-      duration: '60-90 минут',
-      minGuests: '4 детей',
-      rating: 5,
-      reviews: 67,
-      price: 'от 18,000 ₸',
-      priceDescription: 'за программу',
-      description: 'Окунитесь в красочный и необычный мир кукол Lalaloopsy! Самая красивая куколка Принцесса приготовила свою лучшую тиару для именинницы. Волшебная программа с проверкой настроения, дружным весельем и пуговичным поздравлением.',
-      fullDescription: 'Интерактивная программа с любимой героиней детей - принцессой Lalaloopsy. Включает игры с тиарой, пуговичные поздравления, творческие задания и множество сюрпризов.',
-      features: ['Интерактивная игра с тиарой', 'Пуговичные поздравления', 'Красочные костюмы', 'Проверка настроения', 'Дружное веселье', 'Подарки от принцессы'],
-      subcategories: ['Детские праздники', 'День рождения', 'Тематические вечеринки', 'Принцессы'],
-      images: [lala],
-      coverImage: lala,
-      featured: true,
-      tags: ['lalaloopsy', 'принцесса', 'куклы', 'тиара', 'интерактив'],
-      icon: <Crown className="w-5 h-5 text-pink-600" />,
-      packages: [
-        { name: 'Базовая программа', price: '18,000 ₸', duration: '60 минут', features: ['60 минут', 'Игры с тиарой', 'Поздравления', 'Реквизит'] },
-        { name: 'Расширенная', price: '25,000 ₸', duration: '75 минут', features: ['75 минут', 'Дополнительные игры', 'Подарки детям', 'Фотосессия'] },
-        { name: 'Премиум', price: '35,000 ₸', duration: '90 минут', features: ['90 минут', 'Эксклюзивная программа', 'Спецподарки', 'Видеосъемка'] }
-      ],
-    },
-    {
-      id: 15,
-      title: 'Лунтик',
-      category: 'animators',
-      duration: '60-75 минут',
-      minGuests: '3 детей',
-      rating: 5,
-      reviews: 92,
-      price: 'от 16,000 ₸',
-      priceDescription: 'за программу',
-      description: 'Любознательный и добрый Лунтик – один из любимых героев детей! Устройте своему малышу настоящее торжество с этим необычайно милым персонажем, который подарит незабываемые эмоции.',
-      fullDescription: 'Добрый и познавательный праздник с Лунтиком. Программа включает развивающие игры, песни, танцы и множество познавательных моментов для детей.',
-      features: ['Добрый персонаж', 'Познавательные игры', 'Песни и танцы', 'Интерактивное общение', 'Воспитательные моменты', 'Подарки от Лунтика'],
-      subcategories: ['Детские праздники', 'День рождения', 'Развивающие программы', 'Мультперсонажи'],
-      images: [Luntik],
-      coverImage: Luntik,
-      featured: false,
-      tags: ['лунтик', 'добрый', 'познавательно', 'развитие'],
-      icon: <Star className="w-5 h-5 text-purple-600" />,
-      packages: [
-        { name: 'Стандартная', price: '16,000 ₸', duration: '60 минут', features: ['60 минут', 'Игры с Лунтиком', 'Песни', 'Реквизит'] },
-        { name: 'Познавательная', price: '22,000 ₸', duration: '75 минут', features: ['75 минут', 'Обучающие игры', 'Подарки', 'Интерактив'] },
-        { name: 'Праздничная', price: '30,000 ₸', duration: '90 минут', features: ['90 минут', 'Полная программа', 'Спецподарки', 'Фото/видео'] }
-      ]
-    },
-    {
-      id: 16,
-      title: 'Фиксики (Симка и Нолик)',
-      category: 'animators',
-      duration: '60-90 минут',
-      minGuests: '5 детей',
-      rating: 5,
-      reviews: 78,
-      price: 'от 20,000 ₸',
-      priceDescription: 'за программу',
-      description: 'Подарите ребёнку незабываемый день рождения с Симкой или Ноликом! Фиксики — маленькие человечки, живущие в технике, устроят познавательно-игровое шоу с веселым тематическим реквизитом.',
-      fullDescription: 'Познавательное шоу с героями мультфильма "Фиксики". Дети узнают много интересного о технике, поучаствуют в экспериментах и играх.',
-      features: ['Познавательное шоу', 'Тематический реквизит', 'Техническая тематика', 'Обучающие игры', 'Интерактивные эксперименты', 'Подарки-инструменты'],
-      subcategories: ['Детские праздники', 'Познавательные программы', 'Мультперсонажи', 'Обучающие шоу'],
-      images: [Fiksiki],
-      coverImage: Fiksiki,
-      featured: true,
-      tags: ['фиксики', 'симка', 'нолик', 'техника', 'познавательно'],
-      icon: <Zap className="w-5 h-5 text-orange-600" />,
-      packages: [
-        { name: 'Базовое шоу', price: '20,000 ₸', duration: '60 минут', features: ['60 минут', 'Игры с техникой', 'Эксперименты', 'Реквизит'] },
-        { name: 'Познавательное', price: '28,000 ₸', duration: '75 минут', features: ['75 минут', 'Больше экспериментов', 'Подарки', 'Фотосессия'] },
-        { name: 'Премиум шоу', price: '38,000 ₸', duration: '90 минут', features: ['90 минут', 'Эксклюзивная программа', 'Спецреквизит', 'Видео'] }
-      ]
+  // Загрузка данных с сервера
+  const loadData = async (showLoader = true) => {
+    try {
+      if (showLoader) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+      setError(null);
+
+      // Параллельно загружаем услуги и категории
+      const [servicesResponse, categoriesResponse] = await Promise.all([
+        apiService.getServices({
+          per_page: 100, // Загружаем много услуг для фильтрации
+          sort_by: 'created_at',
+          sort_order: 'desc'
+        }),
+        apiService.getServiceCategories()
+      ]);
+
+      if (servicesResponse.success && categoriesResponse.success) {
+        // Преобразуем данные с сервера в формат, ожидаемый компонентом
+        const transformedServices = servicesResponse.services.map(service => ({
+          id: service.id,
+          title: service.title,
+          category: service.category,
+          duration: service.duration || '2-3 часа',
+          minGuests: service.min_guests || '5 человек',
+          rating: parseFloat(service.rating) || 5.0,
+          reviews: service.reviews_count || 0,
+          price: service.price || 'Уточняйте',
+          priceDescription: service.price_description || 'за услугу',
+          description: service.description || '',
+          fullDescription: service.full_description || service.description || '',
+          features: Array.isArray(service.features) ? service.features : (service.features ? service.features.split(',').map(f => f.trim()) : []),
+          subcategories: Array.isArray(service.subcategories) ? service.subcategories : (service.subcategories ? service.subcategories.split(',').map(s => s.trim()) : []),
+          images: Array.isArray(service.images) && service.images.length > 0 ? service.images : [
+            service.cover_image || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+          ],
+          coverImage: service.cover_image || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          featured: Boolean(service.featured),
+          tags: Array.isArray(service.tags) ? service.tags : (service.tags ? service.tags.split(',').map(t => t.trim()) : []),
+          icon: getCategoryIcon(service.category),
+          packages: service.packages || generateDefaultPackages(service.price)
+        }));
+
+        setServicesData(transformedServices);
+        setCategories(transformCategoriesData(categoriesResponse.categories));
+      } else {
+        throw new Error('Ошибка загрузки данных');
+      }
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError(err.message || 'Не удалось загрузить данные');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  ];
+  };
 
-  const categories = [
-    { id: 'all', name: 'Все услуги', count: servicesData.length, iconComponent: Sparkles },
-    { id: 'children', name: 'Детские', count: servicesData.filter(s => s.category === 'children').length, iconComponent: Baby },
-    { id: 'weddings', name: 'Свадьбы', count: servicesData.filter(s => s.category === 'weddings').length, iconComponent: HeartHandshake },
-    { id: 'corporate', name: 'Корпоративы', count: servicesData.filter(s => s.category === 'corporate').length, iconComponent: Building2 },
-    { id: 'animators', name: 'Аниматоры', count: servicesData.filter(s => s.category === 'animators').length, iconComponent: Users },
-    { id: 'shows', name: 'Шоу', count: servicesData.filter(s => s.category === 'shows').length, iconComponent: Zap },
-    { id: 'photo', name: 'Фото/Видео', count: servicesData.filter(s => s.category === 'photo').length, iconComponent: Camera },
-    { id: 'decoration', name: 'Декор', count: servicesData.filter(s => s.category === 'decoration').length, iconComponent: Palette }
-  ];
+  // Функция для получения иконки категории
+  const getCategoryIcon = (category) => {
+    const iconMap = {
+      'children': <Baby className="w-5 h-5 text-purple-600" />,
+      'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
+      'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
+      'animators': <Users className="w-5 h-5 text-green-600" />,
+      'shows': <Zap className="w-5 h-5 text-orange-600" />,
+      'photo': <Camera className="w-5 h-5 text-indigo-600" />,
+      'decoration': <Palette className="w-5 h-5 text-red-600" />,
+      'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
+      'seasonal': <Gift className="w-5 h-5 text-emerald-600" />,
+      'quests': <Gamepad2 className="w-5 h-5 text-cyan-600" />
+    };
+    return iconMap[category] || <Star className="w-5 h-5 text-purple-600" />;
+  };
 
+  // Функция для генерации пакетов по умолчанию
+  const generateDefaultPackages = (basePrice) => {
+    const priceNum = basePrice ? parseInt(basePrice.replace(/\D/g, '')) : 20000;
+    return [
+      { 
+        name: 'Базовый', 
+        price: `${priceNum.toLocaleString()} ₸`, 
+        duration: '2 часа', 
+        features: ['Основная программа', 'Стандартный реквизит'] 
+      },
+      { 
+        name: 'Стандарт', 
+        price: `${Math.round(priceNum * 1.5).toLocaleString()} ₸`, 
+        duration: '3 часа', 
+        features: ['Расширенная программа', 'Дополнительный реквизит', 'Фотосессия'] 
+      },
+      { 
+        name: 'Премиум', 
+        price: `${Math.round(priceNum * 2).toLocaleString()} ₸`, 
+        duration: '4 часа', 
+        features: ['VIP программа', 'Премиум реквизит', 'Фото и видео', 'Подарки'] 
+      }
+    ];
+  };
+
+  // Функция для преобразования категорий
+  const transformCategoriesData = (backendCategories) => {
+    const categoryIcons = {
+      'children': Baby,
+      'weddings': HeartHandshake,
+      'corporate': Building2,
+      'animators': Users,
+      'shows': Zap,
+      'photo': Camera,
+      'decoration': Palette,
+      'anniversaries': Cake,
+      'seasonal': Gift,
+      'quests': Gamepad2
+    };
+
+    return backendCategories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      count: cat.count,
+      iconComponent: categoryIcons[cat.id] || Sparkles
+    }));
+  };
+
+  // Загрузка данных при монтировании компонента
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Обработка обновления данных
+  const handleRefresh = () => {
+    loadData(false);
+  };
+
+  // Фильтрация услуг
   const filteredServices = activeFilter === 'all' 
     ? servicesData 
     : servicesData.filter(service => service.category === activeFilter);
 
-  // Функции модального окна
+  // Функции модального окна (без изменений)
   const openServiceModal = (service, imageIndex = 0) => {
     setSelectedService(service);
     setCurrentImageIndex(imageIndex);
@@ -298,10 +261,10 @@ const ServicesPage = () => {
 
   const closeBookingForm = () => {
     setShowBookingForm(false);
-  setBookingSuccess(false);
-  setBookingStep(1);
-  setSelectedService(null); // Скрыть карточку услуги
-  document.body.style.overflow = 'auto';
+    setBookingSuccess(false);
+    setBookingStep(1);
+    setSelectedService(null);
+    document.body.style.overflow = 'auto';
   };
 
   const nextBookingStep = () => {
@@ -332,18 +295,39 @@ const ServicesPage = () => {
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setBookingSuccess(true);
-      setBookingStep(4);
+      // Отправляем бронирование на сервер
+      const bookingData = {
+        service_id: selectedService.id,
+        service_title: selectedService.title,
+        event_date: bookingForm.selectedDate,
+        event_time: bookingForm.selectedTime,
+        package_type: bookingForm.selectedPackage,
+        client_name: bookingForm.clientName,
+        client_phone: bookingForm.clientPhone,
+        client_email: bookingForm.clientEmail,
+        guest_count: parseInt(bookingForm.guestCount) || null,
+        special_requests: bookingForm.specialRequests,
+        total_price: bookingForm.totalPrice,
+        status: 'pending'
+      };
+
+      const result = await apiService.createBooking(bookingData);
+      
+      if (result.success) {
+        setBookingSuccess(true);
+        setBookingStep(4);
+      } else {
+        throw new Error(result.error || 'Ошибка при создании бронирования');
+      }
     } catch (error) {
       console.error('Ошибка бронирования:', error);
-      alert('Произошла ошибка при бронировании. Попробуйте еще раз.');
+      alert('Произошла ошибка при бронировании: ' + error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Календарь
+  // Календарь (без изменений)
   const generateCalendarDays = () => {
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
@@ -393,14 +377,52 @@ const ServicesPage = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedService, showBookingForm, nextImage, prevImage, closeServiceModal]);
 
-const [showCategorySelect, setShowCategorySelect] = useState(false);
+  const handleCtaOrderClick = () => {
+    setShowCategorySelect(true);
+  };
 
-const handleCtaOrderClick = () => {
-  setShowCategorySelect(true);
-};
+  // Компонент загрузки
+  const LoadingSpinner = () => (
+    <div className="flex flex-col items-center justify-center py-20">
+      <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+      <p className="text-lg text-gray-600">Загружаем услуги...</p>
+    </div>
+  );
+
+  // Компонент ошибки
+  const ErrorMessage = () => (
+    <div className="flex flex-col items-center justify-center py-20">
+      <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">Ошибка загрузки</h3>
+      <p className="text-gray-600 mb-6">{error}</p>
+      <button
+        onClick={() => loadData()}
+        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+      >
+        <RefreshCw className="w-4 h-4" />
+        Попробовать снова
+      </button>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error && servicesData.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ErrorMessage />
+      </div>
+    );
+  }
 
   return (
-     <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero секция */}
       <section className="relative bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 text-white py-20 overflow-hidden">
         {/* Анимированный фон */}
@@ -466,7 +488,7 @@ const handleCtaOrderClick = () => {
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                   className="text-3xl font-bold text-yellow-300 mb-2"
                 >
-                  12
+                  {categories.length}
                 </motion.div>
                 <div className="text-purple-100">Категорий услуг</div>
               </div>
@@ -476,9 +498,9 @@ const handleCtaOrderClick = () => {
                   transition={{ duration: 2, repeat: Infinity }}
                   className="text-3xl font-bold text-pink-300 mb-2"
                 >
-                  1000+
+                  {servicesData.length}+
                 </motion.div>
-                <div className="text-purple-100">Праздников</div>
+                <div className="text-purple-100">Услуг</div>
               </div>
               <div className="text-center">
                 <motion.div 
@@ -560,28 +582,41 @@ const handleCtaOrderClick = () => {
               })}
             </div>
 
-            {/* Переключатель вида */}
-            <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+            {/* Переключатель вида и обновление */}
+            <div className="flex items-center gap-3">
+              {refreshing && <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />}
+              
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-all duration-200 ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-purple-600 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                title="Обновить данные"
               >
-                <Grid size={20} />
+                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
               </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-all duration-200 ${
-                  viewMode === 'list'
-                    ? 'bg-white text-purple-600 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <List size={20} />
-              </button>
+
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'grid'
+                      ? 'bg-white text-purple-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Grid size={20} />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === 'list'
+                      ? 'bg-white text-purple-600 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <List size={20} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -629,6 +664,9 @@ const handleCtaOrderClick = () => {
                           src={service.coverImage}
                           alt={service.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                          }}
                         />
                         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
                         
@@ -693,6 +731,9 @@ const handleCtaOrderClick = () => {
                           src={service.coverImage}
                           alt={service.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                          }}
                         />
                         <div className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
                           {React.cloneElement(service.icon, { className: "w-4 h-4" })}
@@ -755,14 +796,16 @@ const handleCtaOrderClick = () => {
             </motion.div>
           </AnimatePresence>
 
-          {filteredServices.length === 0 && (
+          {filteredServices.length === 0 && !loading && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🎭</div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">
                 Услуги не найдены
               </h3>
               <p className="text-gray-600">
-                Попробуйте выбрать другую категорию или свяжитесь с нами для создания индивидуального предложения.
+                {activeFilter === 'all' 
+                  ? 'В данный момент услуги недоступны. Попробуйте обновить страницу.'
+                  : 'В этой категории пока нет услуг. Попробуйте выбрать другую категорию.'}
               </p>
             </div>
           )}
@@ -793,6 +836,9 @@ const handleCtaOrderClick = () => {
                     src={selectedService.images[currentImageIndex]}
                     alt={selectedService.title}
                     className="w-full h-64 sm:h-96 lg:h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                    }}
                   />
                   
                   {/* Navigation */}
@@ -871,32 +917,36 @@ const handleCtaOrderClick = () => {
                   </div>
 
                   {/* Features */}
-                  <div className="mb-6 flex-shrink-0">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Что входит в услугу:</h4>
-                    <div className="space-y-2">
-                      {selectedService.features.map((feature, index) => (
-                        <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
-                          <Check size={16} className="text-green-500 flex-shrink-0" />
-                          {feature}
-                        </div>
-                      ))}
+                  {selectedService.features.length > 0 && (
+                    <div className="mb-6 flex-shrink-0">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-3">Что входит в услугу:</h4>
+                      <div className="space-y-2">
+                        {selectedService.features.map((feature, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
+                            <Check size={16} className="text-green-500 flex-shrink-0" />
+                            {feature}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Tags */}
-                  <div className="mb-6 flex-shrink-0">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Теги:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedService.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-purple-50 text-purple-600 text-xs lg:text-sm rounded-full"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
+                  {selectedService.tags.length > 0 && (
+                    <div className="mb-6 flex-shrink-0">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2">Теги:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedService.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-purple-50 text-purple-600 text-xs lg:text-sm rounded-full"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Pricing */}
                   <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-6 flex-shrink-0">
@@ -904,6 +954,11 @@ const handleCtaOrderClick = () => {
                     <div className="text-xl lg:text-2xl font-bold text-purple-600">
                       {selectedService.price}
                     </div>
+                    {selectedService.priceDescription && (
+                      <div className="text-sm text-gray-500">
+                        {selectedService.priceDescription}
+                      </div>
+                    )}
                   </div>
 
                   {/* CTA Buttons */}
@@ -935,53 +990,54 @@ const handleCtaOrderClick = () => {
         )}
       </AnimatePresence>
 
+      {/* Category Selection Modal */}
       <AnimatePresence>
-  {showCategorySelect && (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
-      onClick={() => setShowCategorySelect(false)}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-2xl p-8 max-w-md w-full"
-        onClick={e => e.stopPropagation()}
-      >
-        <h3 className="text-xl font-bold mb-4 text-gray-900">Выберите категорию мероприятия</h3>
-        <div className="space-y-3">
-          {categories.filter(c => c.id !== 'all').map(category => (
-            <button
-              key={category.id}
-              className="w-full py-3 px-4 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-2 transition"
-              onClick={() => {
-                const service = servicesData.find(s => s.category === category.id);
-                if (service) {
-                  openBookingForm(service);
-                  setShowCategorySelect(false);
-                } else {
-                  alert('Нет услуг в этой категории');
-                }
-              }}
+        {showCategorySelect && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
+            onClick={() => setShowCategorySelect(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl p-8 max-w-md w-full"
+              onClick={e => e.stopPropagation()}
             >
-              <category.iconComponent className="w-5 h-5" />
-              {category.name}
-            </button>
-          ))}
-        </div>
-        <button
-          className="mt-6 w-full py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium"
-          onClick={() => setShowCategorySelect(false)}
-        >
-          Отмена
-        </button>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">Выберите категорию мероприятия</h3>
+              <div className="space-y-3">
+                {categories.filter(c => c.id !== 'all').map(category => (
+                  <button
+                    key={category.id}
+                    className="w-full py-3 px-4 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-2 transition"
+                    onClick={() => {
+                      const service = servicesData.find(s => s.category === category.id);
+                      if (service) {
+                        openBookingForm(service);
+                        setShowCategorySelect(false);
+                      } else {
+                        alert('В этой категории пока нет услуг');
+                      }
+                    }}
+                  >
+                    <category.iconComponent className="w-5 h-5" />
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+              <button
+                className="mt-6 w-full py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium"
+                onClick={() => setShowCategorySelect(false)}
+              >
+                Отмена
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Booking Form Modal */}
       <AnimatePresence>
@@ -1334,7 +1390,7 @@ const handleCtaOrderClick = () => {
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                           Отправка...
                         </>
                       ) : bookingStep === 3 ? (

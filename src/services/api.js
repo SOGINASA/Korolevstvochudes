@@ -18,11 +18,18 @@ class ApiService {
     const token = this.getToken();
     
     const config = {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
+        // Добавляем дополнительные заголовки для CORS
+        'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
         ...options.headers,
       },
+      // Важно для CORS
+      credentials: 'include',
+      mode: 'cors',
       ...options,
     };
     
