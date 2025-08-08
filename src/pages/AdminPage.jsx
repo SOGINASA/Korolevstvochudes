@@ -112,6 +112,7 @@ const AdminPage = () => {
         order: 'desc' 
       });
       if (result.success && result.bookings) {
+        
         setRecentApplications(result.bookings);
       }
     } catch (error) {

@@ -37,6 +37,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { apiService } from '../../services/api';
+import { formatPhoneNumber } from '../../utils/helpers';
 
 const ServicesPage = () => {
   // Состояния для данных с сервера
@@ -208,7 +209,6 @@ const ServicesPage = () => {
   const filteredServices = activeFilter === 'all' 
     ? servicesData 
     : servicesData.filter(service => service.category === activeFilter);
-  console.log(filteredServices)
   // Функции модального окна (без изменений)
   const openServiceModal = (service, imageIndex = 0) => {
     setSelectedService(service);
@@ -266,7 +266,7 @@ const ServicesPage = () => {
   };
 
   const nextBookingStep = () => {
-    setBookingStep(prev => Math.min(prev + 1, 4));
+    setBookingStep(prev => Math.min(prev + 1, 3));
   };
 
   const prevBookingStep = () => {
@@ -290,40 +290,137 @@ const ServicesPage = () => {
   };
 
   const submitBooking = async () => {
-    setIsSubmitting(true);
-    
-    try {
-      // Отправляем бронирование на сервер
-      const bookingData = {
-        service_id: selectedService.id,
-        service_title: selectedService.title,
-        event_date: bookingForm.selectedDate,
-        event_time: bookingForm.selectedTime,
-        package_type: bookingForm.selectedPackage,
-        client_name: bookingForm.clientName,
-        client_phone: bookingForm.clientPhone,
-        client_email: bookingForm.clientEmail,
-        guest_count: parseInt(bookingForm.guestCount) || null,
-        special_requests: bookingForm.specialRequests,
-        total_price: bookingForm.totalPrice,
-        status: 'pending'
-      };
-
-      const result = await apiService.createBooking(bookingData);
+  setIsSubmitting(true);
+  
+  try {
+    // Функция для форматирования даты в строку YYYY-MM-DD
+    const formatDate = (dateValue) => {
+      if (!dateValue) return null;
       
-      if (result.success) {
-        setBookingSuccess(true);
-        setBookingStep(4);
-      } else {
-        throw new Error(result.error || 'Ошибка при создании бронирования');
+      // Если это уже строка в правильном формате
+      if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+        return dateValue;
       }
-    } catch (error) {
-      console.error('Ошибка бронирования:', error);
-      alert('Произошла ошибка при бронировании: ' + error.message);
-    } finally {
-      setIsSubmitting(false);
+      
+      // Если это объект Date
+      if (dateValue instanceof Date) {
+        return dateValue.toISOString().split('T')[0];
+      }
+      
+      // Попытаемся преобразовать в Date и затем в строку
+      const date = new Date(dateValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+      
+      return null;
+    };
+
+    // Функция для форматирования времени в строку HH:MM
+    const formatTime = (timeValue) => {
+      if (!timeValue) return null;
+      
+      // Если это уже строка в правильном формате
+      if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+        return timeValue;
+      }
+      
+      // Если это объект Date
+      if (timeValue instanceof Date) {
+        return timeValue.toTimeString().slice(0, 5);
+      }
+      
+      // Если это строка времени в другом формате
+      if (typeof timeValue === 'string') {
+        const time = new Date(`2000-01-01T${timeValue}`);
+        if (!isNaN(time.getTime())) {
+          return time.toTimeString().slice(0, 5);
+        }
+      }
+      
+      return null;
+    };
+
+    // Правильно сформированные данные для отправки на бэкенд
+    const bookingData = {
+      // Обязательные поля
+      name: bookingForm.clientName || '',
+      phone: formatPhoneNumber(bookingForm.clientPhone),
+      
+      // Опциональные поля (используем правильные названия)
+      email: bookingForm.clientEmail || null,
+      service_id: selectedService?.id || null,
+      event_date: formatDate(bookingForm.selectedDate),
+      event_time: formatTime(bookingForm.selectedTime),
+      guests_count: bookingForm.guestCount ? parseInt(bookingForm.guestCount) : null,
+      budget: bookingForm.totalPrice ? bookingForm.totalPrice.toString() : null,
+      location: bookingForm.location || null,
+      message: [
+        bookingForm.specialRequests || '',
+        bookingForm.selectedPackage ? `Пакет: ${bookingForm.selectedPackage}` : '',
+        bookingForm.totalPrice ? `Ориентировочная стоимость: ${bookingForm.totalPrice}` : ''
+      ].filter(Boolean).join('. ') || null
+    };
+
+    console.log('Отправляемые данные:', bookingData);
+
+    // Валидация перед отправкой
+    if (!bookingData.name.trim()) {
+      throw new Error('Имя обязательно для заполнения');
     }
-  };
+    
+    if (!bookingData.phone.trim()) {
+      throw new Error('Телефон обязателен для заполнения');
+    }
+
+    // Отправляем бронирование на сервер
+    const result = await apiService.createBooking(bookingData);
+    
+    if (result.success) {
+      setBookingSuccess(true);
+      setBookingStep(3);
+      
+      // Очищаем форму после успешной отправки
+      setBookingForm({
+        prev: bookingForm,
+        selectedDate: null,
+        selectedTime: null,
+        selectedPackage: null,
+        clientName: '',
+        clientPhone: '',
+        clientEmail: '',
+        guestCount: '',
+        specialRequests: '',
+        location: '',
+        totalPrice: 0
+      });
+      
+    } else {
+      throw new Error(result.error || 'Ошибка при создании бронирования');
+    }
+    
+  } catch (error) {
+    console.error('Ошибка бронирования:', error);
+    
+    // Более детальная обработка ошибок
+    let errorMessage = 'Произошла ошибка при бронировании';
+    
+    if (error.message.includes('400')) {
+      errorMessage = 'Проверьте правильность заполнения всех полей';
+    } else if (error.message.includes('401')) {
+      errorMessage = 'Необходима авторизация';
+    } else if (error.message.includes('500')) {
+      errorMessage = 'Ошибка сервера. Попробуйте позже';
+    } else {
+      errorMessage = error.message;
+    }
+    
+    alert(errorMessage);
+    
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   // Календарь (без изменений)
   const generateCalendarDays = () => {
@@ -655,10 +752,7 @@ const ServicesPage = () => {
                           src={service.coverImage}
                           alt={service.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          onError={(e) => {
-                            console.log(e);
-                            
-                          }}
+                          
                         />
                         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
                         
@@ -720,9 +814,7 @@ const ServicesPage = () => {
                           src={service.coverImage}
                           alt={service.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            console.log(e);
-                          }}
+                          
                         />
                         <div className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
                           {React.cloneElement(service.icon, { className: "w-4 h-4" })}
@@ -825,9 +917,6 @@ const ServicesPage = () => {
                     src={selectedService.images[currentImageIndex]}
                     alt={selectedService.title}
                     className="w-full h-64 sm:h-96 lg:h-full object-cover"
-                    onError={(e) => {
-                      console.log(e);
-                    }}
                   />
                   
                   {/* Navigation */}
@@ -1059,16 +1148,16 @@ const ServicesPage = () => {
 
                 {/* Progress Steps */}
                 <div className="mt-6 flex items-center justify-between">
-                  {[1, 2, 3, 4].map((step) => (
+                  {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         bookingStep >= step 
                           ? 'bg-white text-purple-600' 
                           : 'bg-white/20 text-white/60'
                       }`}>
-                        {bookingSuccess && step === 4 ? <Check size={16} /> : step}
+                        {bookingSuccess && step === 3 ? <Check size={16} /> : step}
                       </div>
-                      {step < 4 && (
+                      {step < 3 && (
                         <div className={`flex-1 h-0.5 mx-2 ${
                           bookingStep > step ? 'bg-white' : 'bg-white/20'
                         }`} />
@@ -1171,43 +1260,6 @@ const ServicesPage = () => {
 
                 {bookingStep === 2 && (
                   <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-gray-900">Выберите пакет услуг</h3>
-                    
-                    <div className="grid gap-4">
-                      {selectedService?.packages?.map((pkg, index) => (
-                        <div
-                          key={index}
-                          className={`p-4 rounded-xl border cursor-pointer transition-colors ${
-                            bookingForm.selectedPackage === pkg.name
-                              ? 'border-purple-600 bg-purple-50'
-                              : 'border-gray-200 hover:border-purple-300'
-                          }`}
-                          onClick={() => selectPackage(pkg)}
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h4 className="text-lg font-semibold text-gray-900">{pkg.name}</h4>
-                              <p className="text-sm text-gray-500">{pkg.duration}</p>
-                            </div>
-                            <div className="text-xl font-bold text-purple-600">{pkg.price}</div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            {pkg.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                <Check size={16} className="text-green-500 flex-shrink-0" />
-                                {feature}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {bookingStep === 3 && (
-                  <div className="space-y-6">
                     <h3 className="text-xl font-bold text-gray-900">Контактная информация</h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1281,7 +1333,7 @@ const ServicesPage = () => {
                   </div>
                 )}
 
-                {bookingStep === 4 && (
+                {bookingStep === 3 && (
                   <div className="text-center space-y-6">
                     {bookingSuccess ? (
                       <>
@@ -1297,10 +1349,8 @@ const ServicesPage = () => {
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
                             <p>Услуга: {selectedService?.title}</p>
-                            <p>Дата: {new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU')}</p>
-                            <p>Время: {bookingForm.selectedTime}</p>
-                            <p>Пакет: {bookingForm.selectedPackage}</p>
-                            <p>Стоимость: {bookingForm.totalPrice.toLocaleString()} ₸</p>
+                            <p>Дата: {new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU')}</p>
+                            <p>Время: {bookingForm.prev.selectedTime}</p>
                           </div>
                         </div>
                       </>
@@ -1364,13 +1414,13 @@ const ServicesPage = () => {
                 </button>
 
                 <div className="flex gap-3">
-                  {bookingStep < 4 && (
+                  {bookingStep < 3 && (
                     <button
-                      onClick={bookingStep === 3 ? submitBooking : nextBookingStep}
+                      onClick={bookingStep === 2 ? submitBooking : nextBookingStep}
                       disabled={
                         isSubmitting ||
                         (bookingStep === 1 && (!bookingForm.selectedDate || !bookingForm.selectedTime)) ||
-                        (bookingStep === 3 && (!bookingForm.clientName || !bookingForm.clientPhone))
+                        (bookingStep === 2 && (!bookingForm.clientName || !bookingForm.clientPhone))
                       }
                       className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
@@ -1379,7 +1429,7 @@ const ServicesPage = () => {
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Отправка...
                         </>
-                      ) : bookingStep === 3 ? (
+                      ) : bookingStep === 2 ? (
                         'Подтвердить заказ'
                       ) : (
                         'Далее'
@@ -1387,7 +1437,7 @@ const ServicesPage = () => {
                     </button>
                   )}
 
-                  {bookingStep === 4 && bookingSuccess && (
+                  {bookingStep === 3 && bookingSuccess && (
                     <button
                       onClick={closeBookingForm}
                       className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors"

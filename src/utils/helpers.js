@@ -91,6 +91,30 @@ export const adminRoles = [
   { value: 'super_admin', label: 'Супер-администратор' }
 ];
 
+export function formatPhoneNumber(input) {
+  // Убираем всё, кроме цифр
+  let digits = input.replace(/\D/g, '');
+
+  // Если начинается с 8 — заменяем на 7
+  if (digits.startsWith('8')) {
+    digits = '7' + digits.slice(1);
+  }
+
+  // Если начинается без 7, но 11 цифр — считаем, что первая — код страны
+  if (digits.length === 10) {
+    digits = '7' + digits;
+  }
+
+  // Обрезаем до 11 цифр
+  digits = digits.slice(0, 11);
+
+  // Если длина меньше 11, возвращаем как есть
+  if (digits.length !== 11) return input;
+
+  // Форматируем
+  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9)}`;
+}
+
 // Валидация форм
 export const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

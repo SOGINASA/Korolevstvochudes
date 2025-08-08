@@ -1,6 +1,6 @@
 // components/admin/Applications.js
 import React, { useState } from 'react';
-import { Search, Filter, Download, Phone, Mail, Calendar, Eye, Edit, Trash2 } from 'lucide-react';
+import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2 } from 'lucide-react';
 import { formatDate, getStatusColor, getStatusText } from '../../utils/helpers';
 
 const Applications = ({ 
@@ -35,9 +35,9 @@ const Applications = ({
   const handleExport = () => {
     // Логика экспорта данных
     const csvContent = "data:text/csv;charset=utf-8," 
-      + "Имя,Телефон,Email,Услуга,Дата,Статус\n"
+      + "Имя,Телефон,Email,Услуга,Дата,Время,Статус\n"
       + filteredApplications.map(app => 
-          `${app.name},${app.phone},${app.email},${app.service},${app.date},${app.status}`
+          `${app.name},${app.phone},${app.email},${app.service},${app.event_date},${app.event_time},${app.status}`
         ).join("\n");
     
     const encodedUri = encodeURI(csvContent);
@@ -116,7 +116,7 @@ const Applications = ({
                     Дата события
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Бюджет
+                    Время события
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Статус
@@ -148,11 +148,14 @@ const Applications = ({
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">{app.date}</span>
+                        <span className="text-sm text-gray-900">{app.event_date}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {app.budget}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm text-gray-900">{app.event_time}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
@@ -168,19 +171,7 @@ const Applications = ({
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button 
-                          className="text-purple-600 hover:text-purple-900"
-                          title="Просмотр"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button 
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Редактировать"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                      <div className="flex justify-center items-center">
                         <button 
                           className="text-red-600 hover:text-red-900"
                           title="Удалить"

@@ -43,8 +43,6 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}${url}`, config);
       
-      console.log(`Response Status: ${response.status}`);
-      
       // Если токен истек или невалиден
       if (response.status === 401) {
         console.log('401 - Clearing token and redirecting to login');
@@ -165,7 +163,7 @@ class ApiService {
 
   async createBooking(bookingData) {
     try {
-      const response = await this.request('/bookings', {
+      const response = await this.request('/bookings/', {
         method: 'POST',
         body: JSON.stringify(bookingData),
       });
@@ -641,7 +639,6 @@ async getServices(params = {}) {
   const queryString = new URLSearchParams(params).toString();
   try {
     const response = await this.request(`/services/?${queryString}`);
-    console.log(response);
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };
