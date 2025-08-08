@@ -343,7 +343,7 @@ class ApiService {
       approved: true // Автоматически одобряем отзывы, созданные через админку
     };
 
-    const response = await this.request('/admin/reviews', {
+    const response = await this.request('/reviews/admin/reviews', {
       method: 'POST',
       body: JSON.stringify(cleanData),
     });
@@ -365,7 +365,7 @@ async updateReview(reviewId, reviewData) {
       phone: reviewData.phone?.trim() || null
     };
 
-    const response = await this.request(`/admin/reviews/${reviewId}`, {
+    const response = await this.request(`/reviews/admin/reviews/${reviewId}`, {
       method: 'PUT',
       body: JSON.stringify(cleanData),
     });
@@ -405,7 +405,7 @@ async getAllReviewsAdmin(params = {}) {
 // Массовые операции с отзывами
 async bulkApproveReviews(reviewIds) {
   try {
-    const response = await this.request('/admin/reviews/bulk-approve', {
+    const response = await this.request('/reviews/admin/reviews/bulk-approve', {
       method: 'POST',
       body: JSON.stringify({ review_ids: reviewIds }),
     });
@@ -417,7 +417,7 @@ async bulkApproveReviews(reviewIds) {
 
 async bulkDeleteReviews(reviewIds) {
   try {
-    const response = await this.request('/admin/reviews/bulk-delete', {
+    const response = await this.request('/reviews/admin/reviews/bulk-delete', {
       method: 'POST',
       body: JSON.stringify({ review_ids: reviewIds }),
     });
@@ -430,7 +430,7 @@ async bulkDeleteReviews(reviewIds) {
 // Получить детальную статистику отзывов для админки
 async getAdminReviewStats() {
   try {
-    const response = await this.request('/admin/reviews/stats');
+    const response = await this.request('/reviews/admin/reviews/stats');
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };
@@ -438,38 +438,7 @@ async getAdminReviewStats() {
 }
 
 // Экспорт отзывов в CSV
-async exportReviews(params = {}) {
-  try {
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(`${API_BASE_URL}/admin/reviews/export?${queryString}`, {
-      headers: {
-        'Authorization': `Bearer ${this.getToken()}`,
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const blob = await response.blob();
-    return { success: true, blob };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
 
-// Отметить отзыв как избранный/рекомендуемый
-async toggleReviewFeatured(reviewId, featured = true) {
-  try {
-    const response = await this.request(`/admin/reviews/${reviewId}/featured`, {
-      method: 'PUT',
-      body: JSON.stringify({ featured }),
-    });
-    return { success: true, ...response };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
 
 // Получить отзывы с расширенными фильтрами для админки
 async getReviewsWithFilters(filters = {}) {
@@ -494,7 +463,7 @@ async getReviewsWithFilters(filters = {}) {
   const queryString = new URLSearchParams(params).toString();
   
   try {
-    const response = await this.request(`/admin/reviews/filtered?${queryString}`);
+    const response = await this.request(`/reviews/admin/reviews/filtered?${queryString}`);
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };
