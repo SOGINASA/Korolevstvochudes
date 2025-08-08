@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Star, Calendar, User, MessageCircle, Send, Heart, Filter, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Calendar, User, MessageCircle, Send, Heart, Filter, Search, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { apiService } from '../services/api';
 
 const ReviewsPage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -7,110 +8,124 @@ const ReviewsPage = () => {
     name: '',
     email: '',
     rating: 5,
-    title: '',
     text: '',
     serviceType: ''
   });
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const [stats, setStats] = useState({
+    total_reviews: 0,
+    average_rating: 0,
+    rating_distribution: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error'
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    per_page: 12,
+    total: 0,
+    pages: 0,
+    has_next: false,
+    has_prev: false
+  });
+  const [errors, setErrors] = useState({});
 
-  // Существующие отзывы
-  const existingReviews = [
-    {
-      id: 1,
-      name: "Алена",
-      date: "Feb 28, 2018",
-      rating: 5,
-      text: "Здраствуйте😊 хочу сказать Вам и Вашим ребятам, которые организовали нам праздник большое спасибо😘😘😘 Дети в восторге😄",
-      serviceType: "Детские праздники",
-      avatar: "👩"
-    },
-    {
-      id: 2,
-      name: "Марина",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "На протяжении последних 5 лет праздничное агентство \"Королевство Чудес\" приносит в жизнь нашей семьи мого радости,счастливых моментов,детский восторг! Ни одно мероприятие не проходит без веселых Гены и Чебурашки,медведей,милого сердечка,Зебры и многих других жителей Королевства.Конкурсы,мыльные пузыри и многие другие разалечения,шикарное музыкальное сопровождение расшевелят даже самых суровых гостей. Большое спасибо всему вашему коллективу и процветания!",
-      serviceType: "Детские праздники",
-      avatar: "👩‍💼"
-    },
-    {
-      id: 3,
-      name: "Валерия",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Здравствуйте! Спасибо Вам большое за весёлый, классный праздник. Ребёнку всё понравилось.",
-      serviceType: "Детские праздники",
-      avatar: "👱‍♀️"
-    },
-    {
-      id: 4,
-      name: "Елена Аличева",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Олю и Елену знаю уже очень давно! Вначале они проводили прекрасные и веселые праздники для детей и взрослых в Центральном Агентстве. В прошлом году пригласила Королевство чудес провести мой юбилей на природе😊. Это было незабываемо! Взрослые люди нахохотались, наигрались, надурачились как дети!👍👍👍Спасибо за организацию, позитив и возможность возвратиться туда, куда уже вроде и дороги то нет- в ДЕТСТВО!👏👏👏 Вы-лучшие!🎆🎉",
-      serviceType: "Юбилеи",
-      avatar: "👩‍🦳"
-    },
-    {
-      id: 5,
-      name: "Дмитрий",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Здравствуйте! Желаю выразить огромную благодарность вашей команде аниматоров: все сделали на высшем уровне, дети остались довольны, а вместе с ними и мы. Был приятно удивлен, спасибо!",
-      serviceType: "Детские праздники",
-      avatar: "👨"
-    },
-    {
-      id: 6,
-      name: "Александра",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Здравствуйте! Ваше агентство лучшее! Деткам очень понравилось,реалистичные костюмы, веселые, артистичные аниматоры. У нас на празднике была Баба Яга; огромный толстый костюм, как в нем получалось двигаться и веселиться с детьми это удивительно. Молодцы!!! Спасибо вам!",
-      serviceType: "Детские праздники",
-      avatar: "👩"
-    },
-    {
-      id: 7,
-      name: "Антон666",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Заказал два года назад фею на праздник, она мало того, что осталась у меня жить, так еще при разводе и пол квартиры отсудила!",
-      serviceType: "Детские праздники",
-      avatar: "😄"
-    },
-    {
-      id: 8,
-      name: "Айжан",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Пробовала разные праздничные агентства, ваш праздник был лучшим!!!",
-      serviceType: "Детские праздники",
-      avatar: "👩"
-    },
-    {
-      id: 9,
-      name: "Анастасия",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Здравствуйте! Хочу сказать спасибо команде \"Королевство чудес\" за прекрасное настроение наших деток 👍Вот уже 5 лет,на день рождения дочки мы приглашаем ваших аниматоров и заказываем шары, нас все устраивает! Успехов Вам!",
-      serviceType: "Детские праздники",
-      avatar: "👩‍💼"
-    },
-    {
-      id: 10,
-      name: "Горбань Евгения",
-      date: "Jan 16, 2018",
-      rating: 5,
-      text: "Здравствуйте! Ваше праздничное агентство самое лучшее!!! Вы дарите взрослым и деткам столько радости, суперских эмоций,отличное настроение !!! Все праздники проходят на королевском уровне!!!🎉🎊🎉 Спасибо что вы у нас есть👍 без вас не было бы таких крутых праздников!🔥💣💥 Ваша команда заслуживает высших похвал👏👏👏 и больших слов благодарности! Спасибо еще раз и дальнейших вам успехов!!!!!",
-      serviceType: "Детские праздники",
-      avatar: "👩‍🦰"
+  // Загрузка отзывов при монтировании компонента
+  useEffect(() => {
+    loadReviews();
+    loadStats();
+  }, [filter, pagination.page]);
+
+  // Поиск с задержкой
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchTerm) {
+        searchReviews();
+      } else {
+        loadReviews();
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const loadReviews = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        page: pagination.page,
+        per_page: pagination.per_page,
+        approved_only: true
+      };
+
+      if (filter !== 'all') {
+        // Примерное сопоставление фильтров с service_type
+        const serviceTypeMap = {
+          'детские': 'Детские праздники',
+          'свадьбы': 'Свадьбы',
+          'корпоративы': 'Корпоративы',
+          'юбилеи': 'Юбилеи'
+        };
+        params.service_type = serviceTypeMap[filter];
+      }
+
+      const result = await apiService.getReviews(params);
+      
+      if (result.success) {
+        setReviews(result.reviews || []);
+        setPagination(result.pagination || pagination);
+      } else {
+        console.error('Ошибка загрузки отзывов:', result.error);
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке отзывов:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const [reviews, setReviews] = useState(existingReviews);
+  const loadStats = async () => {
+    try {
+      const result = await apiService.getReviewStats();
+      if (result.success) {
+        setStats({
+          total_reviews: result.total_reviews || 0,
+          average_rating: result.average_rating || 0,
+          rating_distribution: result.rating_distribution || []
+        });
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке статистики:', error);
+    }
+  };
 
-  const averageRating = reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  const searchReviews = async () => {
+    if (!searchTerm.trim()) return;
+    
+    setLoading(true);
+    try {
+      const result = await apiService.searchReviews(searchTerm, 20);
+      if (result.success) {
+        setReviews(result.reviews || []);
+        // Обнуляем пагинацию для поиска
+        setPagination(prev => ({ 
+          ...prev, 
+          page: 1, 
+          total: result.total_found || 0,
+          pages: 1,
+          has_next: false,
+          has_prev: false
+        }));
+      }
+    } catch (error) {
+      console.error('Ошибка поиска:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -118,6 +133,14 @@ const ReviewsPage = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Очищаем ошибки при изменении
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
   };
 
   const handleRatingChange = (rating) => {
@@ -127,38 +150,79 @@ const ReviewsPage = () => {
     }));
   };
 
-  const handleSubmitReview = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!newReview.name.trim()) {
+      newErrors.name = 'Имя обязательно для заполнения';
+    } else if (newReview.name.trim().length < 2) {
+      newErrors.name = 'Имя должно содержать минимум 2 символа';
+    }
+
+    if (!newReview.text.trim()) {
+      newErrors.text = 'Текст отзыва обязателен для заполнения';
+    } else if (newReview.text.trim().length < 10) {
+      newErrors.text = 'Текст отзыва должен содержать минимум 10 символов';
+    }
+
+    if (newReview.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newReview.email)) {
+      newErrors.email = 'Некорректный email адрес';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (newReview.name && newReview.text && newReview.rating) {
-      const review = {
-        id: reviews.length + 1,
-        ...newReview,
-        date: new Date().toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
-        }),
-        avatar: "👤"
-      };
-      setReviews([review, ...reviews]);
-      setNewReview({
-        name: '',
-        email: '',
-        rating: 5,
-        title: '',
-        text: '',
-        serviceType: ''
-      });
-      setShowReviewForm(false);
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitStatus(null);
+    setSubmitMessage('');
+
+    try {
+      const result = await apiService.createReview(newReview);
+      
+      if (result.success) {
+        setSubmitStatus('success');
+        setSubmitMessage(result.message || 'Спасибо за отзыв! Он будет опубликован после модерации.');
+        
+        // Очищаем форму
+        setNewReview({
+          name: '',
+          email: '',
+          rating: 5,
+          text: '',
+          serviceType: ''
+        });
+        
+        // Закрываем форму через 3 секунды
+        setTimeout(() => {
+          setShowReviewForm(false);
+          setSubmitStatus(null);
+          setSubmitMessage('');
+        }, 3000);
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(result.error || 'Произошла ошибка при отправке отзыва');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage('Произошла ошибка при отправке отзыва');
+      console.error('Ошибка отправки отзыва:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const filteredReviews = reviews.filter(review => {
-    const matchesFilter = filter === 'all' || review.serviceType.toLowerCase().includes(filter.toLowerCase());
-    const matchesSearch = review.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         review.text.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const renderStars = (rating, interactive = false, onRatingChange = null) => {
     return (
@@ -194,11 +258,11 @@ const ReviewsPage = () => {
             {/* Статистика */}
             <div className="flex flex-wrap justify-center items-center space-x-8 mb-8">
               <div className="flex items-center space-x-2">
-                {renderStars(Math.round(averageRating))}
-                <span className="text-2xl font-bold">{averageRating.toFixed(1)}</span>
+                {renderStars(Math.round(stats.average_rating))}
+                <span className="text-2xl font-bold">{stats.average_rating.toFixed(1)}</span>
               </div>
               <div className="text-lg">
-                <span className="font-bold text-2xl">{reviews.length}</span> отзывов
+                <span className="font-bold text-2xl">{stats.total_reviews}</span> отзывов
               </div>
               <div className="text-lg">
                 <span className="font-bold text-2xl">12000+</span> счастливых клиентов
@@ -246,62 +310,114 @@ const ReviewsPage = () => {
           </div>
         </div>
 
+        {/* Загрузка */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+            <span className="ml-2 text-gray-600">Загрузка отзывов...</span>
+          </div>
+        )}
+
         {/* Сетка отзывов */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredReviews.map((review) => (
-            <div
-              key={review.id}
-              className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xl">
-                    {review.avatar}
+        {!loading && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white text-xl">
+                        {review.avatar || '👤'}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800">{review.name}</h3>
+                        <div className="flex items-center space-x-2 text-sm text-gray-500">
+                          <Calendar className="w-4 h-4" />
+                          <span>{review.date}</span>
+                        </div>
+                      </div>
+                    </div>
+                    {renderStars(review.rating)}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{review.name}</h3>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <Calendar className="w-4 h-4" />
-                      <span>{review.date}</span>
+
+                  {review.service_type && (
+                    <div className="mb-3">
+                      <span className="inline-block bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
+                        {review.service_type}
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    {review.text}
+                  </p>
+
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <div className="flex items-center space-x-1">
+                      <Heart className="w-4 h-4 text-red-400" />
+                      <span>Рекомендует</span>
                     </div>
                   </div>
                 </div>
-                {renderStars(review.rating)}
-              </div>
+              ))}
+            </div>
 
-              {review.serviceType && (
-                <div className="mb-3">
-                  <span className="inline-block bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-medium">
-                    {review.serviceType}
-                  </span>
+            {/* Пагинация */}
+            {pagination.pages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mb-8">
+                <button
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={!pagination.has_prev}
+                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  Назад
+                </button>
+                
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+                    const page = i + 1;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-4 py-2 rounded-lg ${
+                          page === pagination.page
+                            ? 'bg-purple-600 text-white'
+                            : 'border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
 
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {review.text}
-              </p>
-
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <Heart className="w-4 h-4 text-red-400" />
-                  <span>Рекомендует</span>
-                </div>
-                <button className="text-purple-600 hover:text-purple-700 font-medium">
-                  Ответить
+                <button
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={!pagination.has_next}
+                  className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  Вперед
                 </button>
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </>
+        )}
 
-        {filteredReviews.length === 0 && (
+        {!loading && reviews.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-semibold text-gray-600 mb-2">
               Отзывы не найдены
             </h3>
             <p className="text-gray-500">
-              Попробуйте изменить параметры поиска или фильтр
+              {searchTerm 
+                ? 'Попробуйте изменить поисковый запрос' 
+                : 'Попробуйте изменить параметры фильтра'
+              }
             </p>
           </div>
         )}
@@ -316,12 +432,29 @@ const ReviewsPage = () => {
               <button
                 onClick={() => setShowReviewForm(false)}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
+                disabled={submitting}
               >
                 ×
               </button>
             </div>
 
-            <div className="space-y-6">
+            {/* Статус отправки */}
+            {submitStatus && (
+              <div className={`mb-6 p-4 rounded-lg flex items-center space-x-2 ${
+                submitStatus === 'success' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {submitStatus === 'success' ? (
+                  <CheckCircle className="w-5 h-5" />
+                ) : (
+                  <AlertCircle className="w-5 h-5" />
+                )}
+                <span>{submitMessage}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmitReview} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -333,9 +466,15 @@ const ReviewsPage = () => {
                     value={newReview.name}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="Введите ваше имя"
+                    disabled={submitting}
                   />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  )}
                 </div>
 
                 <div>
@@ -347,9 +486,15 @@ const ReviewsPage = () => {
                     name="email"
                     value={newReview.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     placeholder="your@email.com"
+                    disabled={submitting}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
               </div>
 
@@ -362,13 +507,15 @@ const ReviewsPage = () => {
                   value={newReview.serviceType}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  disabled={submitting}
                 >
                   <option value="">Выберите тип услуги</option>
                   <option value="Детские праздники">Детские праздники</option>
-                  <option value="Свадьбы">Свадьбы</option>
-                  <option value="Корпоративы">Корпоративы</option>
-                  <option value="Юбилеи">Юбилеи</option>
-                  <option value="Другое">Другое</option>
+                  <option value="Свадебные торжества">Свадьбы</option>
+                  <option value="Корпоративные мероприятия">Корпоративы</option>
+                  <option value="Квесты и игры">Квесты и игры</option>
+                  <option value="Шоу-программы">Шоу-программы</option>
+                  <option value="Дополнительные услуги">Другое</option>
                 </select>
               </div>
 
@@ -377,25 +524,11 @@ const ReviewsPage = () => {
                   Оценка *
                 </label>
                 <div className="flex items-center space-x-2">
-                  {renderStars(newReview.rating, true, handleRatingChange)}
+                  {renderStars(newReview.rating, !submitting, handleRatingChange)}
                   <span className="text-sm text-gray-600 ml-4">
                     {newReview.rating} из 5 звезд
                   </span>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Заголовок отзыва
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={newReview.title}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Кратко опишите ваш опыт"
-                />
               </div>
 
               <div>
@@ -408,9 +541,18 @@ const ReviewsPage = () => {
                   onChange={handleInputChange}
                   required
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none ${
+                    errors.text ? 'border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Расскажите подробно о вашем опыте работы с нами..."
+                  disabled={submitting}
                 />
+                {errors.text && (
+                  <p className="text-red-500 text-sm mt-1">{errors.text}</p>
+                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  Минимум 10 символов ({newReview.text.length}/2000)
+                </p>
               </div>
 
               <div className="flex justify-end space-x-4">
@@ -418,18 +560,29 @@ const ReviewsPage = () => {
                   type="button"
                   onClick={() => setShowReviewForm(false)}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={submitting}
                 >
                   Отмена
                 </button>
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all inline-flex items-center space-x-2"
+                  disabled={submitting}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all inline-flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-5 h-5" />
-                  <span>Отправить отзыв</span>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Отправка...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      <span>Отправить отзыв</span>
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}

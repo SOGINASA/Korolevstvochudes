@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, User, Lock, Mail, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff, User, Lock, Mail, Shield, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const AdminAuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,7 +14,17 @@ const AdminAuthPage = () => {
     name: ''
   });
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { login, register, isAuthenticated, isLoading, admin } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Перенаправляем авторизованных пользователей
+  if (isAuthenticated) {
+    const from = location.state?.from?.pathname || '/admin';
+    return <Navigate to={from} replace />;
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +41,7 @@ const AdminAuthPage = () => {
       }));
     }
   };
-
+  
   const validateForm = () => {
     const newErrors = {};
 
@@ -50,8 +62,8 @@ const AdminAuthPage = () => {
 
     // Валидация для регистрации
     if (!isLogin) {
-      if (!formData.name) {
-        newErrors.name = 'Имя обязательно';
+      if (!formData.name || formData.name.trim().length < 2) {
+        newErrors.name = 'Имя должно содержать минимум 2 символа';
       }
 
       if (!formData.confirmPassword) {
@@ -72,27 +84,36 @@ const AdminAuthPage = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     
-    // Симуляция запроса к API
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
       if (isLogin) {
-        console.log('Вход в систему:', { email: formData.email, password: formData.password });
-        alert('Вход выполнен успешно!');
+        const result = await login(formData.email, formData.password);
+        
+        if (result.success) {
+          const from = location.state?.from?.pathname || '/admin';
+          navigate(from, { replace: true });
+        } else {
+          setErrors({ general: result.error });
+        }
       } else {
-        console.log('Регистрация:', { 
-          name: formData.name, 
-          email: formData.email, 
-          password: formData.password 
+        const result = await register({
+          name: formData.name.trim(),
+          email: formData.email,
+          password: formData.password
         });
-        alert('Регистрация прошла успешно!');
+        
+        if (result.success) {
+          alert('Администратор успешно зарегистрирован!');
+          toggleMode(); // Переключаемся на форму входа
+        } else {
+          setErrors({ general: result.error });
+        }
       }
     } catch (error) {
-      alert('Произошла ошибка. Попробуйте снова.');
+      setErrors({ general: 'Произошла ошибка. Попробуйте снова.' });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -107,7 +128,18 @@ const AdminAuthPage = () => {
     setErrors({});
   };
 
-  return (
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+        return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center p-4">
       {/* Декоративные элементы */}
       <div className="absolute inset-0 overflow-hidden">
@@ -135,7 +167,7 @@ const AdminAuthPage = () => {
         <div className="bg-white bg-opacity-95 backdrop-blur-lg rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {isLogin ? 'Вход в систему' : 'Регистрация'}
+              {isLogin ? 'Вход в систему' : 'Регистрация администратора'}
             </h2>
             <p className="text-gray-600 text-sm">
               {isLogin 
@@ -145,11 +177,19 @@ const AdminAuthPage = () => {
             </p>
           </div>
 
-          <div className="space-y-4">
+          {/* Общая ошибка */}
+          {errors.general && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center">
+              <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+              <span className="text-sm">{errors.general}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Полное имя
+                  Полное имя *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -172,7 +212,7 @@ const AdminAuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email адрес
+                Email адрес *
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -194,7 +234,7 @@ const AdminAuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Пароль
+                Пароль *
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -224,7 +264,7 @@ const AdminAuthPage = () => {
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Подтвердите пароль
+                  Подтвердите пароль *
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -264,19 +304,18 @@ const AdminAuthPage = () => {
                     Запомнить меня
                   </label>
                 </div>
-                <button className="text-sm text-purple-600 hover:text-purple-500 transition-colors">
+                <button type="button" className="text-sm text-purple-600 hover:text-purple-500 transition-colors">
                   Забыли пароль?
                 </button>
               </div>
             )}
 
             <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isLoading}
+              type="submit"
+              disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-pink-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                   {isLogin ? 'Входим...' : 'Регистрируем...'}
@@ -285,9 +324,21 @@ const AdminAuthPage = () => {
                 isLogin ? 'Войти в систему' : 'Создать аккаунт'
               )}
             </button>
-          </div>
+          </form>
 
-          
+          {/* Переключение между входом и регистрацией */}
+          <div className="mt-6 text-center">
+            <p className="text-gray-600 text-sm">
+              {isLogin ? 'Нет аккаунта администратора?' : 'Уже есть аккаунт?'}
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="ml-1 text-purple-600 hover:text-purple-500 font-medium transition-colors"
+              >
+                {isLogin ? 'Зарегистрироваться' : 'Войти'}
+              </button>
+            </p>
+          </div>
 
           {/* Информация о безопасности */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
