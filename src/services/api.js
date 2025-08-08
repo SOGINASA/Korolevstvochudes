@@ -326,7 +326,7 @@ class ApiService {
   async getServices(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     try {
-      const response = await this.request(`/services?${queryString}`);
+      const response = await this.request(`/services/?${queryString}`);
       return { success: true, ...response };
     } catch (error) {
       return { success: false, error: error.message };
@@ -640,7 +640,8 @@ async bulkDeleteServices(serviceIds) {
 async getServices(params = {}) {
   const queryString = new URLSearchParams(params).toString();
   try {
-    const response = await this.request(`/services?${queryString}`);
+    const response = await this.request(`/services/?${queryString}`);
+    console.log(response);
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };

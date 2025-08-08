@@ -36,8 +36,6 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react';
-
-// Импортируем API сервис (предполагается, что он находится в utils/api)
 import { apiService } from '../../services/api';
 
 const ServicesPage = () => {
@@ -108,9 +106,9 @@ const ServicesPage = () => {
           features: Array.isArray(service.features) ? service.features : (service.features ? service.features.split(',').map(f => f.trim()) : []),
           subcategories: Array.isArray(service.subcategories) ? service.subcategories : (service.subcategories ? service.subcategories.split(',').map(s => s.trim()) : []),
           images: Array.isArray(service.images) && service.images.length > 0 ? service.images : [
-            service.cover_image || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+            service.coverImage
           ],
-          coverImage: service.cover_image || 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+          coverImage: service.coverImage,
           featured: Boolean(service.featured),
           tags: Array.isArray(service.tags) ? service.tags : (service.tags ? service.tags.split(',').map(t => t.trim()) : []),
           icon: getCategoryIcon(service.category),
@@ -210,7 +208,7 @@ const ServicesPage = () => {
   const filteredServices = activeFilter === 'all' 
     ? servicesData 
     : servicesData.filter(service => service.category === activeFilter);
-
+  console.log(filteredServices)
   // Функции модального окна (без изменений)
   const openServiceModal = (service, imageIndex = 0) => {
     setSelectedService(service);
@@ -488,7 +486,7 @@ const ServicesPage = () => {
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                   className="text-3xl font-bold text-yellow-300 mb-2"
                 >
-                  {categories.length}
+                  {categories.length - 1}
                 </motion.div>
                 <div className="text-purple-100">Категорий услуг</div>
               </div>
@@ -650,22 +648,16 @@ const ServicesPage = () => {
                 >
                   {viewMode === 'grid' ? (
                     // Grid View
+                    
                     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden h-full flex flex-col">
-                      {service.featured && (
-                        <div className="absolute top-4 left-4 z-10">
-                          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                            ПОПУЛЯРНОЕ
-                          </span>
-                        </div>
-                      )}
-                      
                       <div className="relative h-64 overflow-hidden flex-shrink-0">
                         <img
                           src={service.coverImage}
                           alt={service.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                            console.log(e);
+                            
                           }}
                         />
                         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
@@ -680,9 +672,6 @@ const ServicesPage = () => {
                           <div className="flex gap-4">
                             <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
                               <Eye className="w-6 h-6 text-gray-700" />
-                            </div>
-                            <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
-                              <Heart className="w-6 h-6 text-red-500" />
                             </div>
                           </div>
                         </div>
@@ -704,7 +693,7 @@ const ServicesPage = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <MessageCircle size={16} />
-                            <span className="truncate">{service.reviews} отзывов</span>
+                            <span className="truncate"> отзывов</span>
                           </div>
                         </div>
 
@@ -732,7 +721,7 @@ const ServicesPage = () => {
                           alt={service.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                            console.log(e);
                           }}
                         />
                         <div className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
@@ -837,7 +826,7 @@ const ServicesPage = () => {
                     alt={selectedService.title}
                     className="w-full h-64 sm:h-96 lg:h-full object-cover"
                     onError={(e) => {
-                      e.target.src = 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                      console.log(e);
                     }}
                   />
                   
@@ -909,9 +898,6 @@ const ServicesPage = () => {
                         {[...Array(Math.floor(selectedService.rating))].map((_, i) => (
                           <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                         ))}
-                        <span className="text-gray-700 text-sm ml-1">
-                          {selectedService.rating} ({selectedService.reviews} отзывов)
-                        </span>
                       </div>
                     </div>
                   </div>
