@@ -469,6 +469,221 @@ async getReviewsWithFilters(filters = {}) {
     return { success: false, error: error.message };
   }
 }
+  // Добавьте эти методы в ваш существующий ApiService класс
+
+// ============ МЕТОДЫ ДЛЯ УСЛУГ ============
+
+// Получить услуги для админки (включая неактивные)
+async getAdminServices(params = {}) {
+  const queryString = new URLSearchParams(params).toString();
+  try {
+    const response = await this.request(`/services/admin?${queryString}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Создать новую услугу
+async createService(serviceData) {
+  try {
+    // Очищаем данные перед отправкой
+    const cleanData = {
+      title: serviceData.title?.trim(),
+      category: serviceData.category?.trim(),
+      duration: serviceData.duration?.trim(),
+      minGuests: serviceData.minGuests?.trim(),
+      rating: parseFloat(serviceData.rating) || 5.0,
+      price: serviceData.price?.trim(),
+      priceDescription: serviceData.priceDescription?.trim(),
+      description: serviceData.description?.trim(),
+      features: serviceData.features || [],
+      subcategories: serviceData.subcategories || [],
+      coverImage: serviceData.coverImage?.trim(),
+      images: serviceData.images || [],
+      featured: Boolean(serviceData.featured),
+      tags: serviceData.tags || [],
+      status: serviceData.status || 'active'
+    };
+
+    // Обрабатываем строковые значения, разделенные запятыми
+    if (typeof cleanData.features === 'string') {
+      cleanData.features = cleanData.features.split(',').map(f => f.trim()).filter(f => f);
+    }
+    if (typeof cleanData.subcategories === 'string') {
+      cleanData.subcategories = cleanData.subcategories.split(',').map(s => s.trim()).filter(s => s);
+    }
+    if (typeof cleanData.tags === 'string') {
+      cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+    }
+    if (typeof cleanData.images === 'string') {
+      cleanData.images = cleanData.images.split(',').map(i => i.trim()).filter(i => i);
+    }
+
+    const response = await this.request('/services/admin', {
+      method: 'POST',
+      body: JSON.stringify(cleanData),
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Обновить услугу
+async updateService(serviceId, serviceData) {
+  try {
+    // Очищаем данные перед отправкой
+    const cleanData = {
+      title: serviceData.title?.trim(),
+      category: serviceData.category?.trim(),
+      duration: serviceData.duration?.trim(),
+      minGuests: serviceData.minGuests?.trim(),
+      rating: parseFloat(serviceData.rating) || 5.0,
+      price: serviceData.price?.trim(),
+      priceDescription: serviceData.priceDescription?.trim(),
+      description: serviceData.description?.trim(),
+      features: serviceData.features || [],
+      subcategories: serviceData.subcategories || [],
+      coverImage: serviceData.coverImage?.trim(),
+      images: serviceData.images || [],
+      featured: Boolean(serviceData.featured),
+      tags: serviceData.tags || [],
+      status: serviceData.status || 'active'
+    };
+
+    // Обрабатываем строковые значения, разделенные запятыми
+    if (typeof cleanData.features === 'string') {
+      cleanData.features = cleanData.features.split(',').map(f => f.trim()).filter(f => f);
+    }
+    if (typeof cleanData.subcategories === 'string') {
+      cleanData.subcategories = cleanData.subcategories.split(',').map(s => s.trim()).filter(s => s);
+    }
+    if (typeof cleanData.tags === 'string') {
+      cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+    }
+    if (typeof cleanData.images === 'string') {
+      cleanData.images = cleanData.images.split(',').map(i => i.trim()).filter(i => i);
+    }
+
+    const response = await this.request(`/services/admin/${serviceId}`, {
+      method: 'PUT',
+      body: JSON.stringify(cleanData),
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Удалить услугу
+async deleteService(serviceId) {
+  try {
+    const response = await this.request(`/services/admin/${serviceId}`, {
+      method: 'DELETE',
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Получить статистику услуг
+async getServicesStats() {
+  try {
+    const response = await this.request('/services/admin/stats');
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Массовое обновление услуг
+async bulkUpdateServices(serviceIds, updateData) {
+  try {
+    const response = await this.request('/services/admin/bulk-update', {
+      method: 'POST',
+      body: JSON.stringify({
+        service_ids: serviceIds,
+        update_data: updateData
+      }),
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Массовое удаление услуг
+async bulkDeleteServices(serviceIds) {
+  try {
+    const response = await this.request('/services/admin/bulk-delete', {
+      method: 'POST',
+      body: JSON.stringify({
+        service_ids: serviceIds
+      }),
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Получить публичные услуги (существующий метод, но с улучшенной обработкой)
+async getServices(params = {}) {
+  const queryString = new URLSearchParams(params).toString();
+  try {
+    const response = await this.request(`/services?${queryString}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Получить конкретную услугу
+async getService(serviceId) {
+  try {
+    const response = await this.request(`/services/${serviceId}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Получить категории услуг
+async getServiceCategories() {
+  try {
+    const response = await this.request('/services/categories');
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Получить рекомендуемые услуги
+async getFeaturedServices(limit = 6) {
+  try {
+    const response = await this.request(`/services/featured?limit=${limit}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Поиск услуг
+async searchServices(query, filters = {}) {
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      ...filters
+    });
+    
+    const response = await this.request(`/services/search?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 }
 
 export const apiService = new ApiService();
