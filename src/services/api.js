@@ -378,7 +378,7 @@ async updateReview(reviewId, reviewData) {
 // Удалить отзыв
 async deleteReview(reviewId) {
   try {
-    const response = await this.request(`/admin/reviews/${reviewId}`, {
+    const response = await this.request(`/reviews/admin/reviews/${reviewId}`, {
       method: 'DELETE',
     });
     return { success: true, ...response };
