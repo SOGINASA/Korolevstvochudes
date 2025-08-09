@@ -661,7 +661,7 @@ const ContactsPage = () => {
                           <h3 className="font-semibold text-gray-900 mb-4">Мы в социальных сетях</h3>
                           <div className="flex gap-4">
                             <a
-                              href={`https://instagram.com/${settings.social_instagram.replace('@', '')}`}
+                              href={`${settings.social_instagram.replace('@', '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"

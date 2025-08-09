@@ -365,11 +365,8 @@ const ServicesPage = () => {
       guests_count: bookingForm.guestCount ? parseInt(bookingForm.guestCount) : null,
       budget: bookingForm.totalPrice ? bookingForm.totalPrice.toString() : null,
       location: bookingForm.location || null,
-      message: [
-        bookingForm.specialRequests || '',
-        bookingForm.selectedPackage ? `Пакет: ${bookingForm.selectedPackage}` : '',
-        bookingForm.totalPrice ? `Ориентировочная стоимость: ${bookingForm.totalPrice}` : ''
-      ].filter(Boolean).join('. ') || null
+      message: 
+        bookingForm.specialRequests
     };
 
 

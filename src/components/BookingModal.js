@@ -1,19 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Menu, 
   X, 
-  Phone, 
-  Mail, 
-  MapPin, 
   ChevronDown, 
   Check, 
   ArrowLeft, 
   ArrowRight,
-  Clock,
-  MessageCircle,
   Loader2,
-  Star,
   Baby,
   HeartHandshake,
   Building2,
@@ -23,19 +16,13 @@ import {
   Palette,
   Cake,
   Gift,
-  Gamepad2
+  Gamepad2,
+  Star
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { apiService } from '../services/api';
 import { formatPhoneNumber } from '../utils/helpers';
-import { useSettings, useCompanyInfo } from '../contexts/SettingsContext';
 
-
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showBookingForm, setShowBookingForm] = useState(false);
+const BookingModal = ({ isOpen, onClose }) => {
   const [showCategorySelect, setShowCategorySelect] = useState(false);
   const [bookingStep, setBookingStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
@@ -54,58 +41,8 @@ const Header = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
-  const location = useLocation();
-  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
-  const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
-  const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
-  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
-  const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
-  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
-  const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
-  // Отслеживание скролла для изменения стиля хедера
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Закрытие мобильного меню при смене маршрута
-  useEffect(() => {
-    setIsMenuOpen(false);
-    setActiveDropdown(null);
-  }, [location]);
-
-  const navItems = [
-    { name: 'Главная', path: '/' },
-    { name: 'Портфолио', path: '/portfolio' },
-    { name: 'Услуги', path: '/uslugi' },
-    { name: 'Отзывы', path: '/otzyvy-klientov' },
-    { name: 'О нас', path: '/o-kompanii' },
-    { name: 'Контакты', path: '/kontakty' },
-  ];
-
-  // Функция для получения иконки категории (как в ServicesPage)
-  const getCategoryIcon = (category) => {
-    const iconMap = {
-      'children': <Baby className="w-5 h-5 text-purple-600" />,
-      'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
-      'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
-      'animators': <Users className="w-5 h-5 text-green-600" />,
-      'shows': <Zap className="w-5 h-5 text-orange-600" />,
-      'photo': <Camera className="w-5 h-5 text-indigo-600" />,
-      'decoration': <Palette className="w-5 h-5 text-red-600" />,
-      'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
-      'seasonal': <Gift className="w-5 h-5 text-emerald-600" />,
-      'quests': <Gamepad2 className="w-5 h-5 text-cyan-600" />
-    };
-    return iconMap[category] || <Star className="w-5 h-5 text-purple-600" />;
-  };
-
-  // Функция для генерации пакетов по умолчанию (как в ServicesPage)
+  // Функция для генерации пакетов по умолчанию
   const generateDefaultPackages = (basePrice) => {
     const priceNum = basePrice ? parseInt(basePrice.replace(/\D/g, '')) : 20000;
     return [
@@ -130,7 +67,7 @@ const Header = () => {
     ];
   };
 
-  // Категории услуг (обновленный формат как в ServicesPage)
+  // Категории услуг
   const categories = [
     { 
       id: 'children', 
@@ -174,20 +111,29 @@ const Header = () => {
     }
   ];
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  // Получение иконки категории
+  const getCategoryIcon = (category) => {
+    const iconMap = {
+      'children': <Baby className="w-5 h-5 text-purple-600" />,
+      'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
+      'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
+      'animators': <Users className="w-5 h-5 text-green-600" />,
+      'shows': <Zap className="w-5 h-5 text-orange-600" />,
+      'photo': <Camera className="w-5 h-5 text-indigo-600" />,
+      'decoration': <Palette className="w-5 h-5 text-red-600" />,
+      'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
+      'seasonal': <Gift className="w-5 h-5 text-emerald-600" />,
+      'quests': <Gamepad2 className="w-5 h-5 text-cyan-600" />
+    };
+    return iconMap[category] || <Star className="w-5 h-5 text-purple-600" />;
   };
 
-  const handleDropdown = (index) => {
-    setActiveDropdown(activeDropdown === index ? null : index);
-  };
-
-  // Функции для бронирования (обновленные под формат ServicesPage)
+  // Открытие модала выбора категории
   const openCategorySelect = () => {
     setShowCategorySelect(true);
-    document.body.style.overflow = 'hidden';
   };
 
+  // Выбор категории
   const selectCategory = (category) => {
     const selectedCategory = categories.find(c => c.id === category.id);
     setSelectedService({
@@ -214,18 +160,31 @@ const Header = () => {
     
     setShowCategorySelect(false);
     setBookingStep(1);
-    setShowBookingForm(true);
   };
 
+  // Закрытие формы
   const closeBookingForm = () => {
-    setShowBookingForm(false);
     setShowCategorySelect(false);
     setBookingSuccess(false);
     setBookingStep(1);
     setSelectedService(null);
-    document.body.style.overflow = 'auto';
+    setBookingForm(prev =>({
+        prev: prev,
+        selectedDate: '',
+        selectedTime: '',
+        selectedPackage: 'Базовый',
+        clientName: '',
+        clientPhone: '',
+        clientEmail: '',
+        guestCount: '',
+        specialRequests: '',
+        totalPrice: 0,
+        category: ''
+    }));
+    onClose();
   };
 
+  // Навигация по шагам
   const nextBookingStep = () => {
     setBookingStep(prev => Math.min(prev + 1, 3));
   };
@@ -234,6 +193,7 @@ const Header = () => {
     setBookingStep(prev => Math.max(prev - 1, 1));
   };
 
+  // Обновление формы
   const updateBookingForm = (field, value) => {
     setBookingForm(prev => ({
       ...prev,
@@ -241,34 +201,23 @@ const Header = () => {
     }));
   };
 
-  const selectPackage = (packageData) => {
-    const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
-    setBookingForm(prev => ({
-      ...prev,
-      selectedPackage: packageData.name,
-      totalPrice: price
-    }));
-  };
-
+  // Отправка заявки
   const submitBooking = async () => {
     setIsSubmitting(true);
-  
+    
     try {
       // Функция для форматирования даты в строку YYYY-MM-DD
       const formatDate = (dateValue) => {
         if (!dateValue) return null;
         
-        // Если это уже строка в правильном формате
         if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
           return dateValue;
         }
         
-        // Если это объект Date
         if (dateValue instanceof Date) {
           return dateValue.toISOString().split('T')[0];
         }
         
-        // Попытаемся преобразовать в Date и затем в строку
         const date = new Date(dateValue);
         if (!isNaN(date.getTime())) {
           return date.toISOString().split('T')[0];
@@ -276,21 +225,19 @@ const Header = () => {
         
         return null;
       };
-        // Функция для форматирования времени в строку HH:MM
+
+      // Функция для форматирования времени в строку HH:MM
       const formatTime = (timeValue) => {
         if (!timeValue) return null;
         
-        // Если это уже строка в правильном формате
         if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
           return timeValue;
         }
         
-        // Если это объект Date
         if (timeValue instanceof Date) {
           return timeValue.toTimeString().slice(0, 5);
         }
         
-        // Если это строка времени в другом формате
         if (typeof timeValue === 'string') {
           const time = new Date(`2000-01-01T${timeValue}`);
           if (!isNaN(time.getTime())) {
@@ -301,13 +248,10 @@ const Header = () => {
         return null;
       };
 
-        // Правильно сформированные данные для отправки на бэкенд
+      // Данные для отправки
       const bookingData = {
-        // Обязательные поля
         name: bookingForm.clientName || '',
         phone: formatPhoneNumber(bookingForm.clientPhone),
-        
-        // Опциональные поля (используем правильные названия)
         email: bookingForm.clientEmail || null,
         service_id: selectedService?.id || null,
         event_date: formatDate(bookingForm.selectedDate),
@@ -318,8 +262,7 @@ const Header = () => {
         message: bookingForm.specialRequests
       };
 
-
-      // Валидация перед отправкой
+      // Валидация
       if (!bookingData.name.trim()) {
         throw new Error('Имя обязательно для заполнения');
       }
@@ -328,16 +271,17 @@ const Header = () => {
         throw new Error('Телефон обязателен для заполнения');
       }
 
-      // Отправляем бронирование на сервер
+      // Отправка на сервер
       const result = await apiService.createBooking(bookingData);
       
       if (result.success) {
         setBookingSuccess(true);
         setBookingStep(3);
         
-        // Очищаем форму после успешной отправки
-        setBookingForm({
-          prev: bookingForm,
+        // Очистка формы
+        setBookingForm(prev => ({
+          ...prev,
+          prev: prev,
           selectedDate: null,
           selectedTime: null,
           selectedPackage: null,
@@ -348,15 +292,14 @@ const Header = () => {
           specialRequests: '',
           location: '',
           totalPrice: 0
-        });
+        }));
         
-        } else {
-          throw new Error(result.error || 'Ошибка при создании бронирования');
-        }
+      } else {
+        throw new Error(result.error || 'Ошибка при создании бронирования');
+      }
     } catch (error) {
       console.error('Ошибка бронирования:', error);
       
-      // Более детальная обработка ошибок
       let errorMessage = 'Произошла ошибка при бронировании';
       
       if (error.message.includes('400')) {
@@ -376,7 +319,7 @@ const Header = () => {
     }
   };
 
-  // Календарь (как в ServicesPage)
+  // Генерация дней календаря
   const generateCalendarDays = () => {
     const year = currentCalendarDate.getFullYear();
     const month = currentCalendarDate.getMonth();
@@ -396,6 +339,7 @@ const Header = () => {
     return days;
   };
 
+  // Навигация календаря
   const navigateCalendar = (direction) => {
     const newDate = new Date(currentCalendarDate);
     newDate.setMonth(newDate.getMonth() + direction);
@@ -409,216 +353,34 @@ const Header = () => {
 
   const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
+  // Обработка клавиши Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((showBookingForm || showCategorySelect) && e.key === 'Escape') {
+      if (isOpen && e.key === 'Escape') {
         closeBookingForm();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showBookingForm, showCategorySelect]);
+  }, [isOpen]);
+
+  // Эффект для открытия селектора категории при открытии модала
+  useEffect(() => {
+    if (isOpen && !selectedService) {
+      setShowCategorySelect(true);
+      document.body.style.overflow = 'hidden';
+    } else if (!isOpen) {
+      setShowCategorySelect(false);
+      document.body.style.overflow = 'auto';
+    }
+  }, [isOpen, selectedService]);
 
   return (
     <>
-      {/* Верхняя полоса с контактами */}
-      <div className="bg-primary-600 text-white text-sm py-2 hidden lg:block">
-        <div className="container-custom">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <Phone size={14} />
-                <span>{getCompanyPhone()}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail size={14} />
-                <span>{getCompanyEmail()}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin size={14} />
-                <span>{getCompanyAddress()}</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-secondary-300">Работаем ежедневно с 9:00 до 21:00</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Основной хедер */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
-          : 'bg-white'
-      }`}>
-        <div className="container-custom">
-          <div className="flex items-center justify-between py-4">
-            {/* Логотип */}
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">КЧ</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-heading font-bold text-gray-900">
-                  Королевство Чудес
-                </h1>
-                <p className="text-sm text-gray-600">Праздничное агентство</p>
-              </div>
-            </Link>
-
-            {/* Десктопное меню */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {navItems.map((item, index) => (
-                <div key={index} className="relative group">
-                  {item.children ? (
-                    <>
-                      <button
-                        className="flex items-center space-x-1 text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
-                        onMouseEnter={() => setActiveDropdown(index)}
-                      >
-                        <span>{item.name}</span>
-                        <ChevronDown size={16} className="transition-transform duration-200 group-hover:rotate-180" />
-                      </button>
-                      
-                      <AnimatePresence>
-                        {activeDropdown === index && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 py-2"
-                            onMouseLeave={() => setActiveDropdown(null)}
-                          >
-                            {item.children.map((child, childIndex) => (
-                              <Link
-                                key={childIndex}
-                                to={child.path}
-                                className="block px-4 py-3 text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200"
-                              >
-                                {child.name}
-                              </Link>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </>
-                  ) : (
-                    <Link
-                      to={item.path}
-                      className={`text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 ${
-                        location.pathname === item.path ? 'text-primary-600' : ''
-                      }`}
-                    >
-                      {item.name}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </nav>
-
-            {/* CTA кнопка и мобильное меню */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={openCategorySelect}
-                className="hidden md:inline-flex btn-primary"
-              >
-                Заказать праздник
-              </button>
-              
-              {/* Мобильная кнопка меню */}
-              <button
-                onClick={toggleMenu}
-                className="lg:hidden p-2 text-gray-700 hover:text-primary-600 transition-colors duration-200"
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Мобильное меню */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="lg:hidden bg-white border-t border-gray-100"
-            >
-              <div className="container-custom py-4">
-                <nav className="space-y-4">
-                  {navItems.map((item, index) => (
-                    <div key={index}>
-                      {item.children ? (
-                        <>
-                          <button
-                            onClick={() => handleDropdown(index)}
-                            className="flex items-center justify-between w-full text-left text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200"
-                          >
-                            <span>{item.name}</span>
-                            <ChevronDown 
-                              size={16} 
-                              className={`transition-transform duration-200 ${
-                                activeDropdown === index ? 'rotate-180' : ''
-                              }`} 
-                            />
-                          </button>
-                          
-                          <AnimatePresence>
-                            {activeDropdown === index && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="mt-2 ml-4 space-y-2"
-                              >
-                                {item.children.map((child, childIndex) => (
-                                  <Link
-                                    key={childIndex}
-                                    to={child.path}
-                                    className="block text-gray-600 hover:text-primary-600 transition-colors duration-200"
-                                  >
-                                    {child.name}
-                                  </Link>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </>
-                      ) : (
-                        <Link
-                          to={item.path}
-                          className={`block text-gray-700 hover:text-primary-600 font-medium transition-colors duration-200 ${
-                            location.pathname === item.path ? 'text-primary-600' : ''
-                          }`}
-                        >
-                          {item.name}
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                  
-                  <button
-                    onClick={openCategorySelect}
-                    className="block w-full text-center btn-primary mt-6"
-                  >
-                    Заказать праздник
-                  </button>
-                </nav>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
-
-      {/* Модальное окно выбора категории (как в ServicesPage) */}
+      {/* Модальное окно выбора категории */}
       <AnimatePresence>
-        {showCategorySelect && (
+        {showCategorySelect && isOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -667,9 +429,9 @@ const Header = () => {
         )}
       </AnimatePresence>
 
-      {/* Форма бронирования (точно как в ServicesPage) */}
+      {/* Форма бронирования */}
       <AnimatePresence>
-        {showBookingForm && (
+        {isOpen && selectedService && !showCategorySelect && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -689,7 +451,7 @@ const Header = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold mb-2">Бронирование услуги</h2>
-                    <p className="text-purple-100">{selectedService?.title}</p>
+                    <p className="text-purple-100">{selectedService?.title || 'Выберите услугу'}</p>
                   </div>
                   <button
                     onClick={closeBookingForm}
@@ -901,9 +663,9 @@ const Header = () => {
                         <div className="bg-purple-50 rounded-xl p-4">
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
-                            <p>Услуга: {selectedService?.title}</p>
-                            <p>Дата: {new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU')}</p>
-                            <p>Время: {bookingForm.prev.selectedTime}</p>
+                            <p>Услуга: {selectedService?.prev?.title || 'Не выбрана'}</p>
+                            <p>Дата: {bookingForm.prev.selectedDate ? new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
+                            <p>Время: {bookingForm.prev.selectedTime || '-'}</p>
                           </div>
                         </div>
                       </>
@@ -916,7 +678,7 @@ const Header = () => {
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Услуга:</span>
-                              <span className="font-medium">{selectedService?.title}</span>
+                              <span className="font-medium">{selectedService?.title || 'Не выбрана'}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Дата:</span>
@@ -940,7 +702,7 @@ const Header = () => {
                               <div className="flex justify-between text-lg">
                                 <span className="font-semibold">Итого:</span>
                                 <span className="font-bold text-purple-600">
-                                  {bookingForm.totalPrice.toLocaleString()} ₸
+                                  {bookingForm.totalPrice ? bookingForm.totalPrice.toLocaleString() : '0'} ₸
                                 </span>
                               </div>
                             </div>
@@ -1008,4 +770,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default BookingModal;
