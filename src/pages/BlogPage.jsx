@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, Clock, User, Eye, Search, Filter, ChevronLeft, ChevronRight, Tag } from 'lucide-react';
+import { Calendar, Clock, User, Eye, Search, Filter, ChevronLeft, ChevronRight, Tag, Star, Share2, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
 import { apiService } from '../services/api';
 
 const BlogPage = () => {
@@ -61,7 +61,7 @@ const BlogPage = () => {
     }
   }, [filters, isListView, setSearchParams]);
 
-  // Функции загрузки данных
+  // Функции загрузки данных (остаются без изменений)
   const loadBlogPost = async (postSlug) => {
     setLoading(true);
     try {
@@ -173,34 +173,49 @@ const BlogPage = () => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
+  // Компонент загрузки
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center min-h-[400px]">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-600 border-t-transparent absolute top-0"></div>
+      </div>
+    </div>
+  );
+
   // Компонент отдельной статьи
   const BlogPostView = () => {
     if (loading) {
-      return (
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-        </div>
-      );
+      return <LoadingSpinner />;
     }
 
     if (error || !currentPost) {
       return (
-        <div className="text-center py-20">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Статья не найдена</h1>
-          <p className="text-gray-600 mb-6">{error || 'Запрашиваемая статья не существует или была удалена.'}</p>
-          <Link 
-            to="/blog" 
-            className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Вернуться к блогу
-          </Link>
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+          <div className="container mx-auto px-4 py-20">
+            <div className="max-w-2xl mx-auto text-center">
+              <div className="bg-white rounded-3xl shadow-2xl p-12">
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-12 w-12 text-purple-600" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Статья не найдена</h1>
+                <p className="text-gray-600 mb-8">{error || 'Запрашиваемая статья не существует или была удалена.'}</p>
+                <Link 
+                  to="/blog" 
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <ChevronLeft className="h-5 w-5 mr-2" />
+                  Вернуться к блогу
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
 
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
         <Helmet>
           <title>{currentPost.meta_title || currentPost.title} - Королевство Чудес</title>
           <meta name="description" content={currentPost.meta_description || currentPost.excerpt} />
@@ -212,207 +227,263 @@ const BlogPage = () => {
           <meta property="og:type" content="article" />
         </Helmet>
 
-        <article className="max-w-4xl mx-auto">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-            <Link to="/" className="hover:text-purple-600">Главная</Link>
-            <span>•</span>
-            <Link to="/blog" className="hover:text-purple-600">Блог</Link>
-            <span>•</span>
-            <span className="text-gray-900">{currentPost.title}</span>
-          </nav>
+        <div className="container mx-auto px-4 py-8">
+          <article className="max-w-4xl mx-auto">
+            {/* Breadcrumbs */}
+            <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
+              <Link to="/" className="hover:text-purple-600 transition-colors">Главная</Link>
+              <span>•</span>
+              <Link to="/blog" className="hover:text-purple-600 transition-colors">Блог</Link>
+              <span>•</span>
+              <span className="text-gray-900 font-medium">{currentPost.title}</span>
+            </nav>
 
-          {/* Заголовок статьи */}
-          <header className="mb-8">
-            <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-              <span className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full">
-                {currentPost.category}
-              </span>
-              <div className="flex items-center space-x-1">
-                <Calendar className="h-4 w-4" />
-                <span>{formatDate(currentPost.published_at || currentPost.date)}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <User className="h-4 w-4" />
-                <span>{currentPost.author_name}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Eye className="h-4 w-4" />
-                <span>{currentPost.views_count || 0} просмотров</span>
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {currentPost.title}
-            </h1>
-            
-            {currentPost.excerpt && (
-              <p className="text-xl text-gray-600 leading-relaxed">
-                {currentPost.excerpt}
-              </p>
-            )}
-          </header>
+            {/* Главная карточка статьи */}
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-12">
+              {/* Главное изображение */}
+              {currentPost.featured_image && (
+                <div className="relative h-64 md:h-96 overflow-hidden">
+                  <img
+                    src={currentPost.featured_image}
+                    alt={currentPost.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                </div>
+              )}
 
-          {/* Главное изображение */}
-          {currentPost.featured_image && (
-            <div className="mb-8">
-              <img
-                src={currentPost.featured_image}
-                alt={currentPost.title}
-                className="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg"
-              />
-            </div>
-          )}
+              {/* Заголовок статьи */}
+              <header className="p-8 md:p-12">
+                <div className="flex items-center flex-wrap gap-4 text-sm mb-6">
+                  <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full font-medium">
+                    {currentPost.category}
+                  </span>
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(currentPost.published_at || currentPost.date)}</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <User className="h-4 w-4" />
+                    <span>{currentPost.author_name}</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <Eye className="h-4 w-4" />
+                    <span>{currentPost.views_count || 0} просмотров</span>
+                  </div>
+                </div>
+                
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                  {currentPost.title}
+                </h1>
+                
+                {currentPost.excerpt && (
+                  <p className="text-xl text-gray-600 leading-relaxed">
+                    {currentPost.excerpt}
+                  </p>
+                )}
+              </header>
 
-          {/* Содержимое статьи */}
-          <div 
-            className="prose prose-lg max-w-none mb-12"
-            dangerouslySetInnerHTML={{ __html: currentPost.content }}
-          />
+              {/* Содержимое статьи */}
+              <div className="px-8 md:px-12 pb-12">
+                <div 
+                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-img:shadow-lg"
+                  dangerouslySetInnerHTML={{ __html: currentPost.content }}
+                />
 
-          {/* Теги */}
-          {currentPost.tags && currentPost.tags.length > 0 && (
-            <div className="flex items-center flex-wrap gap-2 mb-8 pb-8 border-b border-gray-200">
-              <Tag className="h-4 w-4 text-gray-500" />
-              {currentPost.tags.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 cursor-pointer"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Навигация */}
-          <div className="flex justify-between items-center mb-12">
-            <Link 
-              to="/blog"
-              className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Все статьи
-            </Link>
-            
-            <div className="text-center">
-              <p className="text-sm text-gray-500">Поделиться статьей</p>
-              <div className="flex space-x-2 mt-2">
-                <button className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">VK</button>
-                <button className="p-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500">TG</button>
-                <button className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600">WA</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Похожие статьи */}
-          {relatedPosts.length > 0 && (
-            <section>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Похожие статьи</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedPosts.map(post => (
-                  <Link 
-                    key={post.id}
-                    to={`/blog/${post.slug}`}
-                    className="group block bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
-                  >
-                    {post.featured_image && (
-                      <img
-                        src={post.featured_image}
-                        alt={post.title}
-                        className="w-full h-48 object-cover rounded-t-xl"
-                      />
-                    )}
-                    <div className="p-4">
-                      <span className="inline-block px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full mb-2">
-                        {post.category}
+                {/* Теги */}
+                {currentPost.tags && currentPost.tags.length > 0 && (
+                  <div className="flex items-center flex-wrap gap-3 mt-12 pt-8 border-t border-gray-100">
+                    <Tag className="h-5 w-5 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-500">Теги:</span>
+                    {currentPost.tags.map((tag, index) => (
+                      <span 
+                        key={index}
+                        className="px-3 py-1 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 rounded-full text-sm font-medium hover:from-purple-200 hover:to-indigo-200 cursor-pointer transition-all duration-200"
+                      >
+                        {tag}
                       </span>
-                      <h4 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
-                        {post.title}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {formatDate(post.published_at || post.date)}
-                      </p>
-                    </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Кнопки действий */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-12 pt-8 border-t border-gray-100">
+                  <Link 
+                    to="/blog"
+                    className="inline-flex items-center px-6 py-3 border-2 border-purple-200 text-purple-700 rounded-2xl hover:bg-purple-50 hover:border-purple-300 transition-all duration-300 font-medium"
+                  >
+                    <ChevronLeft className="h-5 w-5 mr-2" />
+                    Все статьи
                   </Link>
-                ))}
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-600">Поделиться:</span>
+                    <div className="flex space-x-3">
+                      <button className="p-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
+                        VK
+                      </button>
+                      <button className="p-3 bg-blue-400 text-white rounded-2xl hover:bg-blue-500 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
+                        TG
+                      </button>
+                      <button className="p-3 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
+                        WA
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </section>
-          )}
-        </article>
-      </>
+            </div>
+
+            {/* Похожие статьи */}
+            {relatedPosts.length > 0 && (
+              <section className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
+                <div className="flex items-center mb-8">
+                  <Sparkles className="h-6 w-6 text-purple-600 mr-3" />
+                  <h3 className="text-2xl font-bold text-gray-900">Похожие статьи</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {relatedPosts.map(post => (
+                    <Link 
+                      key={post.id}
+                      to={`/blog/${post.slug}`}
+                      className="group block bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                    >
+                      {post.featured_image && (
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={post.featured_image}
+                            alt={post.title}
+                            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        </div>
+                      )}
+                      <div className="p-6">
+                        <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full mb-3 font-medium">
+                          {post.category}
+                        </span>
+                        <h4 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3 leading-tight">
+                          {post.title}
+                        </h4>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {formatDate(post.published_at || post.date)}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </article>
+        </div>
+      </div>
     );
   };
 
   // Компонент списка статей
   const BlogListView = () => {
     return (
-      <>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50">
         <Helmet>
           <title>Блог - Королевство Чудес</title>
           <meta name="description" content="Полезные советы, кейсы и тренды в организации праздников от экспертов Королевства Чудес" />
         </Helmet>
 
-        <div className="space-y-8">
-          {/* Заголовок и поиск */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Блог</h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Полезные советы, кейсы и тренды в организации праздников
-            </p>
-            
-            {/* Поиск */}
-            <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="search"
-                  placeholder="Поиск по статьям..."
-                  defaultValue={filters.search}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-                >
-                  Найти
-                </button>
-              </div>
-            </form>
+        {/* Hero секция */}
+        <div className="relative bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 rounded-full bg-white bg-opacity-10"></div>
+            <div className="absolute bottom-0 left-0 -mb-32 -ml-32 w-64 h-64 rounded-full bg-white bg-opacity-5"></div>
+            <div className="absolute top-1/2 left-1/2 -mt-16 -ml-16 w-32 h-32 rounded-full bg-white bg-opacity-10"></div>
           </div>
+          
+          <div className="relative container mx-auto px-4 py-20 text-center text-white">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
+                <Sparkles className="h-8 w-8 mr-3 text-yellow-300" />
+                <span className="text-lg font-medium text-purple-100">Экспертный блог</span>
+              </div>
+              
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                Секреты идеальных <span className="text-yellow-300">праздников</span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-purple-100 mb-10 leading-relaxed">
+                Полезные советы, вдохновляющие кейсы и актуальные тренды от экспертов Королевства Чудес
+              </p>
+              
+              {/* Поиск */}
+              <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+                <div className="relative">
+                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" />
+                  <input
+                    type="text"
+                    name="search"
+                    placeholder="Найти статью по теме..."
+                    defaultValue={filters.search}
+                    className="w-full pl-16 pr-32 py-5 text-lg border-0 rounded-2xl shadow-2xl focus:ring-4 focus:ring-white focus:ring-opacity-50 text-gray-900 placeholder-gray-500"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 font-medium shadow-lg"
+                  >
+                    Найти
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
+        <div className="container mx-auto px-4 py-12">
           {/* Избранные статьи */}
           {featuredPosts.length > 0 && !filters.search && !filters.category && filters.page === 1 && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Рекомендуемые статьи</h2>
+            <section className="mb-16">
+              <div className="flex items-center mb-8">
+                <Star className="h-6 w-6 text-yellow-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">Рекомендуемые статьи</h2>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {featuredPosts.map(post => (
                   <Link 
                     key={post.id}
                     to={`/blog/${post.slug}`}
-                    className="group block bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                    className="group block bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
                   >
-                    {post.featured_image && (
-                      <img
-                        src={post.featured_image}
-                        alt={post.title}
-                        className="w-full h-48 object-cover rounded-t-xl"
-                      />
-                    )}
-                    <div className="p-4">
-                      <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full mb-2">
-                        Рекомендуемая
+                    <div className="relative">
+                      {post.featured_image && (
+                        <img
+                          src={post.featured_image}
+                          alt={post.title}
+                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      )}
+                      <div className="absolute top-4 right-4">
+                        <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs rounded-full font-bold shadow-lg">
+                          <Star className="h-3 w-3 mr-1" />
+                          ТОП
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6">
+                      <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 text-xs rounded-full mb-3 font-medium">
+                        {post.category}
                       </span>
-                      <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
+                      <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3 leading-tight">
                         {post.title}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-2">
+                      <p className="text-sm text-gray-600 mb-4 leading-relaxed">
                         {generateExcerpt(post.excerpt || post.content)}
                       </p>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formatDate(post.published_at || post.date)}
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {formatDate(post.published_at || post.date)}
+                        </div>
+                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
                       </div>
                     </div>
                   </Link>
@@ -421,112 +492,133 @@ const BlogPage = () => {
             </section>
           )}
 
-          {/* Фильтры */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                <Filter className="h-4 w-4" />
-                <span>Фильтры</span>
-              </button>
-              
-              {(filters.category || filters.search) && (
+          {/* Фильтры и статистика */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+              <div className="flex flex-wrap items-center gap-4">
                 <button
-                  onClick={() => setFilters({ category: '', search: '', page: 1 })}
-                  className="text-sm text-purple-600 hover:text-purple-800"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-800 rounded-2xl hover:from-purple-200 hover:to-indigo-200 transition-all duration-300 font-medium"
                 >
-                  Сбросить все
+                  <Filter className="h-5 w-5" />
+                  <span>Фильтры</span>
                 </button>
-              )}
-            </div>
-
-            <div className="text-sm text-gray-500">
-              {loading ? 'Загрузка...' : `Найдено статей: ${pagination.total || 0}`}
-            </div>
-          </div>
-
-          {/* Категории */}
-          {showFilters && categories.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="font-medium text-gray-900 mb-3">Категории</h3>
-              <div className="flex flex-wrap gap-2">
-                {categories.map(category => (
+                
+                {(filters.category || filters.search) && (
                   <button
-                    key={category.name}
-                    onClick={() => handleCategoryFilter(category.name)}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      filters.category === category.name
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-purple-100'
-                    }`}
+                    onClick={() => setFilters({ category: '', search: '', page: 1 })}
+                    className="text-sm text-purple-600 hover:text-purple-800 font-medium"
                   >
-                    {category.name} ({category.count})
+                    Сбросить все
                   </button>
-                ))}
+                )}
+              </div>
+
+              <div className="flex items-center space-x-2 text-gray-600">
+                <TrendingUp className="h-5 w-5" />
+                <span className="font-medium">
+                  {loading ? 'Загрузка...' : `Найдено статей: ${pagination.total || 0}`}
+                </span>
               </div>
             </div>
-          )}
+
+            {/* Категории */}
+            {showFilters && categories.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-100">
+                <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+                  <Tag className="h-5 w-5 mr-2 text-purple-600" />
+                  Категории
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {categories.map(category => (
+                    <button
+                      key={category.name}
+                      onClick={() => handleCategoryFilter(category.name)}
+                      className={`px-4 py-2 rounded-2xl text-sm font-medium transition-all duration-300 ${
+                        filters.category === category.name
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                          : 'bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-800'
+                      }`}
+                    >
+                      {category.name} ({category.count})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Список статей */}
           {loading ? (
-            <div className="flex justify-center items-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-            </div>
+            <LoadingSpinner />
           ) : error ? (
             <div className="text-center py-20">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Ошибка загрузки</h2>
-              <p className="text-gray-600 mb-6">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                Попробовать снова
-              </button>
+              <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl mx-auto">
+                <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-12 w-12 text-red-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Ошибка загрузки</h2>
+                <p className="text-gray-600 mb-8">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  Попробовать снова
+                </button>
+              </div>
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-20">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Статьи не найдены</h2>
-              <p className="text-gray-600">
-                {filters.search || filters.category
-                  ? 'Попробуйте изменить критерии поиска'
-                  : 'В блоге пока нет опубликованных статей'
-                }
-              </p>
+              <div className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl mx-auto">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-12 w-12 text-gray-500" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Статьи не найдены</h2>
+                <p className="text-gray-600">
+                  {filters.search || filters.category
+                    ? 'Попробуйте изменить критерии поиска'
+                    : 'В блоге пока нет опубликованных статей'
+                  }
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map(post => (
                 <Link 
                   key={post.id}
                   to={`/blog/${post.slug}`}
-                  className="group block bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                  className="group block bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
                 >
-                  {post.featured_image && (
-                    <img
-                      src={post.featured_image}
-                      alt={post.title}
-                      className="w-full h-48 object-cover rounded-t-xl"
-                    />
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="inline-block px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                  <div className="relative">
+                    {post.featured_image && (
+                      <img
+                        src={post.featured_image}
+                        alt={post.title}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <span className="inline-block px-3 py-1 bg-purple-500 text-white text-xs rounded-full font-medium">
                         {post.category}
                       </span>
-                      {post.featured && (
-                        <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
-                          Рекомендуемая
-                        </span>
-                      )}
                     </div>
-                    
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors mb-2">
+                    {post.featured && (
+                      <div className="absolute top-4 right-4">
+                        <span className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs rounded-full font-bold">
+                          <Star className="h-3 w-3 mr-1" />
+                          ТОП
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3 leading-tight">
                       {post.title}
                     </h3>
                     
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
                       {generateExcerpt(post.excerpt || post.content)}
                     </p>
                     
@@ -546,6 +638,13 @@ const BlogPage = () => {
                         {post.author_name}
                       </div>
                     </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-purple-600">Читать далее</span>
+                        <ArrowRight className="h-4 w-4 text-purple-600 group-hover:translate-x-1 transition-transform duration-200" />
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -554,47 +653,106 @@ const BlogPage = () => {
 
           {/* Пагинация */}
           {pagination.pages > 1 && (
-            <div className="flex justify-center items-center space-x-2">
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={!pagination.has_prev}
-                className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              
-              <div className="flex space-x-1">
-                {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
+            <div className="flex justify-center mt-16">
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex items-center space-x-2">
                   <button
-                    key={page}
-                    onClick={() => handlePageChange(page)}
-                    className={`px-3 py-2 rounded-lg ${
-                      page === pagination.page
-                        ? 'bg-purple-600 text-white'
-                        : 'border border-gray-300 hover:bg-gray-50'
-                    }`}
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={!pagination.has_prev}
+                    className="p-3 rounded-xl border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 hover:border-purple-300 transition-all duration-300"
                   >
-                    {page}
+                    <ChevronLeft className="h-5 w-5" />
                   </button>
-                ))}
+                  
+                  <div className="flex space-x-1">
+                    {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => {
+                      let page;
+                      if (pagination.pages <= 7) {
+                        page = i + 1;
+                      } else if (pagination.page <= 4) {
+                        page = i + 1;
+                      } else if (pagination.page >= pagination.pages - 3) {
+                        page = pagination.pages - 6 + i;
+                      } else {
+                        page = pagination.page - 3 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                            page === pagination.page
+                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg transform scale-110'
+                              : 'border-2 border-gray-200 hover:bg-purple-50 hover:border-purple-300'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <button
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={!pagination.has_next}
+                    className="p-3 rounded-xl border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-50 hover:border-purple-300 transition-all duration-300"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
-              
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={!pagination.has_next}
-                className="p-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
             </div>
           )}
+
+          {/* CTA секция */}
+          <div className="mt-20">
+            <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden">
+              <div className="relative p-12 text-center text-white">
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 rounded-full bg-white bg-opacity-10"></div>
+                <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-32 h-32 rounded-full bg-white bg-opacity-5"></div>
+                
+                <div className="relative z-10 max-w-3xl mx-auto">
+                  <div className="flex items-center justify-center mb-6">
+                    <Sparkles className="h-8 w-8 mr-3 text-yellow-300" />
+                    <span className="text-lg font-medium text-purple-100">Готовы к празднику?</span>
+                  </div>
+                  
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                    Воплотим ваши мечты о <span className="text-yellow-300">идеальном празднике</span>
+                  </h2>
+                  
+                  <p className="text-xl text-purple-100 mb-8">
+                    Более 1000 счастливых клиентов доверили нам свои самые важные моменты
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link
+                      to="/zakazat-prazdnik"
+                      className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 rounded-2xl hover:from-yellow-500 hover:to-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-bold"
+                    >
+                      <Star className="h-5 w-5 mr-2" />
+                      Заказать праздник
+                    </Link>
+                    <Link
+                      to="/portfolio"
+                      className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-2xl hover:bg-white hover:text-purple-700 transition-all duration-300 font-medium"
+                    >
+                      <Eye className="h-5 w-5 mr-2" />
+                      Посмотреть работы
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </>
+      </div>
     );
   };
 
   return (
-    <div className="container-custom py-12">
+    <div>
       {isPostView ? <BlogPostView /> : <BlogListView />}
     </div>
   );
