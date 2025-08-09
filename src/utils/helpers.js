@@ -70,13 +70,6 @@ export const serviceCategories = [
   { value: 'animators', label: 'Аниматоры' }
 ];
 
-export const blogCategories = [
-  'советы',
-  'кейсы',
-  'тренды',
-  'сезонное'
-];
-
 export const promotionTypes = [
   { value: 'discount', label: 'Скидка' },
   { value: 'package', label: 'Пакетное предложение' },
@@ -142,14 +135,6 @@ export const formatPrice = (price) => {
   return price;
 };
 
-export const generateSlug = (title) => {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '') // Удаляем специальные символы
-    .replace(/[\s_-]+/g, '-') // Заменяем пробелы и подчеркивания на дефисы
-    .replace(/^-+|-+$/g, ''); // Удаляем дефисы в начале и конце
-};
 
 // Утилиты для работы с массивами
 export const groupBy = (array, key) => {
@@ -189,4 +174,329 @@ export const searchItems = (items, query, searchFields = ['title', 'name']) => {
       item[field]?.toLowerCase().includes(lowercaseQuery)
     )
   );
+};
+
+// Добавить эти функции к существующим в utils/helpers.js
+
+// Категории блога
+export const blogCategories = [
+  'советы',
+  'кейсы', 
+  'тренды',
+  'сезонное',
+  'новости',
+  'обзоры'
+];
+
+// Генерация slug из заголовка
+export const generateSlug = (title) => {
+  if (!title) return '';
+  
+  // Транслитерация русских букв
+  const translit = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+    'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+    'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+    'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
+    'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+  };
+  
+  let slug = title.toLowerCase();
+  
+  // Заменяем русские буквы
+  for (const [ru, en] of Object.entries(translit)) {
+    slug = slug.replace(new RegExp(ru, 'g'), en);
+  }
+  
+  // Убираем все кроме букв, цифр и пробелов
+  slug = slug.replace(/[^a-zA-Z0-9\s-]/g, '');
+  
+  // Заменяем пробелы и множественные дефисы на один дефис
+  slug = slug.replace(/[\s-]+/g, '-');
+  
+  // Убираем дефисы в начале и конце
+  slug = slug.replace(/^-+|-+$/g, '');
+  
+  return slug;
+};
+
+// Форматирование даты для блога
+export const formatBlogDate = (dateString) => {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+// Форматирование даты и времени
+export const formatBlogDateTime = (dateString) => {
+  if (!dateString) return '';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+// Генерация excerpt из контента
+export const generateExcerpt = (content, maxLength = 150) => {
+  if (!content) return '';
+  
+  // Убираем HTML теги
+  const text = content.replace(/<[^>]*>/g, '');
+  
+  // Убираем лишние пробелы
+  const cleanText = text.replace(/\s+/g, ' ').trim();
+  
+  if (cleanText.length <= maxLength) {
+    return cleanText;
+  }
+  
+  // Обрезаем по словам
+  const words = cleanText.split(' ');
+  let excerpt = '';
+  
+  for (const word of words) {
+    if ((excerpt + word).length > maxLength) {
+      break;
+    }
+    excerpt += (excerpt ? ' ' : '') + word;
+  }
+  
+  return excerpt + '...';
+};
+
+// Подсчет времени чтения
+export const calculateReadingTime = (content) => {
+  if (!content) return '1 мин';
+  
+  // Убираем HTML теги
+  const text = content.replace(/<[^>]*>/g, '');
+  
+  // Считаем слова (примерно)
+  const wordCount = text.split(/\s+/).length;
+  
+  // Средняя скорость чтения 200 слов в минуту
+  const readingTime = Math.ceil(wordCount / 200);
+  
+  return `${readingTime} мин`;
+};
+
+// Валидация данных статьи на клиенте
+export const validateBlogPost = (postData) => {
+  const errors = [];
+  
+  if (!postData.title || postData.title.trim().length < 5) {
+    errors.push('Заголовок должен содержать минимум 5 символов');
+  }
+  
+  if (!postData.content || postData.content.trim().length < 50) {
+    errors.push('Содержимое должно содержать минимум 50 символов');
+  }
+  
+  if (!postData.category) {
+    errors.push('Выберите категорию статьи');
+  }
+  
+  if (postData.meta_title && postData.meta_title.length > 60) {
+    errors.push('Meta Title не должен превышать 60 символов');
+  }
+  
+  if (postData.meta_description && postData.meta_description.length > 160) {
+    errors.push('Meta Description не должно превышать 160 символов');
+  }
+  
+  if (postData.excerpt && postData.excerpt.length > 500) {
+    errors.push('Краткое описание не должно превышать 500 символов');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Получение цвета статуса для блога
+export const getBlogStatusColor = (status) => {
+  const colors = {
+    'published': 'bg-green-100 text-green-800',
+    'draft': 'bg-gray-100 text-gray-800',
+    'scheduled': 'bg-blue-100 text-blue-800',
+    'archived': 'bg-yellow-100 text-yellow-800'
+  };
+  
+  return colors[status] || 'bg-gray-100 text-gray-800';
+};
+
+// Получение текста статуса для блога
+export const getBlogStatusText = (status) => {
+  const texts = {
+    'published': 'Опубликовано',
+    'draft': 'Черновик',
+    'scheduled': 'Запланировано',
+    'archived': 'В архиве'
+  };
+  
+  return texts[status] || 'Неизвестно';
+};
+
+// Фильтрация постов по поисковому запросу
+export const filterBlogPosts = (posts, searchQuery) => {
+  if (!searchQuery || !searchQuery.trim()) {
+    return posts;
+  }
+  
+  const query = searchQuery.toLowerCase().trim();
+  
+  return posts.filter(post => {
+    return (
+      post.title?.toLowerCase().includes(query) ||
+      post.content?.toLowerCase().includes(query) ||
+      post.excerpt?.toLowerCase().includes(query) ||
+      post.category?.toLowerCase().includes(query) ||
+      post.author_name?.toLowerCase().includes(query) ||
+      (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query)))
+    );
+  });
+};
+
+// Сортировка постов
+export const sortBlogPosts = (posts, sortBy, sortOrder = 'desc') => {
+  const sorted = [...posts].sort((a, b) => {
+    let aValue, bValue;
+    
+    switch (sortBy) {
+      case 'title':
+        aValue = a.title || '';
+        bValue = b.title || '';
+        return sortOrder === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+          
+      case 'views_count':
+        aValue = a.views_count || 0;
+        bValue = b.views_count || 0;
+        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+        
+      case 'created_at':
+      case 'updated_at':
+      case 'published_at':
+        aValue = new Date(a[sortBy] || 0);
+        bValue = new Date(b[sortBy] || 0);
+        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+        
+      default:
+        return 0;
+    }
+  });
+  
+  return sorted;
+};
+
+// Группировка постов по категориям
+export const groupBlogPostsByCategory = (posts) => {
+  return posts.reduce((groups, post) => {
+    const category = post.category || 'Без категории';
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(post);
+    return groups;
+  }, {});
+};
+
+// Получение статистики по постам
+export const getBlogPostsStats = (posts) => {
+  const total = posts.length;
+  const published = posts.filter(p => p.status === 'published').length;
+  const draft = posts.filter(p => p.status === 'draft').length;
+  const featured = posts.filter(p => p.featured).length;
+  const totalViews = posts.reduce((sum, p) => sum + (p.views_count || 0), 0);
+  
+  // Статистика по категориям
+  const categories = groupBlogPostsByCategory(posts);
+  const categoryStats = Object.entries(categories).map(([name, posts]) => ({
+    name,
+    count: posts.length,
+    published: posts.filter(p => p.status === 'published').length
+  }));
+  
+  return {
+    total,
+    published,
+    draft,
+    featured,
+    totalViews,
+    categories: categoryStats
+  };
+};
+
+// Проверка, является ли пост новым (опубликован менее 7 дней назад)
+export const isBlogPostNew = (publishedAt) => {
+  if (!publishedAt) return false;
+  
+  try {
+    const postDate = new Date(publishedAt);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    
+    return postDate > weekAgo;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Получение похожих постов
+export const getSimilarBlogPosts = (currentPost, allPosts, limit = 3) => {
+  if (!currentPost || !allPosts || allPosts.length === 0) {
+    return [];
+  }
+  
+  // Фильтруем опубликованные посты, исключая текущий
+  const candidates = allPosts.filter(post => 
+    post.id !== currentPost.id && 
+    post.status === 'published'
+  );
+  
+  // Сначала ищем посты той же категории
+  const sameCategory = candidates.filter(post => 
+    post.category === currentPost.category
+  );
+  
+  // Если постов в той же категории достаточно, возвращаем их
+  if (sameCategory.length >= limit) {
+    return sameCategory
+      .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
+      .slice(0, limit);
+  }
+  
+  // Иначе добавляем посты из других категорий
+  const otherCategory = candidates.filter(post => 
+    post.category !== currentPost.category
+  );
+  
+  const similarPosts = [
+    ...sameCategory,
+    ...otherCategory.slice(0, limit - sameCategory.length)
+  ];
+  
+  return similarPosts
+    .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
+    .slice(0, limit);
 };

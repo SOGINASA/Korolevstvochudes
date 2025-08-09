@@ -80,6 +80,7 @@ function App() {
                 
                 {/* Блог */}
                 <Route path="blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogPage />} />
                 
                 {/* Отзывы */}
                 <Route path="otzyvy-klientov" element={<ReviewsPage />} />

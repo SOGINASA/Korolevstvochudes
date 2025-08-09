@@ -1,27 +1,37 @@
 // components/admin/Applications.js
-import React, { useState } from 'react';
-import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDate, getStatusColor, getStatusText } from '../../utils/helpers';
 
 const Applications = ({ 
   recentApplications, 
   loadingBookings, 
+  bookingsPagination,
   onUpdateBookingStatus,
+  onDeleteBooking,
+  onBulkDeleteBookings,
+  onExportBookings,
+  onBookingsPageChange,
+  onLoadBookings,
   showNotification 
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedBookings, setSelectedBookings] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
-  const filteredApplications = recentApplications.filter(app => {
-    const matchesSearch = searchQuery === '' || 
-      app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.phone.includes(searchQuery) ||
-      app.email.toLowerCase().includes(searchQuery.toLowerCase());
+  // Применяем фильтры при их изменении
+  useEffect(() => {
+    const filters = {};
+    if (searchQuery) filters.search = searchQuery;
+    if (statusFilter !== 'all') filters.status = statusFilter;
     
-    const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+    const timeoutId = setTimeout(() => {
+      onLoadBookings(1, filters);
+    }, 500); // Дебаунс для поиска
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, statusFilter]);
 
   const handleStatusChange = async (appId, newStatus) => {
     try {
@@ -32,21 +42,61 @@ const Applications = ({
     }
   };
 
-  const handleExport = () => {
-    // Логика экспорта данных
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + "Имя,Телефон,Email,Услуга,Дата,Время,Статус\n"
-      + filteredApplications.map(app => 
-          `${app.name},${app.phone},${app.email},${app.service},${app.event_date},${app.event_time},${app.status}`
-        ).join("\n");
+  const handleDelete = async (bookingId) => {
+    if (showDeleteConfirm === bookingId) {
+      try {
+        await onDeleteBooking(bookingId);
+        setShowDeleteConfirm(null);
+      } catch (error) {
+        showNotification('Ошибка при удалении заявки', 'error');
+      }
+    } else {
+      setShowDeleteConfirm(bookingId);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedBookings.length === 0) {
+      showNotification('Выберите заявки для удаления', 'warning');
+      return;
+    }
+
+    if (window.confirm(`Вы уверены, что хотите удалить ${selectedBookings.length} заявок?`)) {
+      try {
+        await onBulkDeleteBookings(selectedBookings);
+        setSelectedBookings([]);
+      } catch (error) {
+        showNotification('Ошибка при массовом удалении', 'error');
+      }
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedBookings.length === recentApplications.length) {
+      setSelectedBookings([]);
+    } else {
+      setSelectedBookings(recentApplications.map(app => app.id));
+    }
+  };
+
+  const handleSelectBooking = (bookingId) => {
+    setSelectedBookings(prev => 
+      prev.includes(bookingId)
+        ? prev.filter(id => id !== bookingId)
+        : [...prev, bookingId]
+    );
+  };
+
+  const handleExport = async () => {
+    const filters = {};
+    if (searchQuery) filters.search = searchQuery;
+    if (statusFilter !== 'all') filters.status = statusFilter;
     
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "applications.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    await onExportBookings(filters);
+  };
+
+  const handlePageChange = (newPage) => {
+    onBookingsPageChange(newPage);
   };
 
   return (
@@ -54,6 +104,15 @@ const Applications = ({
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Заявки клиентов</h2>
         <div className="flex space-x-3">
+          {selectedBookings.length > 0 && (
+            <button 
+              onClick={handleBulkDelete}
+              className="flex items-center space-x-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Удалить выбранные ({selectedBookings.length})</span>
+            </button>
+          )}
           <button 
             onClick={handleExport}
             className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
@@ -97,7 +156,7 @@ const Applications = ({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
             <p className="text-gray-500 mt-2">Загрузка заявок...</p>
           </div>
-        ) : filteredApplications.length === 0 ? (
+        ) : recentApplications.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">Заявки не найдены</p>
           </div>
@@ -106,6 +165,14 @@ const Applications = ({
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedBookings.length === recentApplications.length && recentApplications.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Клиент
                   </th>
@@ -127,8 +194,16 @@ const Applications = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredApplications.map(app => (
-                  <tr key={app.id} className="hover:bg-gray-50">
+                {recentApplications.map(app => (
+                  <tr key={app.id} className={`hover:bg-gray-50 ${selectedBookings.includes(app.id) ? 'bg-purple-50' : ''}`}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedBookings.includes(app.id)}
+                        onChange={() => handleSelectBooking(app.id)}
+                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{app.name}</div>
@@ -136,26 +211,36 @@ const Applications = ({
                           <Phone className="h-3 w-3" />
                           <span>{app.phone}</span>
                         </div>
-                        <div className="text-sm text-gray-500 flex items-center space-x-2">
-                          <Mail className="h-3 w-3" />
-                          <span>{app.email}</span>
-                        </div>
+                        {app.email && (
+                          <div className="text-sm text-gray-500 flex items-center space-x-2">
+                            <Mail className="h-3 w-3" />
+                            <span>{app.email}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {app.service || app.service_title}
+                      {app.service_title || 'Не указано'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">{app.event_date}</span>
-                      </div>
+                      {app.event_date ? (
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-900">{app.event_date}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">Не указана</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-900">{app.event_time}</span>
-                      </div>
+                      {app.event_time ? (
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-900">{app.event_time}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">Не указано</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
@@ -171,13 +256,29 @@ const Applications = ({
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex justify-center items-center">
+                      <div className="flex items-center space-x-2">
                         <button 
-                          className="text-red-600 hover:text-red-900"
-                          title="Удалить"
+                          onClick={() => handleDelete(app.id)}
+                          className={`${
+                            showDeleteConfirm === app.id 
+                              ? 'text-red-900 bg-red-100 px-2 py-1 rounded' 
+                              : 'text-red-600 hover:text-red-900'
+                          }`}
+                          title={showDeleteConfirm === app.id ? 'Нажмите еще раз для подтверждения' : 'Удалить'}
                         >
                           <Trash2 className="h-4 w-4" />
+                          {showDeleteConfirm === app.id && (
+                            <span className="ml-1 text-xs">Подтвердить?</span>
+                          )}
                         </button>
+                        {showDeleteConfirm === app.id && (
+                          <button 
+                            onClick={() => setShowDeleteConfirm(null)}
+                            className="text-gray-500 hover:text-gray-700 text-xs"
+                          >
+                            Отмена
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -187,18 +288,66 @@ const Applications = ({
           </div>
         )}
 
-        {filteredApplications.length > 0 && (
+        {/* Пагинация */}
+        {bookingsPagination && bookingsPagination.pages > 1 && (
           <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-700">
-                Показано {filteredApplications.length} из {recentApplications.length} заявок
+                Показано {recentApplications.length} из {bookingsPagination.total} заявок
+                (страница {bookingsPagination.page} из {bookingsPagination.pages})
               </div>
-              <div className="flex space-x-2">
-                <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200">
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => handlePageChange(bookingsPagination.page - 1)}
+                  disabled={!bookingsPagination.has_prev}
+                  className="flex items-center px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
                   Предыдущая
                 </button>
-                <button className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded hover:bg-gray-200">
+                
+                {/* Номера страниц */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, bookingsPagination.pages) }, (_, i) => {
+                    let pageNum;
+                    if (bookingsPagination.pages <= 5) {
+                      pageNum = i + 1;
+                    } else {
+                      const current = bookingsPagination.page;
+                      const total = bookingsPagination.pages;
+                      
+                      if (current <= 3) {
+                        pageNum = i + 1;
+                      } else if (current >= total - 2) {
+                        pageNum = total - 4 + i;
+                      } else {
+                        pageNum = current - 2 + i;
+                      }
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-3 py-1 text-sm rounded ${
+                          pageNum === bookingsPagination.page
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button 
+                  onClick={() => handlePageChange(bookingsPagination.page + 1)}
+                  disabled={!bookingsPagination.has_next}
+                  className="flex items-center px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   Следующая
+                  <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
               </div>
             </div>

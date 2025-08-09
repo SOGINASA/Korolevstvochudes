@@ -35,6 +35,23 @@ const AdminPage = () => {
     blogPosts: 0,
     promotions: 0
   });
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [blogStats, setBlogStats] = useState({
+    total: 0,
+    published: 0,
+    draft: 0,
+    featured: 0,
+    total_views: 0,
+    categories: []
+  });
+  const [blogPagination, setBlogPagination] = useState({
+    page: 1,
+    pages: 1,
+    per_page: 20,
+    total: 0,
+    has_next: false,
+    has_prev: false
+  });
   
   const [recentApplications, setRecentApplications] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -50,6 +67,326 @@ const AdminPage = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('info');
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [bookingsPagination, setBookingsPagination] = useState({
+    page: 1,
+    pages: 1,
+    per_page: 10,
+    total: 0,
+    has_next: false,
+    has_prev: false
+  });
+
+// Обновленная функция загрузки заявок
+const loadBookings = async (page = 1, filters = {}) => {
+  setLoadingBookings(true);
+  try {
+    const params = {
+      page: page,
+      per_page: 10,
+      sort_by: 'created_at',
+      sort_order: 'desc',
+      ...filters
+    };
+
+    const result = await apiService.getBookingsPaginated(params);
+    
+    if (result.success && result.bookings) {
+      setRecentApplications(result.bookings);
+      
+      // Обновляем информацию о пагинации
+      if (result.pagination) {
+        setBookingsPagination(result.pagination);
+      }
+    } else {
+      throw new Error(result.error || 'Ошибка загрузки заявок');
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error);
+    showNotification('Ошибка загрузки заявок', 'error');
+  } finally {
+    setLoadingBookings(false);
+  }
+};
+
+// Функция для смены страницы
+const handleBookingsPageChange = async (newPage) => {
+  await loadBookings(newPage);
+};
+
+// Функция удаления заявки
+const handleDeleteBooking = async (bookingId) => {
+  try {
+    const result = await apiService.deleteBooking(bookingId);
+    
+    if (result.success) {
+      // Удаляем заявку из локального состояния
+      setRecentApplications(prev => 
+        prev.filter(booking => booking.id !== bookingId)
+      );
+      
+      // Если на текущей странице больше нет заявок, переходим на предыдущую
+      const remainingBookings = recentApplications.filter(b => b.id !== bookingId);
+      if (remainingBookings.length === 0 && bookingsPagination.page > 1) {
+        await loadBookings(bookingsPagination.page - 1);
+      } else {
+        // Перезагружаем текущую страницу для обновления счетчиков
+        await loadBookings(bookingsPagination.page);
+      }
+      
+      showNotification('Заявка успешно удалена', 'success');
+    } else {
+      throw new Error(result.error || 'Ошибка удаления заявки');
+    }
+  } catch (error) {
+    showNotification(error.message, 'error');
+    console.error('Error deleting booking:', error);
+  }
+};
+
+// Функция массового удаления заявок
+const handleBulkDeleteBookings = async (bookingIds) => {
+  try {
+    const result = await apiService.bulkDeleteBookings(bookingIds);
+    
+    if (result.success) {
+      // Удаляем заявки из локального состояния
+      setRecentApplications(prev => 
+        prev.filter(booking => !bookingIds.includes(booking.id))
+      );
+      
+      // Перезагружаем данные для обновления пагинации
+      await loadBookings(bookingsPagination.page);
+      
+      showNotification(`Удалено заявок: ${bookingIds.length}`, 'success');
+    } else {
+      throw new Error(result.error || 'Ошибка массового удаления');
+    }
+  } catch (error) {
+    showNotification(error.message, 'error');
+    console.error('Error bulk deleting bookings:', error);
+  }
+};
+
+// Функция экспорта заявок
+const handleExportBookings = async (filters = {}) => {
+  try {
+    const result = await apiService.exportBookings(filters);
+    
+    if (result.success && result.blob) {
+      // Создаем ссылку для скачивания
+      const url = window.URL.createObjectURL(result.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bookings_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      showNotification('Экспорт заявок завершен', 'success');
+    } else {
+      throw new Error(result.error || 'Ошибка экспорта');
+    }
+  } catch (error) {
+    showNotification(error.message, 'error');
+    console.error('Error exporting bookings:', error);
+  }
+};
+const loadBlogPosts = async (filters = {}) => {
+  try {
+    const result = await apiService.getBlogPostsWithFilters(filters);
+    console.log('Blog posts result:', result);
+    if (result.success) {
+      setBlogPosts(result.posts || []);
+      if (result.pagination) {
+        setBlogPagination(result.pagination);
+      }
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка загрузки статей блога');
+    }
+  } catch (error) {
+    console.error('Error loading blog posts:', error);
+    showNotification('Ошибка загрузки статей блога', 'error');
+    return { success: false, error: error.message };
+  }
+};
+
+const loadBlogStats = async () => {
+  try {
+    const result = await apiService.getAdminBlogStats();
+    
+    if (result.success) {
+      setBlogStats({
+        total: result.total || 0,
+        published: result.published || 0,
+        draft: result.draft || 0,
+        featured: result.featured || 0,
+        total_views: result.total_views || 0,
+        categories: result.categories || []
+      });
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка загрузки статистики блога');
+    }
+  } catch (error) {
+    console.error('Error loading blog stats:', error);
+    showNotification('Ошибка загрузки статистики блога', 'error');
+    return { success: false, error: error.message };
+  }
+};
+
+const handleCreateBlogPost = async (postData) => {
+  try {
+    const result = await apiService.createBlogPost(postData);
+    
+    if (result.success) {
+      // Обновляем локальные данные
+      setBlogPosts(prev => [result.post, ...prev]);
+      
+      // Перезагружаем статистику
+      await loadBlogStats();
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка создания статьи');
+    }
+  } catch (error) {
+    console.error('Error creating blog post:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const handleUpdateBlogPost = async (postId, postData) => {
+  try {
+    const result = await apiService.updateBlogPost(postId, postData);
+    
+    if (result.success) {
+      // Обновляем локальные данные
+      setBlogPosts(prev => 
+        prev.map(post => 
+          post.id === postId 
+            ? { ...post, ...result.post }
+            : post
+        )
+      );
+      
+      // Перезагружаем статистику если изменился статус
+      if (postData.status) {
+        await loadBlogStats();
+      }
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка обновления статьи');
+    }
+  } catch (error) {
+    console.error('Error updating blog post:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const handleDeleteBlogPost = async (postId) => {
+  try {
+    const result = await apiService.deleteBlogPost(postId);
+    
+    if (result.success) {
+      // Удаляем из локальных данных
+      setBlogPosts(prev => prev.filter(post => post.id !== postId));
+      
+      // Перезагружаем статистику
+      await loadBlogStats();
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка удаления статьи');
+    }
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const handleBulkDeleteBlogPosts = async (postIds) => {
+  try {
+    const result = await apiService.bulkDeleteBlogPosts(postIds);
+    
+    if (result.success) {
+      // Удаляем из локальных данных
+      setBlogPosts(prev => 
+        prev.filter(post => !postIds.includes(post.id))
+      );
+      
+      // Перезагружаем статистику
+      await loadBlogStats();
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка массового удаления статей');
+    }
+  } catch (error) {
+    console.error('Error bulk deleting blog posts:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const handleBulkUpdateBlogPosts = async (postIds, updateData) => {
+  try {
+    const result = await apiService.bulkUpdateBlogPosts(postIds, updateData);
+    
+    if (result.success) {
+      // Перезагружаем данные для корректного отображения
+      await loadBlogPosts({
+        page: blogPagination.page,
+        per_page: blogPagination.per_page
+      });
+      
+      // Перезагружаем статистику
+      await loadBlogStats();
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка массового обновления статей');
+    }
+  } catch (error) {
+    console.error('Error bulk updating blog posts:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+const handleExportBlogPosts = async (filters = {}) => {
+  try {
+    const result = await apiService.exportBlogPosts(filters);
+    
+    if (result.success && result.blob) {
+      // Создаем ссылку для скачивания
+      const url = window.URL.createObjectURL(result.blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `blog_posts_export_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return result;
+    } else {
+      throw new Error(result.error || 'Ошибка экспорта статей');
+    }
+  } catch (error) {
+    console.error('Error exporting blog posts:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Функция для смены страницы блога
+const handleBlogPageChange = async (newPage, filters = {}) => {
+  await loadBlogPosts({
+    ...filters,
+    page: newPage,
+    per_page: blogPagination.per_page
+  });
+};
 
   // Добавление класса к body при монтировании
   useEffect(() => {
@@ -65,6 +402,7 @@ const AdminPage = () => {
       loadDashboardData();
       loadBookings();
       loadReviews();
+      loadBlogStats(); // Добавить эту строку
       if (admin?.role === 'super_admin' || admin?.role === 'admin') {
         loadAdmins();
       }
@@ -89,39 +427,24 @@ const AdminPage = () => {
 
   // Функции загрузки данных
   const loadDashboardData = async () => {
-    setLoadingStats(true);
-    try {
-      const result = await apiService.getDashboardStats();
-      if (result.success && result.stats) {
-        setStats(result.stats);
-      }
-    } catch (error) {
-      console.error('Error loading dashboard stats:', error);
-      showNotification('Ошибка загрузки статистики', 'error');
-    } finally {
-      setLoadingStats(false);
-    }
-  };
-
-  const loadBookings = async () => {
-    setLoadingBookings(true);
-    try {
-      const result = await apiService.getBookings({ 
-        limit: 10, 
-        sort: 'created_at', 
-        order: 'desc' 
+  setLoadingStats(true);
+  try {
+    const result = await apiService.getDashboardStats();
+    if (result.success && result.stats) {
+      setStats({
+        ...result.stats,
+        // Добавляем статистику блога если она есть
+        blogPosts: blogStats.total || 0,
+        publishedPosts: blogStats.published || 0
       });
-      if (result.success && result.bookings) {
-        
-        setRecentApplications(result.bookings);
-      }
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-      showNotification('Ошибка загрузки заявок', 'error');
-    } finally {
-      setLoadingBookings(false);
     }
-  };
+  } catch (error) {
+    console.error('Error loading dashboard stats:', error);
+    showNotification('Ошибка загрузки статистики', 'error');
+  } finally {
+    setLoadingStats(false);
+  }
+};
 
   const loadReviews = async () => {
     setLoadingReviews(true);
@@ -313,27 +636,54 @@ const AdminPage = () => {
 
   // Общие пропсы для всех компонентов
   const commonProps = {
-    admin,
-    stats,
-    loadingStats,
-    recentApplications,
-    loadingBookings,
-    reviews,
-    loadingReviews,
-    admins,
-    onUpdateBookingStatus: handleUpdateBookingStatus,
-    onApproveReview: handleApproveReview,
-    onRejectReview: handleRejectReview,
-    onToggleReviewFeatured: handleToggleReviewFeatured,
-    onBulkApproveReviews: handleBulkApproveReviews,
-    onBulkDeleteReviews: handleBulkDeleteReviews,
-    onExportReviews: handleExportReviews,
-    onLoadAdmins: loadAdmins,
-    onLoadReviews: loadReviews,
-    onLoadBookings: loadBookings,
-    showNotification,
-    setActiveTab
-  };
+  admin,
+  stats,
+  loadingStats,
+  recentApplications,
+  loadingBookings,
+  bookingsPagination,
+  reviews,
+  loadingReviews,
+  admins,
+  
+  // Данные блога
+  blogPosts,
+  blogStats,
+  blogPagination,
+  
+  // Функции для заявок
+  onUpdateBookingStatus: handleUpdateBookingStatus,
+  onDeleteBooking: handleDeleteBooking,
+  onBulkDeleteBookings: handleBulkDeleteBookings,
+  onExportBookings: handleExportBookings,
+  onBookingsPageChange: handleBookingsPageChange,
+  
+  // Функции для отзывов
+  onApproveReview: handleApproveReview,
+  onRejectReview: handleRejectReview,
+  onToggleReviewFeatured: handleToggleReviewFeatured,
+  onBulkApproveReviews: handleBulkApproveReviews,
+  onBulkDeleteReviews: handleBulkDeleteReviews,
+  onExportReviews: handleExportReviews,
+  
+  // Функции для блога
+  loadBlogPosts: loadBlogPosts,
+  loadBlogStats: loadBlogStats,
+  handleCreateBlogPost: handleCreateBlogPost,
+  handleUpdateBlogPost: handleUpdateBlogPost,
+  handleDeleteBlogPost: handleDeleteBlogPost,
+  handleBulkDeleteBlogPosts: handleBulkDeleteBlogPosts,
+  handleBulkUpdateBlogPosts: handleBulkUpdateBlogPosts,
+  handleExportBlogPosts: handleExportBlogPosts,
+  handleBlogPageChange: handleBlogPageChange,
+  
+  // Общие функции
+  onLoadAdmins: loadAdmins,
+  onLoadReviews: loadReviews,
+  onLoadBookings: loadBookings,
+  showNotification,
+  setActiveTab
+};
 
   // Рендер контента в зависимости от активной вкладки
   const renderContent = () => {

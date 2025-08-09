@@ -1,15 +1,41 @@
 // components/admin/Blog.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, FileText, Globe, Clock, TrendingUp, Eye, Edit, Trash2, Save, X } from 'lucide-react';
 import { getStatusColor, getStatusText, blogCategories, generateSlug } from '../../utils/helpers';
+import { apiService } from '../../services/api';
 
-const Blog = ({ showNotification }) => {
+const Blog = ({ 
+  showNotification, 
+  loadBlogPosts,
+  loadBlogStats,
+  handleCreateBlogPost,
+  handleUpdateBlogPost,
+  handleDeleteBlogPost,
+  handleBulkDeleteBlogPosts,
+  handleBulkUpdateBlogPosts,
+  handleExportBlogPosts,
+  handleBlogPageChange
+}) => {
   const [showAddArticle, setShowAddArticle] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  
+  const [loading, setLoading] = useState(false);
+  const [blogArticles, setBlogArticles] = useState([]);
+  const [blogStats, setBlogStats] = useState({
+    totalPosts: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    totalViews: 0
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10
+  });
+
   const [articleForm, setArticleForm] = useState({
     title: '',
     slug: '',
@@ -23,51 +49,62 @@ const Blog = ({ showNotification }) => {
     metaDescription: ''
   });
 
-  // Моковые данные блога
-  const [blogArticles, setBlogArticles] = useState([
-    {
-      id: 1,
-      title: 'Как выбрать аниматора для детского праздника',
-      slug: 'kak-vybrat-animatora',
-      category: 'советы',
-      excerpt: 'Полное руководство по выбору профессионального аниматора для незабываемого детского праздника',
-      content: 'Полная статья о выборе аниматора...',
-      tags: 'аниматоры, дети, праздники, советы',
-      status: 'published',
-      featured: true,
-      views: 2341,
-      date: '2024-12-20',
-      author: 'Анна Иванова'
-    },
-    {
-      id: 2,
-      title: 'Тренды свадебного декора 2025',
-      slug: 'trendy-svadebnogo-dekora-2025',
-      category: 'тренды',
-      excerpt: 'Актуальные тенденции в свадебном декоре на предстоящий год',
-      content: 'Подробная статья о трендах...',
-      tags: 'свадьба, декор, тренды, 2025',
-      status: 'published',
-      featured: false,
-      views: 1876,
-      date: '2024-12-15',
-      author: 'Мария Петрова'
-    },
-    {
-      id: 3,
-      title: 'Организация корпоратива: чек-лист',
-      slug: 'organizaciya-korporativa-chek-list',
-      category: 'кейсы',
-      excerpt: 'Пошаговый план организации успешного корпоративного мероприятия',
-      content: 'Черновик статьи о корпоративах...',
-      tags: 'корпоратив, планирование, чек-лист',
-      status: 'draft',
-      featured: false,
-      views: 0,
-      date: '2025-01-05',
-      author: 'Дмитрий Сидоров'
+  // Загрузка данных при монтировании компонента
+  useEffect(() => {
+    loadData();
+    loadStats();
+  }, []);
+
+  // Загрузка данных при изменении фильтров или пагинации
+  useEffect(() => {
+    loadData();
+  }, [searchQuery, selectedCategory, selectedStatus, pagination.currentPage]);
+
+  const loadData = async () => {
+    console.log(loadBlogPosts);
+    if (!loadBlogPosts) return;
+    
+    setLoading(true);
+    try {
+      const params = {
+        page: pagination.currentPage,
+        limit: pagination.itemsPerPage,
+        search: searchQuery,
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
+        status: selectedStatus !== 'all' ? selectedStatus : undefined
+      };
+
+      const result = await loadBlogPosts(params);
+      console.log(`Загрузка постов блога с параметрами: ${JSON.stringify(result)}`);
+      if (result && result.success) {
+        console.log(`Получены посты блога: ${JSON.stringify(result)}`);
+        setBlogArticles(result);
+        setPagination(prev => ({
+          ...prev,
+          totalPages: result.pagination?.totalPages || 1,
+          totalItems: result.pagination?.totalItems || 0
+        }));
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки постов блога:', error);
+      showNotification('Ошибка загрузки данных', 'error');
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const loadStats = async () => {
+    if (!loadBlogStats) return;
+    
+    try {
+      const stats = await loadBlogStats();
+      if (stats) {
+        setBlogStats(stats);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки статистики блога:', error);
+    }
+  };
 
   const resetArticleForm = () => {
     setArticleForm({
@@ -93,76 +130,120 @@ const Blog = ({ showNotification }) => {
     }));
   };
 
-  const handleArticleSubmit = (e) => {
+  const handleArticleSubmit = async (e) => {
     e.preventDefault();
     
-    if (editingArticle) {
-      // Обновление существующей статьи
-      setBlogArticles(prev => 
-        prev.map(article => 
-          article.id === editingArticle.id 
-            ? { 
-                ...articleForm, 
-                id: editingArticle.id, 
-                views: article.views,
-                author: article.author,
-                date: article.date
-              }
-            : article
-        )
-      );
-      showNotification('Статья обновлена', 'success');
-    } else {
-      // Добавление новой статьи
-      const newArticle = {
-        ...articleForm,
-        id: Date.now(),
-        views: 0,
-        author: 'Администратор',
-        date: new Date().toISOString().split('T')[0]
-      };
-      setBlogArticles(prev => [...prev, newArticle]);
-      showNotification('Статья добавлена', 'success');
+    if (!handleCreateBlogPost && !handleUpdateBlogPost) {
+      showNotification('Методы создания/обновления не переданы', 'error');
+      return;
     }
-    
-    setShowAddArticle(false);
-    resetArticleForm();
+
+    setLoading(true);
+    try {
+      if (editingArticle) {
+        // Обновление существующей статьи
+        if (handleUpdateBlogPost) {
+          await handleUpdateBlogPost(editingArticle.id, articleForm);
+          showNotification('Статья обновлена', 'success');
+        }
+      } else {
+        // Добавление новой статьи
+        if (handleCreateBlogPost) {
+          await handleCreateBlogPost(articleForm);
+          showNotification('Статья добавлена', 'success');
+        }
+      }
+      
+      setShowAddArticle(false);
+      resetArticleForm();
+      await loadData(); // Перезагрузка данных
+      await loadStats(); // Обновление статистики
+    } catch (error) {
+      console.error('Ошибка сохранения статьи:', error);
+      showNotification('Ошибка сохранения статьи', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditArticle = (article) => {
     setEditingArticle(article);
-    setArticleForm(article);
+    setArticleForm({
+      title: article.title || '',
+      slug: article.slug || '',
+      category: article.category || '',
+      content: article.content || '',
+      excerpt: article.excerpt || '',
+      tags: article.tags || '',
+      status: article.status || 'draft',
+      featured: article.featured || false,
+      metaTitle: article.metaTitle || '',
+      metaDescription: article.metaDescription || ''
+    });
     setShowAddArticle(true);
   };
 
-  const handleDeleteArticle = (articleId) => {
-    setBlogArticles(prev => prev.filter(article => article.id !== articleId));
-    showNotification('Статья удалена', 'success');
+  const handleDeleteArticle = async (articleId) => {
+    if (!handleDeleteBlogPost) {
+      showNotification('Метод удаления не передан', 'error');
+      return;
+    }
+
+    if (!window.confirm('Вы уверены, что хотите удалить эту статью?')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await handleDeleteBlogPost(articleId);
+      showNotification('Статья удалена', 'success');
+      await loadData(); // Перезагрузка данных
+      await loadStats(); // Обновление статистики
+    } catch (error) {
+      console.error('Ошибка удаления статьи:', error);
+      showNotification('Ошибка удаления статьи', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredArticles = blogArticles.filter(article => {
-    const matchesSearch = searchQuery === '' || 
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || article.status === selectedStatus;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  const handlePageChange = (page) => {
+    setPagination(prev => ({ ...prev, currentPage: page }));
+    if (handleBlogPageChange) {
+      handleBlogPageChange(page);
+    }
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setPagination(prev => ({ ...prev, currentPage: 1 })); // Сброс на первую страницу при поиске
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    setPagination(prev => ({ ...prev, currentPage: 1 })); // Сброс на первую страницу при смене фильтра
+  };
+
+  const handleStatusChange = (status) => {
+    setSelectedStatus(status);
+    setPagination(prev => ({ ...prev, currentPage: 1 })); // Сброс на первую страницу при смене фильтра
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Управление блогом</h2>
-        <button 
-          onClick={() => setShowAddArticle(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Добавить статью</span>
-        </button>
+        <div className="flex space-x-3">
+          <button 
+            onClick={() => setShowAddArticle(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            disabled={loading}
+          >
+            <Plus className="h-4 w-4" />
+            <span>Добавить статью</span>
+          </button>
+        </div>
       </div>
 
       {/* Статистика */}
@@ -172,7 +253,7 @@ const Blog = ({ showNotification }) => {
             <FileText className="h-8 w-8 text-purple-500 mr-3" />
             <div>
               <p className="text-sm font-medium text-gray-600">Всего статей</p>
-              <p className="text-2xl font-bold text-gray-900">{blogArticles.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{blogStats.total}</p>
             </div>
           </div>
         </div>
@@ -181,9 +262,7 @@ const Blog = ({ showNotification }) => {
             <Globe className="h-8 w-8 text-green-500 mr-3" />
             <div>
               <p className="text-sm font-medium text-gray-600">Опубликовано</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {blogArticles.filter(a => a.status === 'published').length}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{blogStats.published}</p>
             </div>
           </div>
         </div>
@@ -192,9 +271,7 @@ const Blog = ({ showNotification }) => {
             <Clock className="h-8 w-8 text-yellow-500 mr-3" />
             <div>
               <p className="text-sm font-medium text-gray-600">Черновики</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {blogArticles.filter(a => a.status === 'draft').length}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{blogStats.draft}</p>
             </div>
           </div>
         </div>
@@ -203,9 +280,7 @@ const Blog = ({ showNotification }) => {
             <TrendingUp className="h-8 w-8 text-blue-500 mr-3" />
             <div>
               <p className="text-sm font-medium text-gray-600">Просмотры</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {blogArticles.reduce((sum, article) => sum + article.views, 0)}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{blogStats.total_views}</p>
             </div>
           </div>
         </div>
@@ -221,13 +296,15 @@ const Blog = ({ showNotification }) => {
               placeholder="Поиск статей..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
+              disabled={loading}
             />
           </div>
           <select 
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            disabled={loading}
           >
             <option value="all">Все категории</option>
             {blogCategories.map(cat => (
@@ -237,7 +314,8 @@ const Blog = ({ showNotification }) => {
           <select 
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
             value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            disabled={loading}
           >
             <option value="all">Все статусы</option>
             <option value="published">Опубликовано</option>
@@ -249,90 +327,153 @@ const Blog = ({ showNotification }) => {
 
       {/* Список статей */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Статья
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Категория
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Дата
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Статус
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Просмотры
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Действия
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredArticles.map(article => (
-                <tr key={article.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                        <FileText className="h-6 w-6 text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{article.title}</div>
-                        <div className="text-sm text-gray-500">{article.slug}</div>
-                        {article.featured && (
-                          <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1">
-                            Рекомендуемая
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                      {article.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {article.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(article.status)}`}>
-                      {getStatusText(article.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {article.views}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button className="text-purple-600 hover:text-purple-900">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleEditArticle(article)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteArticle(article.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
+        {loading && (
+          <div className="flex justify-center items-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            <span className="ml-3 text-gray-600">Загрузка...</span>
+          </div>
+        )}
+        
+        {!loading && (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Статья
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Категория
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Дата
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Статус
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Просмотры
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Действия
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {blogArticles?.pagination?.posts?.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                      Статьи не найдены
+                    </td>
+                  </tr>
+                ) : (
+                  blogArticles?.posts?.map(article => (
+                    <tr key={article.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                            <FileText className="h-6 w-6 text-purple-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{article.title}</div>
+                            <div className="text-sm text-gray-500">{article.slug}</div>
+                            {article.featured && (
+                              <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-1">
+                                Рекомендуемая
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                          {article.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {article.date || article.createdAt}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(article.status)}`}>
+                          {getStatusText(article.status)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {article.views || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <a 
+                            href={`../blog/${article.slug}`}
+                            className="text-purple-600 hover:text-purple-900"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </a>
+                          <button 
+                            onClick={() => handleEditArticle(article)}
+                            className="text-blue-600 hover:text-blue-900"
+                            disabled={loading}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteArticle(article.id)}
+                            className="text-red-600 hover:text-red-900"
+                            disabled={loading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* Пагинация */}
+      {pagination.totalPages > 1 && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-700">
+              Показано {Math.min((pagination.currentPage - 1) * pagination.itemsPerPage + 1, pagination.totalItems)} - {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} из {pagination.totalItems} записей
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1 || loading}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Назад
+              </button>
+              {[...Array(pagination.totalPages)].map((_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  disabled={loading}
+                  className={`px-3 py-2 text-sm border rounded-lg ${
+                    pagination.currentPage === index + 1
+                      ? 'bg-purple-600 text-white border-purple-600'
+                      : 'border-gray-300 hover:bg-gray-50'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages || loading}
+                className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Вперед
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal для добавления/редактирования статьи */}
       {showAddArticle && (
@@ -345,6 +486,7 @@ const Blog = ({ showNotification }) => {
               <button
                 onClick={() => { setShowAddArticle(false); resetArticleForm(); }}
                 className="text-gray-400 hover:text-gray-600"
+                disabled={loading}
               >
                 <X className="h-6 w-6" />
               </button>
@@ -363,6 +505,7 @@ const Blog = ({ showNotification }) => {
                     onChange={(e) => handleTitleChange(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="Например: Как выбрать аниматора для детского праздника"
+                    disabled={loading}
                   />
                 </div>
 
@@ -376,6 +519,7 @@ const Blog = ({ showNotification }) => {
                     onChange={(e) => setArticleForm({...articleForm, slug: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="kak-vybrat-animatora"
+                    disabled={loading}
                   />
                 </div>
 
@@ -388,6 +532,7 @@ const Blog = ({ showNotification }) => {
                     value={articleForm.category}
                     onChange={(e) => setArticleForm({...articleForm, category: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    disabled={loading}
                   >
                     <option value="">Выберите категорию</option>
                     {blogCategories.map(cat => (
@@ -406,6 +551,7 @@ const Blog = ({ showNotification }) => {
                     onChange={(e) => setArticleForm({...articleForm, tags: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="аниматор, детский праздник, советы"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -420,6 +566,7 @@ const Blog = ({ showNotification }) => {
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Краткое описание статьи для превью..."
+                  disabled={loading}
                 />
               </div>
 
@@ -434,6 +581,7 @@ const Blog = ({ showNotification }) => {
                   rows={12}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="Полный текст статьи..."
+                  disabled={loading}
                 />
               </div>
 
@@ -448,6 +596,7 @@ const Blog = ({ showNotification }) => {
                     onChange={(e) => setArticleForm({...articleForm, metaTitle: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="SEO заголовок"
+                    disabled={loading}
                   />
                 </div>
 
@@ -459,6 +608,7 @@ const Blog = ({ showNotification }) => {
                     value={articleForm.status}
                     onChange={(e) => setArticleForm({...articleForm, status: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    disabled={loading}
                   >
                     <option value="draft">Черновик</option>
                     <option value="published">Опубликовать</option>
@@ -477,6 +627,7 @@ const Blog = ({ showNotification }) => {
                   rows={2}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   placeholder="SEO описание для поисковых систем..."
+                  disabled={loading}
                 />
               </div>
 
@@ -487,6 +638,7 @@ const Blog = ({ showNotification }) => {
                   checked={articleForm.featured}
                   onChange={(e) => setArticleForm({...articleForm, featured: e.target.checked})}
                   className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  disabled={loading}
                 />
                 <label htmlFor="featured" className="text-sm text-gray-700">
                   Рекомендуемая статья
@@ -496,15 +648,24 @@ const Blog = ({ showNotification }) => {
               <div className="flex space-x-3 pt-4 border-t border-gray-200">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
                 >
                   <Save className="h-4 w-4" />
-                  <span>{editingArticle ? 'Обновить статью' : 'Сохранить статью'}</span>
+                  <span>
+                    {loading 
+                      ? 'Сохранение...' 
+                      : editingArticle 
+                        ? 'Обновить статью' 
+                        : 'Сохранить статью'
+                    }
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowAddArticle(false); resetArticleForm(); }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
                 >
                   Отмена
                 </button>
