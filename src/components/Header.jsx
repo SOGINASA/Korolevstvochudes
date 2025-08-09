@@ -28,6 +28,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiService } from '../services/api';
 import { formatPhoneNumber } from '../utils/helpers';
+import { useSettings, useCompanyInfo } from '../contexts/SettingsContext';
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,6 +55,13 @@ const Header = () => {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
   const location = useLocation();
+  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
+  const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
   // Отслеживание скролла для изменения стиля хедера
   useEffect(() => {
@@ -424,15 +433,15 @@ const Header = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone size={14} />
-                <span>+7 (7152) 123-456</span>
+                <span>{getCompanyPhone()}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={14} />
-                <span>info@prazdnikvdom.kz</span>
+                <span>{getCompanyEmail()}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin size={14} />
-                <span>г. Петропавловск, ул. Конституции, 15</span>
+                <span>{getCompanyAddress()}</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">

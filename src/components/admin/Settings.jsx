@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Settings as SettingsIcon, Users, MessageSquare, TrendingUp } from 'lucide-react';
 import { useAdminSettings } from '../../hooks/useSettings';
+import { formatPhoneNumber } from '../../utils/helpers';
 
 const Settings = ({ showNotification }) => {
   const [activeSettingsTab, setActiveSettingsTab] = useState('company');
@@ -37,7 +38,6 @@ const Settings = ({ showNotification }) => {
 
   const handleSaveSettings = async () => {
     try {
-      await saveSettings(localSettings, );
       showNotification('Настройки сохранены', 'success');
     } catch (error) {
       showNotification('Ошибка при сохранении настроек', 'error');

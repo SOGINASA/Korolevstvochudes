@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { formatPhoneNumber } from '../../utils/helpers';
+import { useSettings } from '../../contexts/SettingsContext';
+
 
 const ServicesPage = () => {
   // Состояния для данных с сервера
@@ -46,6 +48,13 @@ const ServicesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
+  const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
   // Существующие состояния
   const [activeFilter, setActiveFilter] = useState('all');
@@ -1582,7 +1591,7 @@ const ServicesPage = () => {
                   <Phone className="w-8 h-8" />
                 </motion.div>
                 <h3 className="font-bold text-lg mb-2">Позвоните нам</h3>
-                <p className="text-purple-100">+7 (7152) 123-456</p>
+                <p className="text-purple-100">{getCompanyPhone()}</p>
                 <p className="text-sm text-purple-200">Ежедневно 9:00-21:00</p>
               </div>
               
@@ -1595,7 +1604,7 @@ const ServicesPage = () => {
                 </motion.div>
                 <h3 className="font-bold text-lg mb-2">WhatsApp</h3>
                 <p className="text-purple-100">Быстрый ответ 24/7</p>
-                <p className="text-sm text-purple-200">+7 (777) 123-45-67</p>
+                <p className="text-sm text-purple-200">{getCompanyPhone()}</p>
               </div>
               
               <div className="text-center">
@@ -1606,8 +1615,14 @@ const ServicesPage = () => {
                   <MapPin className="w-8 h-8" />
                 </motion.div>
                 <h3 className="font-bold text-lg mb-2">Наш офис</h3>
-                <p className="text-purple-100">ул. Конституции, 15</p>
-                <p className="text-sm text-purple-200">Петропавловск</p>
+                <p className="text-purple-100">
+                  {
+                    getCompanyAddress().split(',')[1] + 
+                      (getCompanyAddress().split(',').length > 2 ? 
+                      getCompanyAddress().split(',')[2] : '')
+                  }
+                </p>
+                <p className="text-sm text-purple-200">{getCompanyAddress().split(',')[0].includes('г') ? getCompanyAddress().split(',')[0] : getCompanyAddress().split(',')[1]}</p>
               </div>
             </motion.div>
           </motion.div>

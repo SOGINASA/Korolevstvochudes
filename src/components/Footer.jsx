@@ -9,10 +9,14 @@ import {
   MessageCircle,
   Send
 } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
+  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
   const services = [
     { name: 'Детские праздники', path: '/uslugi/detskie-prazdniki' },
     { name: 'Свадьбы', path: '/uslugi/svadby' },
@@ -121,8 +125,7 @@ const Footer = () => {
                     href="tel:+77152123456" 
                     className="text-gray-300 hover:text-accent-300 transition-colors duration-200"
                   >
-                    8 705 519 5 222
-                    8 705 519 5 444
+                    {getCompanyPhone()}
                   </a>
                   <p className="text-sm text-gray-400">Основной номер</p>
                 </div>
@@ -135,7 +138,7 @@ const Footer = () => {
                     href="mailto:info@prazdnikvdom.kz"
                     className="text-gray-300 hover:text-accent-300 transition-colors duration-200"
                   >
-                    info@prazdnikvdom.kz
+                    {getCompanyEmail()}
                   </a>
                   <p className="text-sm text-gray-400">Для заявок</p>
                 </div>
@@ -145,8 +148,7 @@ const Footer = () => {
                 <MapPin className="w-5 h-5 text-accent-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    г. Петропавловск,<br />
-                    ул. Конституции, 15
+                    {getCompanyAddress()}
                   </p>
                   <p className="text-sm text-gray-400">Офис</p>
                 </div>

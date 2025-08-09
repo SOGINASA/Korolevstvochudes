@@ -7,8 +7,11 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
+import { useSettings } from '../../contexts/SettingsContext';
 
 const ProcessSection = () => {
+  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
   const steps = [
     {
       id: 1,
@@ -193,7 +196,7 @@ const ProcessSection = () => {
               </a>
               
               <a
-                href="https://wa.me/77771234567"
+                href={`https://wa.me/${getCompanyPhone().replace(/\D/g, '')}`}
                 className="btn-secondary flex items-center justify-center gap-2"
                 target="_blank"
                 rel="noopener noreferrer"

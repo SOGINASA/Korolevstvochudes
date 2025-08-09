@@ -25,6 +25,7 @@ import {
   Heart,
   Sparkles
 } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
 const ContactsPage = () => {
   const [activeTab, setActiveTab] = useState('contact');
@@ -40,16 +41,17 @@ const ContactsPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
+  const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
   // Контактная информация
   const contactInfo = {
-    phone: '+7 (7152) 123-456',
-    whatsapp: '+7 777 123 45 67',
-    email: 'info@prazdnikvdom.kz',
-    address: 'г. Петропавловск, ул. Конституции, 15, офис 201',
-    workingHours: 'Ежедневно с 9:00 до 21:00',
-    instagram: '@korolevstvo_chudes_pk',
-    website: 'prazdnikvdom.kz'
+    workingHours: 'Ежедневно с 9:00 до 21:00'
   };
 
   // Офисы и локации
@@ -246,7 +248,7 @@ const ContactsPage = () => {
         <title>Контакты - Королевство Чудес | Телефоны, адреса, как добраться в Петропавловске</title>
         <meta 
           name="description" 
-          content="Контакты праздничного агентства Королевство Чудес в Петропавловске: телефон +7 (7152) 123-456, адрес ул. Конституции 15, WhatsApp, email. Схема проезда и время работы." 
+          content={`Контакты праздничного агентства Королевство Чудес в Петропавловске: телефон ${getCompanyPhone()}, адрес ${getCompanyAddress()}, WhatsApp, email. Схема проезда и время работы.`}
         />
         <meta 
           name="keywords" 
@@ -286,7 +288,7 @@ const ContactsPage = () => {
                 {/* Быстрые контакты */}
                 <div className="space-y-4 mb-8">
                   <motion.a
-                    href={`tel:${contactInfo.phone}`}
+                    href={`tel:${settings.company_phone}`}
                     className="flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/20 transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -296,12 +298,12 @@ const ContactsPage = () => {
                     </div>
                     <div>
                       <div className="font-semibold">Позвонить сейчас</div>
-                      <div className="text-primary-100">{contactInfo.phone}</div>
+                      <div className="text-primary-100">{settings.company_phone}</div>
                     </div>
                   </motion.a>
 
                   <motion.a
-                    href={`https://wa.me/${contactInfo.whatsapp.replace(/\D/g, '')}`}
+                    href={`https://wa.me/${settings.company_phone.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/20 transition-all duration-300"
@@ -607,8 +609,8 @@ const ContactsPage = () => {
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900">Телефон</h3>
-                              <a href={`tel:${contactInfo.phone}`} className="text-primary-600 hover:text-primary-700">
-                                {contactInfo.phone}
+                              <a href={`tel:${settings.company_phone}`} className="text-primary-600 hover:text-primary-700">
+                                {settings.company_phone}
                               </a>
                               <p className="text-sm text-gray-600">Звонки принимаем с 9:00 до 21:00</p>
                             </div>
@@ -627,8 +629,8 @@ const ContactsPage = () => {
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900">Email</h3>
-                              <a href={`mailto:${contactInfo.email}`} className="text-secondary-600 hover:text-secondary-700">
-                                {contactInfo.email}
+                              <a href={`mailto:${settings.company_email}`} className="text-secondary-600 hover:text-secondary-700">
+                                {settings.company_email}
                               </a>
                               <p className="text-sm text-gray-600">Ответим в течение 2 часов</p>
                             </div>
@@ -647,8 +649,8 @@ const ContactsPage = () => {
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900">Адрес офиса</h3>
-                              <p className="text-accent-600">{contactInfo.address}</p>
-                              <p className="text-sm text-gray-600">Рядом с торговым центром "Европа"</p>
+                              <p className="text-accent-600">{getCompanyAddress()}</p>
+                              <p className="text-sm text-gray-600">У нас есть несколько отделений</p>
                             </div>
                           </div>
                         </motion.div>
@@ -658,7 +660,7 @@ const ContactsPage = () => {
                           <h3 className="font-semibold text-gray-900 mb-4">Мы в социальных сетях</h3>
                           <div className="flex gap-4">
                             <a
-                              href={`https://instagram.com/${contactInfo.instagram.replace('@', '')}`}
+                              href={`https://instagram.com/${settings.social_instagram.replace('@', '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"
@@ -666,7 +668,7 @@ const ContactsPage = () => {
                               <Instagram size={24} />
                             </a>
                             <a
-                              href={`https://wa.me/${contactInfo.whatsapp.replace(/\D/g, '')}`}
+                              href={`https://wa.me/${settings.company_phone.replace(/\D/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"
@@ -763,119 +765,119 @@ const ContactsPage = () => {
                   ))}
                 </div>
               </motion.div>
-            )}
+              )}
 
-            {/* Таб: Наша команда */}
-            {activeTab === 'team' && (
-              <motion.div
-                key="team"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="text-center mb-12">
-                  <h2 className="heading-2 text-gray-900 mb-4">
-                    Наша <span className="gradient-text">команда</span>
-                  </h2>
-                  <p className="text-xl text-gray-600">
-                    Профессионалы, готовые воплотить ваши идеи в реальность
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {team.map((member, index) => (
-                    <motion.div
-                      key={member.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
-                    >
-                      <img
-                        src={member.image}
-                        alt={member.name}
-                        className="w-full h-56 object-cover"
-                      />
-                      <div className="p-6 space-y-3">
-                        <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
-                        <p className="text-sm text-secondary-600">{member.position}</p>
-                        <p className="text-gray-700 text-sm">{member.description}</p>
-                        <div className="mt-4 space-y-2">
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <User size={16} />
-                            <span>{member.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Phone size={16} />
-                            <a href={`tel:${member.phone}`} className="hover:text-secondary-600">
-                              {member.phone}
-                            </a>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-700">
-                            <Mail size={16} />
-                            <a href={`mailto:${member.email}`} className="hover:text-secondary-600">
-                              {member.email}
-                            </a>
+              {/* Таб: Наша команда */}
+              {activeTab === 'team' && (
+                <motion.div
+                  key="team"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="text-center mb-12">
+                    <h2 className="heading-2 text-gray-900 mb-4">
+                      Наша <span className="gradient-text">команда</span>
+                    </h2>
+                    <p className="text-xl text-gray-600">
+                      Профессионалы, готовые воплотить ваши идеи в реальность
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {team.map((member, index) => (
+                      <motion.div
+                        key={member.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                      >
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="w-full h-56 object-cover"
+                        />
+                        <div className="p-6 space-y-3">
+                          <h3 className="text-xl font-semibold text-gray-900">{member.name}</h3>
+                          <p className="text-sm text-secondary-600">{member.position}</p>
+                          <p className="text-gray-700 text-sm">{member.description}</p>
+                          <div className="mt-4 space-y-2">
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <User size={16} />
+                              <span>{member.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <Phone size={16} />
+                              <a href={`tel:${member.phone}`} className="hover:text-secondary-600">
+                                {member.phone}
+                              </a>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <Mail size={16} />
+                              <a href={`mailto:${member.email}`} className="hover:text-secondary-600">
+                                {member.email}
+                              </a>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
-            {/* Таб: Как добраться */}
-            {activeTab === 'directions' && (
-              <motion.div
-                key="directions"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="text-center mb-12">
-                  <h2 className="heading-2 text-gray-900 mb-4">
-                    Как <span className="gradient-text">добраться</span>
-                  </h2>
-                  <p className="text-xl text-gray-600">
-                    Выберите удобную для вас локацию и проложите маршрут
-                  </p>
-                </div>
-                <div className="space-y-8">
-                  {locations.map((location) => (
-                    <div key={location.id} className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 flex flex-col md:flex-row items-center gap-6">
-                      <div className="flex-shrink-0">
-                        <MapPin size={32} className="text-accent-600" />
+              {/* Таб: Как добраться */}
+              {activeTab === 'directions' && (
+                <motion.div
+                  key="directions"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="text-center mb-12">
+                    <h2 className="heading-2 text-gray-900 mb-4">
+                      Как <span className="gradient-text">добраться</span>
+                    </h2>
+                    <p className="text-xl text-gray-600">
+                      Выберите удобную для вас локацию и проложите маршрут
+                    </p>
+                  </div>
+                  <div className="space-y-8">
+                    {locations.map((location) => (
+                      <div key={location.id} className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100 flex flex-col md:flex-row items-center gap-6">
+                        <div className="flex-shrink-0">
+                          <MapPin size={32} className="text-accent-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-gray-900">{location.name}</h3>
+                          <p className="text-gray-700">{location.address}</p>
+                        </div>
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.lat},${location.coordinates.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 btn-primary"
+                        >
+                          <Car size={16} />
+                          На машине
+                        </a>
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.lat},${location.coordinates.lng}&travelmode=transit`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 btn-secondary"
+                        >
+                          <Bus size={16} />
+                          На общественном транспорте
+                        </a>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">{location.name}</h3>
-                        <p className="text-gray-700">{location.address}</p>
-                      </div>
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.lat},${location.coordinates.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 btn-primary"
-                      >
-                        <Car size={16} />
-                        На машине
-                      </a>
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.lat},${location.coordinates.lng}&travelmode=transit`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 btn-secondary"
-                      >
-                        <Bus size={16} />
-                        На общественном транспорте
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
       </div>

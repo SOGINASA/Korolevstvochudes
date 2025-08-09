@@ -1,5 +1,6 @@
 // contexts/SettingsContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { formatPhoneNumber } from '../utils/helpers';
 
 const SettingsContext = createContext();
 
@@ -146,6 +147,10 @@ export const SettingsProvider = ({ children }) => {
       
       if (!token) {
         throw new Error('Токен авторизации не предоставлен');
+      }
+      const modifitedSettings = {
+        ...newSettings,
+        company_phone: formatPhoneNumber(newSettings.company_phone),
       }
 
       // ИСПРАВЛЕНО: правильный URL для обновления админских настроек

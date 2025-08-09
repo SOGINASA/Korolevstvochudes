@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Star, Users, Award, Calendar, X, ChevronDown, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useSettings, useCompanyInfo } from '../../contexts/SettingsContext';
+
+
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
