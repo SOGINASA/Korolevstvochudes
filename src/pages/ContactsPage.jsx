@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatPhoneNumber } from '../utils/helpers';
+import { apiService } from '../services/api';
 import { 
   Phone, 
   Mail, 
@@ -117,24 +119,130 @@ const ContactsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Имитация отправки формы
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-      setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        eventType: '',
-        eventDate: '',
-        guestCount: '',
-        budget: '',
-        message: ''
-      });
+  
+    try {
+      // Функция для форматирования даты в строку YYYY-MM-DD
+      const formatDate = (dateValue) => {
+        if (!dateValue) return null;
+        
+        // Если это уже строка в правильном формате
+        if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+          return dateValue;
+        }
+        
+        // Если это объект Date
+        if (dateValue instanceof Date) {
+          return dateValue.toISOString().split('T')[0];
+        }
+        
+        // Попытаемся преобразовать в Date и затем в строку
+        const date = new Date(dateValue);
+        if (!isNaN(date.getTime())) {
+          return date.toISOString().split('T')[0];
+        }
+        
+        return null;
+      };
+        // Функция для форматирования времени в строку HH:MM
+      const formatTime = (timeValue) => {
+        if (!timeValue) return null;
+        
+        // Если это уже строка в правильном формате
+        if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+          return timeValue;
+        }
+        
+        // Если это объект Date
+        if (timeValue instanceof Date) {
+          return timeValue.toTimeString().slice(0, 5);
+        }
+        
+        // Если это строка времени в другом формате
+        if (typeof timeValue === 'string') {
+          const time = new Date(`2000-01-01T${timeValue}`);
+          if (!isNaN(time.getTime())) {
+            return time.toTimeString().slice(0, 5);
+          }
+        }
+        
+        return null;
+      };
+
+        // Правильно сформированные данные для отправки на бэкенд
+      const bookingData = {
+        // Обязательные поля
+        name: formData.name || '',
+        phone: formatPhoneNumber(formData.phone),
+        
+        // Опциональные поля (используем правильные названия)
+        email: formData.email || null,
+        service_id: null,
+        event_date: formatDate(formData.eventDate),
+        event_time: null,
+        guests_count: formData.guestCount ? parseInt(formData.guestCount) : null,
+        budget: formData.budget ? formData.budget.toString() : null,
+        location: null,
+        message: [
+         formData.specialRequests || '',
+          formData.totalPrice ? `Ориентировочная стоимость: ${formData.totalPrice}` : ''
+        ].filter(Boolean).join('. ') || null
+      };
+
+      console.log('Отправляемые данные:', bookingData);
+
+      // Валидация перед отправкой
+      if (!formData.name.trim()) {
+        throw new Error('Имя обязательно для заполнения');
+      }
       
-      setTimeout(() => setShowSuccess(false), 5000);
-    }, 2000);
+      if (!formData.phone.trim()) {
+        throw new Error('Телефон обязателен для заполнения');
+      }
+
+      // Отправляем бронирование на сервер
+      const result = await apiService.createBooking(bookingData);
+      
+      if (result.success) {
+        setIsSubmitting(false);
+        setShowSuccess(true);
+        
+        // Очищаем форму после успешной отправки
+        setFormData(prev => ({
+          prev: prev,
+          name: '',
+          phone: '',
+          email: '',
+          eventType: '',
+          eventDate: '',
+          guestCount: '',
+          budget: '',
+          message: ''
+        }));
+        
+        } else {
+          throw new Error(result.error || 'Ошибка при создании бронирования');
+        }
+    } catch (error) {
+      console.error('Ошибка бронирования:', error);
+      
+      // Более детальная обработка ошибок
+      let errorMessage = 'Произошла ошибка при бронировании';
+      
+      if (error.message.includes('400')) {
+        errorMessage = 'Проверьте правильность заполнения всех полей';
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Необходима авторизация';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Ошибка сервера. Попробуйте позже';
+      } else {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
+      
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
