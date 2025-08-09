@@ -14,6 +14,7 @@ import { useSettings } from '../contexts/SettingsContext';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
@@ -60,7 +61,7 @@ const Footer = () => {
             {/* Социальные сети */}
             <div className="flex space-x-4">
               <a 
-                href="https://www.instagram.com/korolevstvochudes/"
+                href={settings.social_instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
@@ -68,7 +69,7 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
               <a 
-                href="wa.me/77055195222"
+                href={`wa.me/${getWhatsappPhone().replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
@@ -195,7 +196,7 @@ const Footer = () => {
 
       {/* Плавающая кнопка заказа */}
       <Link
-        to="/zakazat-prazdnik"
+        to={`https://wa.me/${getWhatsappPhone().replace(/\D/g, '')}`}
         className="fixed bottom-6 right-6 z-50 btn-primary shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2"
       >
         <Phone size={20} />

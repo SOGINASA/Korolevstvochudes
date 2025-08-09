@@ -11,6 +11,7 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 const ProcessSection = () => {
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
   const steps = [
     {
@@ -196,7 +197,7 @@ const ProcessSection = () => {
               </a>
               
               <a
-                href={`https://wa.me/${getCompanyPhone().replace(/\D/g, '')}`}
+                href={`https://wa.me/${getWhatsappPhone().replace(/\D/g, '')}`}
                 className="btn-secondary flex items-center justify-center gap-2"
                 target="_blank"
                 rel="noopener noreferrer"

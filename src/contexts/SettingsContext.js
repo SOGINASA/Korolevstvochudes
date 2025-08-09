@@ -151,6 +151,7 @@ export const SettingsProvider = ({ children }) => {
       const modifitedSettings = {
         ...newSettings,
         company_phone: formatPhoneNumber(newSettings.company_phone),
+        whatsapp_phone: formatPhoneNumber(newSettings.whatsapp_phone)
       }
 
       // ИСПРАВЛЕНО: правильный URL для обновления админских настроек
@@ -159,7 +160,7 @@ export const SettingsProvider = ({ children }) => {
         headers: {
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(newSettings)
+        body: JSON.stringify(modifitedSettings)
       });
 
       setSettings(prevSettings => ({
