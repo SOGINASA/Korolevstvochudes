@@ -45,6 +45,7 @@ const ContactsPage = () => {
   const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
   const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
@@ -303,7 +304,7 @@ const ContactsPage = () => {
                   </motion.a>
 
                   <motion.a
-                    href={`https://wa.me/${settings.company_phone.replace(/\D/g, '')}`}
+                    href={`https://wa.me/${settings.whatsapp_phone.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/20 transition-all duration-300"
@@ -668,7 +669,7 @@ const ContactsPage = () => {
                               <Instagram size={24} />
                             </a>
                             <a
-                              href={`https://wa.me/${settings.company_phone.replace(/\D/g, '')}`}
+                              href={`https://wa.me/${settings.whatsapp_phone.replace(/\D/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center text-white hover:scale-110 transition-transform duration-300"

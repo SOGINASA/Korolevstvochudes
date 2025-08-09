@@ -52,6 +52,7 @@ const ServicesPage = () => {
   const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
   const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
@@ -1604,7 +1605,7 @@ const ServicesPage = () => {
                 </motion.div>
                 <h3 className="font-bold text-lg mb-2">WhatsApp</h3>
                 <p className="text-purple-100">Быстрый ответ 24/7</p>
-                <p className="text-sm text-purple-200">{getCompanyPhone()}</p>
+                <p className="text-sm text-purple-200">{getWhatsappPhone()}</p>
               </div>
               
               <div className="text-center">

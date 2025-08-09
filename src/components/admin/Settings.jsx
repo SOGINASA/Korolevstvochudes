@@ -38,6 +38,7 @@ const Settings = ({ showNotification }) => {
 
   const handleSaveSettings = async () => {
     try {
+      await saveSettings(localSettings);
       showNotification('Настройки сохранены', 'success');
     } catch (error) {
       showNotification('Ошибка при сохранении настроек', 'error');
