@@ -1,10 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Star, Users, Award, Calendar, X, ChevronDown, Check, ArrowLeft, ArrowRight } from 'lucide-react';
+import { 
+  Play, 
+  Star, 
+  Award, 
+  Calendar, 
+  X, 
+  ChevronDown, 
+  Check, 
+  ArrowLeft, 
+  ArrowRight,
+  Menu, 
+  Phone, 
+  Mail, 
+  MapPin,
+  Clock,
+  MessageCircle,
+  Loader2,
+  Baby,
+  HeartHandshake,
+  Building2,
+  Users,
+  Zap,
+  Camera,
+  Palette,
+  Cake,
+  Gift,
+  Gamepad2
+ } from 'lucide-react';
 import { useSettings, useCompanyInfo } from '../../contexts/SettingsContext';
-
-
+import { apiService } from '../../services/api';
+import { formatPhoneNumber } from '../../utils/helpers';
 
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -24,6 +51,7 @@ const HeroSection = () => {
     totalPrice: 0,
     category: ''
   });
+  const [selectedService, setSelectedService] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
@@ -62,80 +90,117 @@ const HeroSection = () => {
     { icon: Award, text: 'Гарантия качества', color: 'text-accent-500' },
     { icon: Star, text: '4.9 рейтинг', color: 'text-yellow-500' },
   ];
-
+  const generateDefaultPackages = (basePrice) => {
+    const priceNum = basePrice ? parseInt(basePrice.replace(/\D/g, '')) : 20000;
+    return [
+      { 
+        name: 'Базовый', 
+        price: `${priceNum.toLocaleString()} ₸`, 
+        duration: '2 часа', 
+        features: ['Основная программа', 'Стандартный реквизит'] 
+      },
+      { 
+        name: 'Стандарт', 
+        price: `${Math.round(priceNum * 1.5).toLocaleString()} ₸`, 
+        duration: '3 часа', 
+        features: ['Расширенная программа', 'Дополнительный реквизит', 'Фотосессия'] 
+      },
+      { 
+        name: 'Премиум', 
+        price: `${Math.round(priceNum * 2).toLocaleString()} ₸`, 
+        duration: '4 часа', 
+        features: ['VIP программа', 'Премиум реквизит', 'Фото и видео', 'Подарки'] 
+      }
+    ];
+  };
   // Категории и проекты для бронирования
   const categories = [
-    { 
-      id: 'children', 
-      name: 'Детские праздники', 
-      emoji: '🎈',
-      packages: [
-        { name: 'Базовый', price: '85,000 ₸', features: ['2 аниматора', '2 часа программы', 'Аквагрим', 'Игры', 'Фотозона'] },
-        { name: 'Стандарт', price: '120,000 ₸', features: ['3 аниматора', '3 часа программы', 'Шоу мыльных пузырей', 'Фотограф', 'Тематический декор'] },
-        { name: 'Премиум', price: '180,000 ₸', features: ['4 аниматора', '4 часа программы', 'Кукольный театр', 'Видеосъемка', 'Торт в подарок'] }
-      ]
-    },
-    { 
-      id: 'wedding', 
-      name: 'Свадьбы', 
-      emoji: '💕',
-      packages: [
-        { name: 'Камерная', price: '400,000 ₸', features: ['Ведущий', 'Звуковое оформление', 'Декор', 'Фотограф'] },
-        { name: 'Классическая', price: '650,000 ₸', features: ['Полный день', 'Живая музыка', 'Видеосъемка', 'Флористика', 'Выездная церемония'] },
-        { name: 'Роскошная', price: '850,000 ₸', features: ['VIP сервис', 'Фейерверк', 'Лимузин', 'Премиум локация', 'Банкет'] }
-      ]
-    },
-    { 
-      id: 'corporate', 
-      name: 'Корпоративы', 
-      emoji: '🏢',
-      packages: [
-        { name: 'Базовый', price: '200,000 ₸', features: ['Ведущий', 'Звуковое оформление', 'Развлечения', 'Фуршет'] },
-        { name: 'Бизнес', price: '320,000 ₸', features: ['Тимбилдинг', 'Конкурсы', 'Фотограф', 'Банкет'] },
-        { name: 'Премиум', price: '450,000 ₸', features: ['VIP программа', 'Артисты', 'Видеосъемка', 'Подарки сотрудникам'] }
-      ]
-    },
-    { 
-      id: 'anniversary', 
-      name: 'Юбилеи', 
-      emoji: '🎂',
-      packages: [
-        { name: 'Семейный', price: '150,000 ₸', features: ['Ведущий-тамада', 'Музыкальное сопровождение', 'Декор', 'Фотограф'] },
-        { name: 'Торжественный', price: '220,000 ₸', features: ['Живая музыка', 'Артисты', 'Видеосъемка', 'Подарки'] },
-        { name: 'Роскошный', price: '280,000 ₸', features: ['Полный сервис', 'VIP декор', 'Шоу-программа', 'Сюрпризы'] }
-      ]
-    },
-    { 
-      id: 'show', 
-      name: 'Шоу-программы', 
-      emoji: '🎭',
-      packages: [
-        { name: 'Базовое шоу', price: '180,000 ₸', features: ['20 минут шоу', '2 артиста', 'Базовый реквизит', 'Страховка'] },
-        { name: 'Расширенное', price: '250,000 ₸', features: ['30 минут шоу', '3 артиста', 'Спецэффекты', 'Костюмы'] },
-        { name: 'Премиум', price: '320,000 ₸', features: ['45 минут шоу', '4 артиста', 'Полная программа', 'Фото/видео'] }
-      ]
-    }
-  ];
+      { 
+        id: 'children', 
+        name: 'Детские праздники', 
+        iconComponent: Baby,
+        count: 15,
+        emoji: '🎈',
+        packages: generateDefaultPackages('85000')
+      },
+      { 
+        id: 'weddings', 
+        name: 'Свадьбы', 
+        iconComponent: HeartHandshake,
+        emoji: '💕',
+        count: 8,
+        packages: generateDefaultPackages('400000')
+      },
+      { 
+        id: 'corporate', 
+        name: 'Корпоративы', 
+        iconComponent: Building2,
+        count: 12,
+        emoji: '🏢',
+        packages: generateDefaultPackages('200000')
+      },
+      { 
+        id: 'anniversaries', 
+        name: 'Юбилеи', 
+        iconComponent: Cake,
+        count: 10,
+        emoji: '🎂',
+        packages: generateDefaultPackages('150000')
+      },
+      { 
+        id: 'shows', 
+        name: 'Шоу-программы', 
+        iconComponent: Zap,
+        count: 6,
+        emoji: '🎭',
+        packages: generateDefaultPackages('180000')
+      }
+    ];
 
   // Функции для бронирования
   const openCategorySelect = () => {
     setShowCategorySelect(true);
     document.body.style.overflow = 'hidden';
   };
-
+  const getCategoryIcon = (category) => {
+      const iconMap = {
+        'children': <Baby className="w-5 h-5 text-purple-600" />,
+        'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
+        'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
+        'animators': <Users className="w-5 h-5 text-green-600" />,
+        'shows': <Zap className="w-5 h-5 text-orange-600" />,
+        'photo': <Camera className="w-5 h-5 text-indigo-600" />,
+        'decoration': <Palette className="w-5 h-5 text-red-600" />,
+        'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
+        'seasonal': <Gift className="w-5 h-5 text-emerald-600" />,
+        'quests': <Gamepad2 className="w-5 h-5 text-cyan-600" />
+      };
+      return iconMap[category] || <Star className="w-5 h-5 text-purple-600" />;
+  };
   const selectCategory = (category) => {
     const selectedCategory = categories.find(c => c.id === category.id);
-    setSelectedProject({
+    setSelectedService({
+      id: category.id,
       title: category.name,
       category: category.id,
-      packages: selectedCategory.packages
+      icon: getCategoryIcon(category.id),
+      packages: selectedCategory.packages,
+      duration: '2-3 часа',
+      rating: 5.0,
+      reviews: selectedCategory.count,
+      price: selectedCategory.packages[0].price,
+      priceDescription: 'за услугу',
+      description: `Организация ${category.name.toLowerCase()} с полным комплексом услуг`
     });
+    
     setBookingForm(prev => ({
       ...prev,
+      prev: prev,
       selectedPackage: selectedCategory.packages[0].name,
       totalPrice: parseFloat(selectedCategory.packages[0].price.replace(/[^\d]/g, '')),
       category: category.id
     }));
+    
     setShowCategorySelect(false);
     setBookingStep(1);
     setShowBookingForm(true);
@@ -151,7 +216,7 @@ const HeroSection = () => {
   };
 
   const nextBookingStep = () => {
-    setBookingStep(prev => Math.min(prev + 1, 4));
+    setBookingStep(prev => Math.min(prev + 1, 3));
   };
 
   const prevBookingStep = () => {
@@ -165,32 +230,135 @@ const HeroSection = () => {
     }));
   };
 
-  const selectPackage = (packageData) => {
-    const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
-    setBookingForm(prev => ({
-      ...prev,
-      selectedPackage: packageData.name,
-      totalPrice: price
-    }));
-  };
-
   const submitBooking = async () => {
-    setIsSubmitting(true);
+      setIsSubmitting(true);
     
-    try {
-      // Имитация отправки данных
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setBookingSuccess(true);
-      setBookingStep(4);
-      
-    } catch (error) {
-      console.error('Ошибка бронирования:', error);
-      alert('Произошла ошибка при бронировании. Попробуйте еще раз.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      try {
+        // Функция для форматирования даты в строку YYYY-MM-DD
+        const formatDate = (dateValue) => {
+          if (!dateValue) return null;
+          
+          // Если это уже строка в правильном формате
+          if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+            return dateValue;
+          }
+          
+          // Если это объект Date
+          if (dateValue instanceof Date) {
+            return dateValue.toISOString().split('T')[0];
+          }
+          
+          // Попытаемся преобразовать в Date и затем в строку
+          const date = new Date(dateValue);
+          if (!isNaN(date.getTime())) {
+            return date.toISOString().split('T')[0];
+          }
+          
+          return null;
+        };
+          // Функция для форматирования времени в строку HH:MM
+        const formatTime = (timeValue) => {
+          if (!timeValue) return null;
+          
+          // Если это уже строка в правильном формате
+          if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+            return timeValue;
+          }
+          
+          // Если это объект Date
+          if (timeValue instanceof Date) {
+            return timeValue.toTimeString().slice(0, 5);
+          }
+          
+          // Если это строка времени в другом формате
+          if (typeof timeValue === 'string') {
+            const time = new Date(`2000-01-01T${timeValue}`);
+            if (!isNaN(time.getTime())) {
+              return time.toTimeString().slice(0, 5);
+            }
+          }
+          
+          return null;
+        };
+  
+          // Правильно сформированные данные для отправки на бэкенд
+        const bookingData = {
+          // Обязательные поля
+          name: bookingForm.clientName || '',
+          phone: formatPhoneNumber(bookingForm.clientPhone),
+          
+          // Опциональные поля (используем правильные названия)
+          email: bookingForm.clientEmail || null,
+          service_id: selectedService?.id || null,
+          event_date: formatDate(bookingForm.selectedDate),
+          event_time: formatTime(bookingForm.selectedTime),
+          guests_count: bookingForm.guestCount ? parseInt(bookingForm.guestCount) : null,
+          budget: bookingForm.totalPrice ? bookingForm.totalPrice.toString() : null,
+          location: bookingForm.location || null,
+          message: [
+            bookingForm.specialRequests || '',
+            bookingForm.selectedPackage ? `Пакет: ${bookingForm.selectedPackage}` : '',
+            bookingForm.totalPrice ? `Ориентировочная стоимость: ${bookingForm.totalPrice}` : ''
+          ].filter(Boolean).join('. ') || null
+        };
+  
+  
+        // Валидация перед отправкой
+        if (!bookingData.name.trim()) {
+          throw new Error('Имя обязательно для заполнения');
+        }
+        
+        if (!bookingData.phone.trim()) {
+          throw new Error('Телефон обязателен для заполнения');
+        }
+  
+        // Отправляем бронирование на сервер
+        const result = await apiService.createBooking(bookingData);
+        
+        if (result.success) {
+          setBookingSuccess(true);
+          setBookingStep(3);
+          
+          // Очищаем форму после успешной отправки
+          setBookingForm({
+            prev: bookingForm,
+            selectedDate: null,
+            selectedTime: null,
+            selectedPackage: null,
+            clientName: '',
+            clientPhone: '',
+            clientEmail: '',
+            guestCount: '',
+            specialRequests: '',
+            location: '',
+            totalPrice: 0
+          });
+          
+          } else {
+            throw new Error(result.error || 'Ошибка при создании бронирования');
+          }
+      } catch (error) {
+        console.error('Ошибка бронирования:', error);
+        
+        // Более детальная обработка ошибок
+        let errorMessage = 'Произошла ошибка при бронировании';
+        
+        if (error.message.includes('400')) {
+          errorMessage = 'Проверьте правильность заполнения всех полей';
+        } else if (error.message.includes('401')) {
+          errorMessage = 'Необходима авторизация';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Ошибка сервера. Попробуйте позже';
+        } else {
+          errorMessage = error.message;
+        }
+        
+        alert(errorMessage);
+        
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
   // Календарь
   const generateCalendarDays = () => {
@@ -226,14 +394,14 @@ const HeroSection = () => {
   const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((showBookingForm || showCategorySelect) && e.key === 'Escape') {
-        closeBookingForm();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+      const handleKeyDown = (e) => {
+        if ((showBookingForm || showCategorySelect) && e.key === 'Escape') {
+          closeBookingForm();
+        }
+      };
+  
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showBookingForm, showCategorySelect]);
 
   return (
@@ -367,53 +535,53 @@ const HeroSection = () => {
 
       {/* Модальное окно выбора категории */}
       <AnimatePresence>
-        {showCategorySelect && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
-            onClick={closeBookingForm}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[80vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Выберите тип праздника</h3>
-                <button
+              {showCategorySelect && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
                   onClick={closeBookingForm}
-                  className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
                 >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <div className="space-y-3">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    className="w-full py-4 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-3 transition-colors group"
-                    onClick={() => selectCategory(category)}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[80vh] overflow-y-auto"
+                    onClick={e => e.stopPropagation()}
                   >
-                    <span className="text-2xl">{category.emoji}</span>
-                    <span className="flex-1 text-left">{category.name}</span>
-                    <ChevronDown size={16} className="-rotate-90 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600 text-center">
-                  💡 Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-bold text-gray-900">Выберите тип праздника</h3>
+                      <button
+                        onClick={closeBookingForm}
+                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {categories.map(category => (
+                        <button
+                          key={category.id}
+                          className="w-full py-4 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-3 transition-colors group"
+                          onClick={() => selectCategory(category)}
+                        >
+                          <span className="text-2xl">{category.emoji}</span>
+                          <span className="flex-1 text-left">{category.name}</span>
+                          <ChevronDown size={16} className="-rotate-90 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-gray-50 rounded-xl">
+                      <p className="text-sm text-gray-600 text-center">
+                        💡 Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
+                      </p>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
       </AnimatePresence>
 
       {/* Форма бронирования */}
@@ -433,12 +601,12 @@ const HeroSection = () => {
               className="max-w-4xl w-full bg-white rounded-2xl overflow-hidden max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Заголовок */}
+              {/* Header */}
               <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">Бронирование праздника</h2>
-                    <p className="text-purple-100">{selectedProject?.title}</p>
+                    <h2 className="text-2xl font-bold mb-2">Бронирование услуги</h2>
+                    <p className="text-purple-100">{selectedService?.title}</p>
                   </div>
                   <button
                     onClick={closeBookingForm}
@@ -448,18 +616,18 @@ const HeroSection = () => {
                   </button>
                 </div>
 
-                {/* Индикатор шагов */}
+                {/* Progress Steps */}
                 <div className="mt-6 flex items-center justify-between">
-                  {[1, 2, 3, 4].map((step) => (
+                  {[1, 2, 3].map((step) => (
                     <div key={step} className="flex items-center">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         bookingStep >= step 
                           ? 'bg-white text-purple-600' 
                           : 'bg-white/20 text-white/60'
                       }`}>
-                        {bookingSuccess && step === 4 ? <Check size={16} /> : step}
+                        {bookingSuccess && step === 3 ? <Check size={16} /> : step}
                       </div>
-                      {step < 4 && (
+                      {step < 3 && (
                         <div className={`flex-1 h-0.5 mx-2 ${
                           bookingStep > step ? 'bg-white' : 'bg-white/20'
                         }`} />
@@ -469,13 +637,13 @@ const HeroSection = () => {
                 </div>
               </div>
 
-              {/* Контент формы */}
+              {/* Form Content */}
               <div className="flex-1 p-6 overflow-y-auto">
                 {bookingStep === 1 && (
                   <div className="space-y-6">
                     <h3 className="text-xl font-bold text-gray-900">Выберите дату и время</h3>
                     
-                    {/* Календарь */}
+                    {/* Calendar */}
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-4">
                         <button
@@ -536,7 +704,7 @@ const HeroSection = () => {
                       </div>
                     </div>
 
-                    {/* Время */}
+                    {/* Time Selection */}
                     {bookingForm.selectedDate && (
                       <div>
                         <h4 className="text-lg font-semibold mb-3">Выберите время</h4>
@@ -562,43 +730,23 @@ const HeroSection = () => {
 
                 {bookingStep === 2 && (
                   <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-gray-900">Выберите пакет услуг</h3>
-                    
-                    <div className="grid gap-4">
-                      {selectedProject?.packages?.map((pkg, index) => (
-                        <div
-                          key={index}
-                          className={`p-4 rounded-xl border cursor-pointer transition-colors ${
-                            bookingForm.selectedPackage === pkg.name
-                              ? 'border-purple-600 bg-purple-50'
-                              : 'border-gray-200 hover:border-purple-300'
-                          }`}
-                          onClick={() => selectPackage(pkg)}
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-lg font-semibold text-gray-900">{pkg.name}</h4>
-                            <div className="text-xl font-bold text-purple-600">{pkg.price}</div>
-                          </div>
-                          
-                          <div className="space-y-1">
-                            {pkg.features.map((feature, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                <Check size={16} className="text-green-500 flex-shrink-0" />
-                                {feature}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {bookingStep === 3 && (
-                  <div className="space-y-6">
                     <h3 className="text-xl font-bold text-gray-900">Контактная информация</h3>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Имя *
+                        </label>
+                        <input
+                          type="text"
+                          value={bookingForm.clientName}
+                          onChange={(e) => updateBookingForm('clientName', e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                          placeholder="Ваше имя"
+                          required
+                        />
+                      </div>
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Телефон *
@@ -649,13 +797,13 @@ const HeroSection = () => {
                         onChange={(e) => updateBookingForm('specialRequests', e.target.value)}
                         rows={4}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
-                        placeholder="Расскажите о ваших пожеланиях к празднику..."
+                        placeholder="Расскажите о ваших пожеланиях к мероприятию..."
                       />
                     </div>
                   </div>
                 )}
 
-                {bookingStep === 4 && (
+                {bookingStep === 3 && (
                   <div className="text-center space-y-6">
                     {bookingSuccess ? (
                       <>
@@ -670,11 +818,9 @@ const HeroSection = () => {
                         <div className="bg-purple-50 rounded-xl p-4">
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
-                            <p>Услуга: {selectedProject?.title}</p>
-                            <p>Дата: {bookingForm.selectedDate ? new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
-                            <p>Время: {bookingForm.selectedTime}</p>
-                            <p>Пакет: {bookingForm.selectedPackage}</p>
-                            <p>Стоимость: {bookingForm.totalPrice.toLocaleString()} ₸</p>
+                            <p>Услуга: {selectedService?.title}</p>
+                            <p>Дата: {new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU')}</p>
+                            <p>Время: {bookingForm.prev.selectedTime}</p>
                           </div>
                         </div>
                       </>
@@ -687,7 +833,7 @@ const HeroSection = () => {
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Услуга:</span>
-                              <span className="font-medium">{selectedProject?.title}</span>
+                              <span className="font-medium">{selectedService?.title}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Дата:</span>
@@ -727,7 +873,7 @@ const HeroSection = () => {
                 )}
               </div>
 
-              {/* Навигация */}
+              {/* Navigation */}
               <div className="bg-gray-50 p-6 flex justify-between items-center flex-shrink-0">
                 <button
                   onClick={bookingStep === 1 ? closeBookingForm : prevBookingStep}
@@ -738,22 +884,22 @@ const HeroSection = () => {
                 </button>
 
                 <div className="flex gap-3">
-                  {bookingStep < 4 && (
+                  {bookingStep < 3 && (
                     <button
-                      onClick={bookingStep === 3 ? submitBooking : nextBookingStep}
+                      onClick={bookingStep === 2 ? submitBooking : nextBookingStep}
                       disabled={
                         isSubmitting ||
                         (bookingStep === 1 && (!bookingForm.selectedDate || !bookingForm.selectedTime)) ||
-                        (bookingStep === 3 && (!bookingForm.clientName || !bookingForm.clientPhone))
+                        (bookingStep === 2 && (!bookingForm.clientName || !bookingForm.clientPhone))
                       }
-                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                           Отправка...
                         </>
-                      ) : bookingStep === 3 ? (
+                      ) : bookingStep === 2 ? (
                         'Подтвердить заказ'
                       ) : (
                         'Далее'
@@ -761,10 +907,10 @@ const HeroSection = () => {
                     </button>
                   )}
 
-                  {bookingStep === 4 && bookingSuccess && (
+                  {bookingStep === 3 && bookingSuccess && (
                     <button
                       onClick={closeBookingForm}
-                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors"
                     >
                       Закрыть
                     </button>
