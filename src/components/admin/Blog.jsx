@@ -61,7 +61,6 @@ const Blog = ({
   }, [searchQuery, selectedCategory, selectedStatus, pagination.currentPage]);
 
   const loadData = async () => {
-    console.log(loadBlogPosts);
     if (!loadBlogPosts) return;
     
     setLoading(true);
@@ -75,9 +74,7 @@ const Blog = ({
       };
 
       const result = await loadBlogPosts(params);
-      console.log(`Загрузка постов блога с параметрами: ${JSON.stringify(result)}`);
       if (result && result.success) {
-        console.log(`Получены посты блога: ${JSON.stringify(result)}`);
         setBlogArticles(result);
         setPagination(prev => ({
           ...prev,

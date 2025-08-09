@@ -362,7 +362,6 @@ const ServicesPage = () => {
       ].filter(Boolean).join('. ') || null
     };
 
-    console.log('Отправляемые данные:', bookingData);
 
     // Валидация перед отправкой
     if (!bookingData.name.trim()) {

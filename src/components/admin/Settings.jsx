@@ -1,43 +1,24 @@
 // components/admin/Settings.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Settings as SettingsIcon, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { useAdminSettings } from '../../hooks/useSettings';
 
 const Settings = ({ showNotification }) => {
   const [activeSettingsTab, setActiveSettingsTab] = useState('company');
-  const [settings, setSettings] = useState({
-    // Компания
-    companyName: 'Королевство Чудес',
-    companyEmail: 'info@prazdnikvdom.kz',
-    companyPhone: '+7 (777) 123-45-67',
-    whatsappPhone: '+7 (777) 987-65-43',
-    companyAddress: 'г. Петропавловск, ул. Ленина, 123',
-    companyDescription: 'Профессиональная организация праздников и мероприятий',
-    
-    // Соцсети
-    socialInstagram: 'https://instagram.com/korolevstvo_chudes',
-    socialFacebook: '',
-    socialYoutube: '',
-    socialTelegram: '',
-    
-    // Уведомления
-    emailNotifications: true,
-    telegramNotifications: false,
-    smsNotifications: false,
-    notificationEmail: 'admin@prazdnikvdom.kz',
-    
-    // SEO
-    siteTitle: 'Организация праздников в Петропавловске - Королевство Чудес',
-    siteDescription: 'Профессиональная организация праздников в Петропавловске. Детские дни рождения, свадьбы, корпоративы.',
-    siteKeywords: 'праздники петропавловск, аниматоры, организация свадеб',
-    googleAnalyticsId: '',
-    yandexMetricaId: '',
-    
-    // Интеграции
-    kaspiApiKey: '',
-    oneC_url: '',
-    smtpServer: '',
-    smtpPort: ''
-  });
+  const { settings, loadSettings, saveSettings, loading, error } = useAdminSettings();
+  const [localSettings, setLocalSettings] = useState({});
+
+  // Загружаем настройки при монтировании компонента
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  // Синхронизируем локальные настройки с глобальными
+  useEffect(() => {
+    if (settings && Object.keys(settings).length > 0) {
+      setLocalSettings(settings);
+    }
+  }, [settings]);
 
   const settingsSections = [
     { id: 'company', icon: SettingsIcon, label: 'О компании' },
@@ -47,8 +28,8 @@ const Settings = ({ showNotification }) => {
     { id: 'integration', icon: SettingsIcon, label: 'Интеграции' }
   ];
 
-  const updateSetting = (key, value) => {
-    setSettings(prev => ({
+  const updateLocalSetting = (key, value) => {
+    setLocalSettings(prev => ({
       ...prev,
       [key]: value
     }));
@@ -56,8 +37,7 @@ const Settings = ({ showNotification }) => {
 
   const handleSaveSettings = async () => {
     try {
-      // Здесь будет API запрос для сохранения настроек
-      // await apiService.updateSettings(settings);
+      await saveSettings(localSettings, );
       showNotification('Настройки сохранены', 'success');
     } catch (error) {
       showNotification('Ошибка при сохранении настроек', 'error');
@@ -76,8 +56,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="text"
-            value={settings.companyName}
-            onChange={(e) => updateSetting('companyName', e.target.value)}
+            value={localSettings.company_name || ''}
+            onChange={(e) => updateLocalSetting('company_name', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="Королевство Чудес"
           />
@@ -89,8 +69,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="email"
-            value={settings.companyEmail}
-            onChange={(e) => updateSetting('companyEmail', e.target.value)}
+            value={localSettings.company_email || ''}
+            onChange={(e) => updateLocalSetting('company_email', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="info@prazdnikvdom.kz"
           />
@@ -102,8 +82,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="tel"
-            value={settings.companyPhone}
-            onChange={(e) => updateSetting('companyPhone', e.target.value)}
+            value={localSettings.company_phone || ''}
+            onChange={(e) => updateLocalSetting('company_phone', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="+7 (777) 123-45-67"
           />
@@ -115,8 +95,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="tel"
-            value={settings.whatsappPhone}
-            onChange={(e) => updateSetting('whatsappPhone', e.target.value)}
+            value={localSettings.whatsapp_phone || ''}
+            onChange={(e) => updateLocalSetting('whatsapp_phone', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="+7 (777) 987-65-43"
           />
@@ -128,8 +108,8 @@ const Settings = ({ showNotification }) => {
           Адрес компании
         </label>
         <textarea
-          value={settings.companyAddress}
-          onChange={(e) => updateSetting('companyAddress', e.target.value)}
+          value={localSettings.company_address || ''}
+          onChange={(e) => updateLocalSetting('company_address', e.target.value)}
           rows={3}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="г. Петропавловск, ул. Ленина, 123"
@@ -141,8 +121,8 @@ const Settings = ({ showNotification }) => {
           Описание компании
         </label>
         <textarea
-          value={settings.companyDescription}
-          onChange={(e) => updateSetting('companyDescription', e.target.value)}
+          value={localSettings.company_description || ''}
+          onChange={(e) => updateLocalSetting('company_description', e.target.value)}
           rows={4}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="Краткое описание деятельности компании..."
@@ -162,8 +142,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="url"
-            value={settings.socialInstagram}
-            onChange={(e) => updateSetting('socialInstagram', e.target.value)}
+            value={localSettings.social_instagram || ''}
+            onChange={(e) => updateLocalSetting('social_instagram', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="https://instagram.com/korolevstvo_chudes"
           />
@@ -175,8 +155,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="url"
-            value={settings.socialFacebook}
-            onChange={(e) => updateSetting('socialFacebook', e.target.value)}
+            value={localSettings.social_facebook || ''}
+            onChange={(e) => updateLocalSetting('social_facebook', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="https://facebook.com/korolevstvo.chudes"
           />
@@ -188,8 +168,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="url"
-            value={settings.socialYoutube}
-            onChange={(e) => updateSetting('socialYoutube', e.target.value)}
+            value={localSettings.social_youtube || ''}
+            onChange={(e) => updateLocalSetting('social_youtube', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="https://youtube.com/@korolevstvo-chudes"
           />
@@ -201,8 +181,8 @@ const Settings = ({ showNotification }) => {
           </label>
           <input
             type="url"
-            value={settings.socialTelegram}
-            onChange={(e) => updateSetting('socialTelegram', e.target.value)}
+            value={localSettings.social_telegram || ''}
+            onChange={(e) => updateLocalSetting('social_telegram', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="https://t.me/korolevstvo_chudes"
           />
@@ -224,8 +204,8 @@ const Settings = ({ showNotification }) => {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={settings.emailNotifications}
-              onChange={(e) => updateSetting('emailNotifications', e.target.checked)}
+              checked={localSettings.email_notifications || false}
+              onChange={(e) => updateLocalSetting('email_notifications', e.target.checked)}
               className="sr-only peer"
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
@@ -240,8 +220,8 @@ const Settings = ({ showNotification }) => {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={settings.telegramNotifications}
-              onChange={(e) => updateSetting('telegramNotifications', e.target.checked)}
+              checked={localSettings.telegram_notifications || false}
+              onChange={(e) => updateLocalSetting('telegram_notifications', e.target.checked)}
               className="sr-only peer"
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
@@ -256,8 +236,8 @@ const Settings = ({ showNotification }) => {
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
-              checked={settings.smsNotifications}
-              onChange={(e) => updateSetting('smsNotifications', e.target.checked)}
+              checked={localSettings.sms_notifications || false}
+              onChange={(e) => updateLocalSetting('sms_notifications', e.target.checked)}
               className="sr-only peer"
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
@@ -271,8 +251,8 @@ const Settings = ({ showNotification }) => {
         </label>
         <input
           type="email"
-          value={settings.notificationEmail}
-          onChange={(e) => updateSetting('notificationEmail', e.target.value)}
+          value={localSettings.notification_email || ''}
+          onChange={(e) => updateLocalSetting('notification_email', e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="admin@prazdnikvdom.kz"
         />
@@ -290,8 +270,8 @@ const Settings = ({ showNotification }) => {
         </label>
         <input
           type="text"
-          value={settings.siteTitle}
-          onChange={(e) => updateSetting('siteTitle', e.target.value)}
+          value={localSettings.site_title || ''}
+          onChange={(e) => updateLocalSetting('site_title', e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="Организация праздников в Петропавловске - Королевство Чудес"
         />
@@ -302,8 +282,8 @@ const Settings = ({ showNotification }) => {
           Описание сайта (Description)
         </label>
         <textarea
-          value={settings.siteDescription}
-          onChange={(e) => updateSetting('siteDescription', e.target.value)}
+          value={localSettings.site_description || ''}
+          onChange={(e) => updateLocalSetting('site_description', e.target.value)}
           rows={3}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="Профессиональная организация праздников в Петропавловске. Детские дни рождения, свадьбы, корпоративы. Более 1000 довольных клиентов."
@@ -316,8 +296,8 @@ const Settings = ({ showNotification }) => {
         </label>
         <input
           type="text"
-          value={settings.siteKeywords}
-          onChange={(e) => updateSetting('siteKeywords', e.target.value)}
+          value={localSettings.site_keywords || ''}
+          onChange={(e) => updateLocalSetting('site_keywords', e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="праздники петропавловск, аниматоры, организация свадеб, детские праздники"
         />
@@ -329,8 +309,8 @@ const Settings = ({ showNotification }) => {
         </label>
         <input
           type="text"
-          value={settings.googleAnalyticsId}
-          onChange={(e) => updateSetting('googleAnalyticsId', e.target.value)}
+          value={localSettings.google_analytics_id || ''}
+          onChange={(e) => updateLocalSetting('google_analytics_id', e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="G-XXXXXXXXXX"
         />
@@ -342,8 +322,8 @@ const Settings = ({ showNotification }) => {
         </label>
         <input
           type="text"
-          value={settings.yandexMetricaId}
-          onChange={(e) => updateSetting('yandexMetricaId', e.target.value)}
+          value={localSettings.yandex_metrica_id || ''}
+          onChange={(e) => updateLocalSetting('yandex_metrica_id', e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="12345678"
         />
@@ -359,8 +339,10 @@ const Settings = ({ showNotification }) => {
         <div className="border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-900">Kaspi Pay</h4>
-            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-              Подключено
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              localSettings.kaspi_api_key ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {localSettings.kaspi_api_key ? 'Подключено' : 'Не настроено'}
             </span>
           </div>
           <p className="text-sm text-gray-600 mb-3">Прием онлайн платежей через Kaspi</p>
@@ -368,21 +350,20 @@ const Settings = ({ showNotification }) => {
             <input
               type="text"
               placeholder="API ключ Kaspi"
-              value={settings.kaspiApiKey}
-              onChange={(e) => updateSetting('kaspiApiKey', e.target.value)}
+              value={localSettings.kaspi_api_key || ''}
+              onChange={(e) => updateLocalSetting('kaspi_api_key', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
-            <button className="text-sm text-purple-600 hover:text-purple-700">
-              Тестировать подключение
-            </button>
           </div>
         </div>
 
         <div className="border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-900">1C Интеграция</h4>
-            <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-              В процессе
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              localSettings.one_c_url ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {localSettings.one_c_url ? 'В процессе' : 'Не настроено'}
             </span>
           </div>
           <p className="text-sm text-gray-600 mb-3">Синхронизация с системой учета</p>
@@ -390,21 +371,20 @@ const Settings = ({ showNotification }) => {
             <input
               type="text"
               placeholder="URL сервера 1C"
-              value={settings.oneC_url}
-              onChange={(e) => updateSetting('oneC_url', e.target.value)}
+              value={localSettings.one_c_url || ''}
+              onChange={(e) => updateLocalSetting('one_c_url', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
-            <button className="text-sm text-purple-600 hover:text-purple-700">
-              Настроить подключение
-            </button>
           </div>
         </div>
 
         <div className="border border-gray-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium text-gray-900">Email рассылка</h4>
-            <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-              Не настроено
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              localSettings.smtp_server ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}>
+              {localSettings.smtp_server ? 'Настроено' : 'Не настроено'}
             </span>
           </div>
           <p className="text-sm text-gray-600 mb-3">SMTP настройки для отправки писем</p>
@@ -412,15 +392,15 @@ const Settings = ({ showNotification }) => {
             <input
               type="text"
               placeholder="SMTP сервер"
-              value={settings.smtpServer}
-              onChange={(e) => updateSetting('smtpServer', e.target.value)}
+              value={localSettings.smtp_server || ''}
+              onChange={(e) => updateLocalSetting('smtp_server', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
             <input
               type="text"
               placeholder="Порт"
-              value={settings.smtpPort}
-              onChange={(e) => updateSetting('smtpPort', e.target.value)}
+              value={localSettings.smtp_port || ''}
+              onChange={(e) => updateLocalSetting('smtp_port', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
           </div>
@@ -440,6 +420,14 @@ const Settings = ({ showNotification }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -447,12 +435,19 @@ const Settings = ({ showNotification }) => {
         <h2 className="text-2xl font-bold text-gray-900">Настройки системы</h2>
         <button 
           onClick={handleSaveSettings}
-          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          disabled={loading}
+          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
-          <span>Сохранить изменения</span>
+          <span>{loading ? 'Сохранение...' : 'Сохранить изменения'}</span>
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-700">Ошибка: {error}</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sidebar с разделами */}

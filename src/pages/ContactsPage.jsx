@@ -185,8 +185,6 @@ const ContactsPage = () => {
         message: formData.message || null,
       };
 
-      console.log('Отправляемые данные:', bookingData);
-
       // Валидация перед отправкой
       if (!formData.name.trim()) {
         throw new Error('Имя обязательно для заполнения');

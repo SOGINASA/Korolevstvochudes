@@ -63,7 +63,6 @@ const PortfolioPage = () => {
         }
         
         const response = await fetch(`http://127.0.0.1:5000/api/portfolio/?${params}`);
-        console.log('Загрузка данных портфолио с API:', response);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

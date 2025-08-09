@@ -195,7 +195,6 @@ const handleExportBookings = async (filters = {}) => {
 const loadBlogPosts = async (filters = {}) => {
   try {
     const result = await apiService.getBlogPostsWithFilters(filters);
-    console.log('Blog posts result:', result);
     if (result.success) {
       setBlogPosts(result.posts || []);
       if (result.pagination) {

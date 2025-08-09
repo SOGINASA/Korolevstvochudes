@@ -19,7 +19,7 @@ const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
     { id: 'portfolio', icon: Image, label: 'Портфолио' },
     { id: 'reviews', icon: Star, label: 'Отзывы' },
     { id: 'blog', icon: PenTool, label: 'Блог' },
-    { id: 'promotions', icon: Gift, label: 'Акции' },
+    /*{ id: 'promotions', icon: Gift, label: 'Акции' },*/
     { id: 'services', icon: Sparkles, label: 'Услуги' },
     ...(admin?.role === 'super_admin' || admin?.role === 'admin' 
       ? [{ id: 'admins', icon: Users, label: 'Администраторы' }] 
