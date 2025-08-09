@@ -1,6 +1,6 @@
 // components/admin/Applications.js
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2, ChevronLeft, ChevronRight, X, User, MessageSquare, DollarSign, Users, MapPin } from 'lucide-react';
 import { formatDate, getStatusColor, getStatusText } from '../../utils/helpers';
 
 const Applications = ({ 
@@ -19,6 +19,8 @@ const Applications = ({
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedBookings, setSelectedBookings] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Применяем фильтры при их изменении
   useEffect(() => {
@@ -97,6 +99,38 @@ const Applications = ({
 
   const handlePageChange = (newPage) => {
     onBookingsPageChange(newPage);
+  };
+
+  const handleViewDetails = (application) => {
+    setSelectedApplication(application);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedApplication(null);
+  };
+
+  const formatCreatedDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('ru-RU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusDisplayText = (status) => {
+    const statusMap = {
+      'new': 'Новая',
+      'confirmed': 'Подтверждена',
+      'in-progress': 'В работе',
+      'completed': 'Завершена',
+      'cancelled': 'Отменена'
+    };
+    return statusMap[status] || status;
   };
 
   return (
@@ -256,7 +290,14 @@ const Applications = ({
                       </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-center space-x-2">
+                        <button 
+                          onClick={() => handleViewDetails(app)}
+                          className="text-purple-600 hover:text-purple-900"
+                          title="Просмотр"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
                         <button 
                           onClick={() => handleDelete(app.id)}
                           className={`${
@@ -354,6 +395,181 @@ const Applications = ({
           </div>
         )}
       </div>
+
+      {/* Модальное окно детального просмотра */}
+      {showDetailsModal && selectedApplication && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок модального окна */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">
+                Детали заявки #{selectedApplication.id}
+              </h3>
+              <button 
+                onClick={closeDetailsModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Контент модального окна */}
+            <div className="p-6 space-y-6">
+              {/* Информация о клиенте */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <User className="h-5 w-5 mr-2 text-purple-600" />
+                  Информация о клиенте
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Имя</label>
+                    <p className="text-gray-900 font-medium">{selectedApplication.name}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Телефон</label>
+                    <p className="text-gray-900 flex items-center">
+                      <Phone className="h-4 w-4 mr-2 text-gray-500" />
+                      {selectedApplication.phone}
+                    </p>
+                  </div>
+                  {selectedApplication.email && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
+                      <p className="text-gray-900 flex items-center">
+                        <Mail className="h-4 w-4 mr-2 text-gray-500" />
+                        {selectedApplication.email}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Информация о мероприятии */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                  Детали мероприятия
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Услуга</label>
+                    <p className="text-gray-900">{selectedApplication.service_title || 'Не указано'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Дата события</label>
+                    <p className="text-gray-900 flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                      {selectedApplication.event_date || 'Не указана'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Время события</label>
+                    <p className="text-gray-900 flex items-center">
+                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                      {selectedApplication.event_time || 'Не указано'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Количество гостей</label>
+                    <p className="text-gray-900 flex items-center">
+                      <Users className="h-4 w-4 mr-2 text-gray-500" />
+                      {selectedApplication.guests_count || 'Не указано'}
+                    </p>
+                  </div>
+                  {selectedApplication.budget && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Бюджет</label>
+                      <p className="text-gray-900 flex items-center">
+                        <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
+                        {selectedApplication.budget}
+                      </p>
+                    </div>
+                  )}
+                  {selectedApplication.location && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Место проведения</label>
+                      <p className="text-gray-900 flex items-center">
+                        <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+                        {selectedApplication.location}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Сообщение клиента */}
+              {selectedApplication.message && (
+                <div className="bg-green-50 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
+                    Сообщение клиента
+                  </h4>
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.message}</p>
+                </div>
+              )}
+
+              {/* Статус и системная информация */}
+              <div className="bg-purple-50 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-3">Системная информация</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Текущий статус</label>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedApplication.status)}`}>
+                      {getStatusDisplayText(selectedApplication.status)}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Дата создания</label>
+                    <p className="text-gray-900">{formatCreatedDate(selectedApplication.created_at)}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">ID заявки</label>
+                    <p className="text-gray-900">#{selectedApplication.id}</p>
+                  </div>
+                  {selectedApplication.service_id && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">ID услуги</label>
+                      <p className="text-gray-900">{selectedApplication.service_id}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Изменение статуса */}
+              <div className="border-t border-gray-200 pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Изменить статус заявки
+                </label>
+                <select
+                  value={selectedApplication.status}
+                  onChange={(e) => {
+                    handleStatusChange(selectedApplication.id, e.target.value);
+                    setSelectedApplication({...selectedApplication, status: e.target.value});
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="new">Новая</option>
+                  <option value="confirmed">Подтверждена</option>
+                  <option value="in-progress">В работе</option>
+                  <option value="completed">Завершена</option>
+                  <option value="cancelled">Отменена</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Футер модального окна */}
+            <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+              <button 
+                onClick={closeDetailsModal}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

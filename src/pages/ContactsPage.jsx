@@ -182,10 +182,7 @@ const ContactsPage = () => {
         guests_count: formData.guestCount ? parseInt(formData.guestCount) : null,
         budget: formData.budget ? formData.budget.toString() : null,
         location: null,
-        message: [
-         formData.specialRequests || '',
-          formData.totalPrice ? `Ориентировочная стоимость: ${formData.totalPrice}` : ''
-        ].filter(Boolean).join('. ') || null
+        message: formData.message || null,
       };
 
       console.log('Отправляемые данные:', bookingData);
