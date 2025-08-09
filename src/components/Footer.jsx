@@ -69,7 +69,7 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
               <a 
-                href={`wa.me/${getWhatsappPhone().replace(/\D/g, '')}`}
+                href={`https://wa.me/${getWhatsappPhone().replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-300"
