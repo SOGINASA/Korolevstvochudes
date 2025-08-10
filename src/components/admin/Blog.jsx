@@ -1,6 +1,6 @@
 // components/admin/Blog.js
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, FileText, Globe, Clock, TrendingUp, Eye, Edit, Trash2, Save, X, Filter, Calendar, Tag, Star } from 'lucide-react';
+import { Plus, Search, FileText, Globe, Clock, TrendingUp, Eye, Edit, Trash2, Save, X, Filter, Calendar, Tag, Star, Image, Link } from 'lucide-react';
 import { getStatusColor, getStatusText, blogCategories, generateSlug } from '../../utils/helpers';
 import { apiService } from '../../services/api';
 
@@ -45,6 +45,7 @@ const Blog = ({
     tags: '',
     status: 'draft',
     featured: false,
+    featured_image: '', // Добавлено поле для URL изображения
     metaTitle: '',
     metaDescription: ''
   });
@@ -113,6 +114,7 @@ const Blog = ({
       tags: '',
       status: 'draft',
       featured: false,
+      featured_image: '', // Сброс поля изображения
       metaTitle: '',
       metaDescription: ''
     });
@@ -174,6 +176,7 @@ const Blog = ({
       tags: article.tags || '',
       status: article.status || 'draft',
       featured: article.featured || false,
+      featured_image: article.featured_image || '', // Загрузка существующего изображения
       metaTitle: article.metaTitle || '',
       metaDescription: article.metaDescription || ''
     });
@@ -224,6 +227,17 @@ const Blog = ({
   const handleStatusChange = (status) => {
     setSelectedStatus(status);
     setPagination(prev => ({ ...prev, currentPage: 1 })); // Сброс на первую страницу при смене фильтра
+  };
+
+  // Функция для проверки валидности URL изображения
+  const isValidImageUrl = (url) => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+    } catch {
+      return false;
+    }
   };
 
   return (
@@ -418,8 +432,22 @@ const Blog = ({
                     <tr key={article.id} className="hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-200">
                       <td className="px-8 py-6">
                         <div className="flex items-center">
-                          <div className="h-14 w-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
-                            <FileText className="h-7 w-7 text-white" />
+                          <div className="h-14 w-14 rounded-2xl flex items-center justify-center mr-4 shadow-lg overflow-hidden">
+                            {article.featured_image && isValidImageUrl(article.featured_image) ? (
+                              <img 
+                                src={article.featured_image} 
+                                alt={article.title}
+                                className="h-14 w-14 object-cover rounded-2xl"
+                                onError={(e) => {
+                                  // Fallback к градиенту при ошибке загрузки
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className={`h-14 w-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center ${article.featured_image && isValidImageUrl(article.featured_image) ? 'hidden' : 'flex'}`}>
+                              <FileText className="h-7 w-7 text-white" />
+                            </div>
                           </div>
                           <div>
                             <div className="text-sm font-bold text-gray-900 mb-1">{article.title}</div>
@@ -621,6 +649,69 @@ const Blog = ({
                   disabled={loading}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Секция для изображения статьи */}
+          <div className="bg-gray-50 rounded-2xl p-6">
+            <h4 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <Image className="h-5 w-5 mr-2 text-purple-600" />
+              Изображение статьи
+            </h4>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  URL изображения
+                </label>
+                <div className="relative">
+                  <Link className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="url"
+                    value={articleForm.featured_image}
+                    onChange={(e) => setArticleForm({...articleForm, featured_image: e.target.value})}
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-purple-100 focus:border-purple-500 transition-all duration-300"
+                    placeholder="https://example.com/image.jpg"
+                    disabled={loading}
+                  />
+                </div>
+                <p className="mt-2 text-sm text-gray-600">
+                  Поддерживаемые форматы: JPG, JPEG, PNG, GIF, WebP, SVG
+                </p>
+              </div>
+
+              {/* Предпросмотр изображения */}
+              {articleForm.featured_image && (
+                <div className="mt-4">
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Предпросмотр изображения
+                  </label>
+                  {isValidImageUrl(articleForm.featured_image) ? (
+                    <div className="relative">
+                      <img
+                        src={articleForm.featured_image}
+                        alt="Предпросмотр"
+                        className="w-full max-w-md h-48 object-cover rounded-2xl shadow-lg"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'block';
+                        }}
+                      />
+                      <div className="hidden p-8 border-2 border-dashed border-red-300 rounded-2xl bg-red-50 text-center">
+                        <Image className="h-12 w-12 text-red-400 mx-auto mb-2" />
+                        <p className="text-red-600 font-medium">Не удалось загрузить изображение</p>
+                        <p className="text-red-500 text-sm">Проверьте правильность URL</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-8 border-2 border-dashed border-yellow-300 rounded-2xl bg-yellow-50 text-center">
+                      <Image className="h-12 w-12 text-yellow-500 mx-auto mb-2" />
+                      <p className="text-yellow-700 font-medium">Неверный формат URL</p>
+                      <p className="text-yellow-600 text-sm">URL должен начинаться с http:// или https:// и заканчиваться расширением изображения</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -889,7 +980,7 @@ const Blog = ({
                     <div><code className="bg-blue-100 px-1 rounded"># Заголовок</code> - большой заголовок</div>
                     <div><code className="bg-blue-100 px-1 rounded">## Подзаголовок</code> - средний заголовок</div>
                     <div><code className="bg-blue-100 px-1 rounded">- пункт</code> - маркированный список</div>
-                    <div><code className="bg-blue-100 px-1 rounded"> цитата</code> - выделенная цитата</div>
+                    <div><code className="bg-blue-100 px-1 rounded">></code> - выделенная цитата</div>
                   </div>
                 </div>
               </div>
