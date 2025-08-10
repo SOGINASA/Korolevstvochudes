@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Calendar, Clock, User, Eye, Search, Filter, ChevronLeft, ChevronRight, Tag, Star, Share2, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { Calendar, Clock, User, Eye, Search, Filter, ChevronLeft, ChevronRight, Tag, Star, Share2, ArrowRight, Sparkles, TrendingUp, FileText } from 'lucide-react';
 import { apiService } from '../services/api';
 
 const BlogPage = () => {
@@ -16,6 +16,7 @@ const BlogPage = () => {
   const [featuredPosts, setFeaturedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   
   // Пагинация и фильтры
   const [pagination, setPagination] = useState({
@@ -60,6 +61,34 @@ const BlogPage = () => {
       setSearchParams(params);
     }
   }, [filters, isListView, setSearchParams]);
+
+  // Функция копирования ссылки
+  const handleCopyLink = async () => {
+    try {
+      const currentUrl = window.location.href;
+      await navigator.clipboard.writeText(currentUrl);
+      setLinkCopied(true);
+      
+      // Сброс состояния через 2 секунды
+      setTimeout(() => {
+        setLinkCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Ошибка копирования ссылки:', err);
+      // Fallback для старых браузеров
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      setLinkCopied(true);
+      setTimeout(() => {
+        setLinkCopied(false);
+      }, 2000);
+    }
+  };
 
   // Функции загрузки данных (остаются без изменений)
   const loadBlogPost = async (postSlug) => {
@@ -305,7 +334,7 @@ const BlogPage = () => {
                     ))}
                   </div>
                 )}
-
+                
                 {/* Кнопки действий */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-12 pt-8 border-t border-gray-100">
                   <Link 
@@ -318,17 +347,30 @@ const BlogPage = () => {
                   
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium text-gray-600">Поделиться:</span>
-                    <div className="flex space-x-3">
-                      <button className="p-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
-                        VK
-                      </button>
-                      <button className="p-3 bg-blue-400 text-white rounded-2xl hover:bg-blue-500 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
-                        TG
-                      </button>
-                      <button className="p-3 bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105">
-                        WA
-                      </button>
-                    </div>
+                    <button
+                      onClick={handleCopyLink}
+                      className={`inline-flex items-center px-4 py-3 rounded-2xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                        linkCopied 
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
+                          : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600'
+                      }`}
+                    >
+                      {linkCopied ? (
+                        <>
+                          <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Ссылка скопирована!
+                        </>
+                      ) : (
+                        <>
+                          <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Скопировать ссылку
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -590,56 +632,74 @@ const BlogPage = () => {
                   to={`/blog/${post.slug}`}
                   className="group block bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
                 >
+                  {/* Изображение и бейджи */}
                   <div className="relative">
-                    {post.featured_image && (
+                    {post.featured_image ? (
                       <img
                         src={post.featured_image}
                         alt={post.title}
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
+                    ) : (
+                      <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                        <FileText className="h-16 w-16 text-purple-400" />
+                      </div>
                     )}
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-block px-3 py-1 bg-purple-500 text-white text-xs rounded-full font-medium">
+                    
+                    {/* Градиентный overlay для лучшей читаемости бейджей */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20"></div>
+                    
+                    {/* Бейджи */}
+                    <div className="absolute top-4 left-4 right-4 flex items-start justify-between gap-2">
+                      {/* Категория */}
+                      <span className="inline-block px-3 py-1.5 bg-white/90 backdrop-blur-sm text-purple-800 text-xs font-semibold rounded-full shadow-lg border border-white/50">
                         {post.category}
                       </span>
-                    </div>
-                    {post.featured && (
-                      <div className="absolute top-4 right-4">
-                        <span className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs rounded-full font-bold">
+                      
+                      {/* ТОП бейдж (если статья рекомендуемая) */}
+                      {post.featured && (
+                        <span className="inline-flex items-center px-2.5 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full shadow-lg">
                           <Star className="h-3 w-3 mr-1" />
                           ТОП
                         </span>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                   
+                  {/* Контент карточки */}
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3 leading-tight">
+                    {/* Заголовок */}
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors mb-3 leading-tight line-clamp-2 min-h-[3.5rem]">
                       {post.title}
                     </h3>
                     
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                    {/* Описание */}
+                    <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 min-h-[4rem]">
                       {generateExcerpt(post.excerpt || post.content)}
                     </p>
                     
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-4">
+                    {/* Метаинформация */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                      <div className="flex items-center space-x-3">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          {formatDate(post.published_at || post.date)}
+                          <span>{formatDate(post.published_at || post.date)}</span>
                         </div>
                         <div className="flex items-center">
                           <Eye className="h-3 w-3 mr-1" />
-                          {post.views_count || 0}
+                          <span>{post.views_count || 0}</span>
                         </div>
                       </div>
+                      
+                      {/* Автор */}
                       <div className="flex items-center">
                         <User className="h-3 w-3 mr-1" />
-                        {post.author_name}
+                        <span className="truncate max-w-[80px]">{post.author_name}</span>
                       </div>
                     </div>
                     
-                    <div className="mt-4 pt-4 border-t border-gray-100">
+                    {/* Разделитель и кнопка */}
+                    <div className="pt-4 border-t border-gray-100">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-purple-600">Читать далее</span>
                         <ArrowRight className="h-4 w-4 text-purple-600 group-hover:translate-x-1 transition-transform duration-200" />
