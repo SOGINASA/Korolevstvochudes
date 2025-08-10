@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Calendar, User, MessageCircle, Send, Heart, Filter, Search, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { apiService } from '../services/api';
+import BookingModal from '../components/BookingModal';
 
 const ReviewsPage = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [newReview, setNewReview] = useState({
     name: '',
     email: '',
@@ -32,6 +34,15 @@ const ReviewsPage = () => {
     has_prev: false
   });
   const [errors, setErrors] = useState({});
+
+  // Функции для работы с модалом бронирования
+  const openBookingModal = () => {
+    setShowBookingModal(true);
+  };
+
+  const closeBookingModal = () => {
+    setShowBookingModal(false);
+  };
 
   // Загрузка отзывов при монтировании компонента
   useEffect(() => {
@@ -597,15 +608,27 @@ const ReviewsPage = () => {
             Присоединяйтесь к нашим довольным клиентам и создайте магию вместе с нами
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={openBookingModal}
+              className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+            >
               Заказать праздник
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+            <button 
+              onClick={openBookingModal}
+              className="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-colors"
+            >
               Получить консультацию
             </button>
           </div>
         </div>
       </div>
+
+      {/* Модальное окно бронирования */}
+      <BookingModal 
+        isOpen={showBookingModal} 
+        onClose={closeBookingModal} 
+      />
     </div>
   );
 };
