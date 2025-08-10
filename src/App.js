@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import ScrollToTop from './components/ScrollToTop';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -44,6 +45,7 @@ function App() {
       <AuthProvider>
         <SettingsProvider>
           <Router>
+            <ScrollToTop />
             <div className="App">
               {/* SEOHead должен быть внутри Router но вне Routes */}
               <SEOHead />
