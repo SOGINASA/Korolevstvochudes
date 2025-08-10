@@ -17,7 +17,11 @@ import {
   Cake,
   Gift,
   Gamepad2,
-  Star
+  Star,
+  PartyPopper,
+  Heart,
+  Briefcase,
+  Sparkles
 } from 'lucide-react';
 import { apiService } from '../services/api';
 import { formatPhoneNumber } from '../utils/helpers';
@@ -73,40 +77,55 @@ const BookingModal = ({ isOpen, onClose }) => {
       id: 'children', 
       name: 'Детские праздники', 
       iconComponent: Baby,
+      iconColor: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      hoverBgColor: 'hover:bg-purple-100',
+      textColor: 'text-purple-700',
       count: 15,
-      emoji: '🎈',
       packages: generateDefaultPackages('85000')
     },
     { 
       id: 'weddings', 
       name: 'Свадьбы', 
-      iconComponent: HeartHandshake,
-      emoji: '💕',
+      iconComponent: Heart,
+      iconColor: 'text-pink-600',
+      bgColor: 'bg-pink-50',
+      hoverBgColor: 'hover:bg-pink-100',
+      textColor: 'text-pink-700',
       count: 8,
       packages: generateDefaultPackages('400000')
     },
     { 
       id: 'corporate', 
       name: 'Корпоративы', 
-      iconComponent: Building2,
+      iconComponent: Briefcase,
+      iconColor: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      hoverBgColor: 'hover:bg-blue-100',
+      textColor: 'text-blue-700',
       count: 12,
-      emoji: '🏢',
       packages: generateDefaultPackages('200000')
     },
     { 
       id: 'anniversaries', 
       name: 'Юбилеи', 
       iconComponent: Cake,
+      iconColor: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      hoverBgColor: 'hover:bg-yellow-100',
+      textColor: 'text-yellow-700',
       count: 10,
-      emoji: '🎂',
       packages: generateDefaultPackages('150000')
     },
     { 
       id: 'shows', 
       name: 'Шоу-программы', 
-      iconComponent: Zap,
+      iconComponent: Sparkles,
+      iconColor: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      hoverBgColor: 'hover:bg-orange-100',
+      textColor: 'text-orange-700',
       count: 6,
-      emoji: '🎭',
       packages: generateDefaultPackages('180000')
     }
   ];
@@ -115,10 +134,10 @@ const BookingModal = ({ isOpen, onClose }) => {
   const getCategoryIcon = (category) => {
     const iconMap = {
       'children': <Baby className="w-5 h-5 text-purple-600" />,
-      'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
-      'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
+      'weddings': <Heart className="w-5 h-5 text-pink-600" />,
+      'corporate': <Briefcase className="w-5 h-5 text-blue-600" />,
       'animators': <Users className="w-5 h-5 text-green-600" />,
-      'shows': <Zap className="w-5 h-5 text-orange-600" />,
+      'shows': <Sparkles className="w-5 h-5 text-orange-600" />,
       'photo': <Camera className="w-5 h-5 text-indigo-600" />,
       'decoration': <Palette className="w-5 h-5 text-red-600" />,
       'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
@@ -152,7 +171,6 @@ const BookingModal = ({ isOpen, onClose }) => {
     
     setBookingForm(prev => ({
       ...prev,
-      prev: prev,
       selectedPackage: selectedCategory.packages[0].name,
       totalPrice: parseFloat(selectedCategory.packages[0].price.replace(/[^\d]/g, '')),
       category: category.id
@@ -168,19 +186,18 @@ const BookingModal = ({ isOpen, onClose }) => {
     setBookingSuccess(false);
     setBookingStep(1);
     setSelectedService(null);
-    setBookingForm(prev =>({
-        prev: prev,
-        selectedDate: '',
-        selectedTime: '',
-        selectedPackage: 'Базовый',
-        clientName: '',
-        clientPhone: '',
-        clientEmail: '',
-        guestCount: '',
-        specialRequests: '',
-        totalPrice: 0,
-        category: ''
-    }));
+    setBookingForm({
+      selectedDate: '',
+      selectedTime: '',
+      selectedPackage: 'Базовый',
+      clientName: '',
+      clientPhone: '',
+      clientEmail: '',
+      guestCount: '',
+      specialRequests: '',
+      totalPrice: 0,
+      category: ''
+    });
     onClose();
   };
 
@@ -281,7 +298,6 @@ const BookingModal = ({ isOpen, onClose }) => {
         // Очистка формы
         setBookingForm(prev => ({
           ...prev,
-          prev: prev,
           selectedDate: null,
           selectedTime: null,
           selectedPackage: null,
@@ -406,22 +422,29 @@ const BookingModal = ({ isOpen, onClose }) => {
               </div>
               
               <div className="space-y-3">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    className="w-full py-4 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-3 transition-colors group"
-                    onClick={() => selectCategory(category)}
-                  >
-                    <span className="text-2xl">{category.emoji}</span>
-                    <span className="flex-1 text-left">{category.name}</span>
-                    <ChevronDown size={16} className="-rotate-90 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                ))}
+                {categories.map(category => {
+                  const IconComponent = category.iconComponent;
+                  return (
+                    <button
+                      key={category.id}
+                      className={`w-full py-4 px-4 rounded-xl ${category.bgColor} ${category.hoverBgColor} ${category.textColor} font-semibold flex items-center gap-3 transition-colors group`}
+                      onClick={() => selectCategory(category)}
+                    >
+                      <IconComponent size={24} className={category.iconColor} />
+                      <span className="flex-1 text-left">{category.name}</span>
+                      <ChevronDown size={16} className="-rotate-90 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  );
+                })}
               </div>
               
               <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600 text-center">
-                  💡 Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
+                <div className="flex items-center gap-2 mb-2">
+                  <PartyPopper className="w-5 h-5 text-purple-600" />
+                  <span className="text-sm font-semibold text-gray-700">Совет</span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
                 </p>
               </div>
             </motion.div>
@@ -663,9 +686,9 @@ const BookingModal = ({ isOpen, onClose }) => {
                         <div className="bg-purple-50 rounded-xl p-4">
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
-                            <p>Услуга: {selectedService?.prev?.title || 'Не выбрана'}</p>
-                            <p>Дата: {bookingForm.prev.selectedDate ? new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
-                            <p>Время: {bookingForm.prev.selectedTime || '-'}</p>
+                            <p>Услуга: {selectedService?.title || 'Не выбрана'}</p>
+                            <p>Дата: {bookingForm.selectedDate ? new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
+                            <p>Время: {bookingForm.selectedTime || '-'}</p>
                           </div>
                         </div>
                       </>

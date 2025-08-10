@@ -130,21 +130,21 @@ const Header = () => {
     ];
   };
 
-  // Категории услуг (обновленный формат как в ServicesPage)
+  // Категории услуг (обновленный формат с иконками из lucide-react)
   const categories = [
     { 
       id: 'children', 
       name: 'Детские праздники', 
       iconComponent: Baby,
+      icon: <Baby className="w-6 h-6 text-purple-600" />,
       count: 15,
-      emoji: '🎈',
       packages: generateDefaultPackages('85000')
     },
     { 
       id: 'weddings', 
       name: 'Свадьбы', 
       iconComponent: HeartHandshake,
-      emoji: '💕',
+      icon: <HeartHandshake className="w-6 h-6 text-pink-600" />,
       count: 8,
       packages: generateDefaultPackages('400000')
     },
@@ -152,24 +152,24 @@ const Header = () => {
       id: 'corporate', 
       name: 'Корпоративы', 
       iconComponent: Building2,
+      icon: <Building2 className="w-6 h-6 text-blue-600" />,
       count: 12,
-      emoji: '🏢',
       packages: generateDefaultPackages('200000')
     },
     { 
       id: 'anniversaries', 
       name: 'Юбилеи', 
       iconComponent: Cake,
+      icon: <Cake className="w-6 h-6 text-yellow-600" />,
       count: 10,
-      emoji: '🎂',
       packages: generateDefaultPackages('150000')
     },
     { 
       id: 'shows', 
       name: 'Шоу-программы', 
       iconComponent: Zap,
+      icon: <Zap className="w-6 h-6 text-orange-600" />,
       count: 6,
-      emoji: '🎭',
       packages: generateDefaultPackages('180000')
     }
   ];
@@ -616,7 +616,7 @@ const Header = () => {
         </AnimatePresence>
       </header>
 
-      {/* Модальное окно выбора категории (как в ServicesPage) */}
+      {/* Модальное окно выбора категории (обновлено с иконками lucide-react) */}
       <AnimatePresence>
         {showCategorySelect && (
           <motion.div
@@ -650,7 +650,9 @@ const Header = () => {
                     className="w-full py-4 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold flex items-center gap-3 transition-colors group"
                     onClick={() => selectCategory(category)}
                   >
-                    <span className="text-2xl">{category.emoji}</span>
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      {category.icon}
+                    </div>
                     <span className="flex-1 text-left">{category.name}</span>
                     <ChevronDown size={16} className="-rotate-90 group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -658,9 +660,12 @@ const Header = () => {
               </div>
               
               <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600 text-center">
-                  💡 Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
-                </p>
+                <div className="flex items-center gap-2 justify-center">
+                  <MessageCircle className="w-5 h-5 text-gray-500" />
+                  <p className="text-sm text-gray-600 text-center">
+                    Не знаете что выбрать? Наш менеджер поможет определиться с типом праздника и составить индивидуальную программу
+                  </p>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -708,7 +713,7 @@ const Header = () => {
                           ? 'bg-white text-purple-600' 
                           : 'bg-white/20 text-white/60'
                       }`}>
-                        {bookingSuccess && step === 3 ? <Check size={16} /> : step}
+                          {bookingSuccess && step === 3 ? <Check size={16} /> : step}
                       </div>
                       {step < 3 && (
                         <div className={`flex-1 h-0.5 mx-2 ${
@@ -790,7 +795,10 @@ const Header = () => {
                     {/* Time Selection */}
                     {bookingForm.selectedDate && (
                       <div>
-                        <h4 className="text-lg font-semibold mb-3">Выберите время</h4>
+                        <h4 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-purple-600" />
+                          Выберите время
+                        </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                           {['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'].map(time => (
                             <button
@@ -858,7 +866,8 @@ const Header = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                          <Users className="w-4 h-4 text-purple-600" />
                           Количество гостей
                         </label>
                         <input
@@ -872,7 +881,8 @@ const Header = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MessageCircle className="w-4 h-4 text-purple-600" />
                         Особые пожелания
                       </label>
                       <textarea
