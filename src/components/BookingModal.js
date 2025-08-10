@@ -270,7 +270,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         name: bookingForm.clientName || '',
         phone: formatPhoneNumber(bookingForm.clientPhone),
         email: bookingForm.clientEmail || null,
-        service_id: selectedService?.id || null,
+        service_title: selectedService?.title || null,
         event_date: formatDate(bookingForm.selectedDate),
         event_time: formatTime(bookingForm.selectedTime),
         guests_count: bookingForm.guestCount ? parseInt(bookingForm.guestCount) : null,
@@ -278,6 +278,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         location: bookingForm.location || null,
         message: bookingForm.specialRequests
       };
+      console.log('Booking Data:', bookingData)
 
       // Валидация
       if (!bookingData.name.trim()) {

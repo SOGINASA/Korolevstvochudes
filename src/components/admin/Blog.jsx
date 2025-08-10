@@ -980,7 +980,7 @@ const Blog = ({
                     <div><code className="bg-blue-100 px-1 rounded"># Заголовок</code> - большой заголовок</div>
                     <div><code className="bg-blue-100 px-1 rounded">## Подзаголовок</code> - средний заголовок</div>
                     <div><code className="bg-blue-100 px-1 rounded">- пункт</code> - маркированный список</div>
-                    <div><code className="bg-blue-100 px-1 rounded">></code> - выделенная цитата</div>
+                    <div><code className="bg-blue-100 px-1 rounded"></code> - выделенная цитата</div>
                   </div>
                 </div>
               </div>
