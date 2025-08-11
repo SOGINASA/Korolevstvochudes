@@ -29,31 +29,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiService } from '../services/api';
 import { formatPhoneNumber } from '../utils/helpers';
 import { useSettings, useCompanyInfo } from '../contexts/SettingsContext';
+import BookingModal from './BookingModal';
 
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [showCategorySelect, setShowCategorySelect] = useState(false);
-  const [bookingStep, setBookingStep] = useState(1);
-  const [selectedService, setSelectedService] = useState(null);
-  const [bookingForm, setBookingForm] = useState({
-    selectedDate: '',
-    selectedTime: '',
-    selectedPackage: 'Базовый',
-    clientName: '',
-    clientPhone: '',
-    clientEmail: '',
-    guestCount: '',
-    specialRequests: '',
-    totalPrice: 0,
-    category: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
+  
   const location = useLocation();
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
   const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
@@ -62,6 +47,16 @@ const Header = () => {
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
+
+  // Функции для работы с модалом бронирования (как в HeroSection)
+  const openBookingModal = () => {
+    setShowBookingModal(true);
+  };
+
+  const closeBookingModal = () => {
+    setShowBookingModal(false);
+    setShowCategorySelect(false);
+  };
 
   // Отслеживание скролла для изменения стиля хедера
   useEffect(() => {
@@ -88,89 +83,32 @@ const Header = () => {
     { name: 'Контакты', path: '/kontakty' },
   ];
 
-  // Функция для получения иконки категории (как в ServicesPage)
-  const getCategoryIcon = (category) => {
-    const iconMap = {
-      'children': <Baby className="w-5 h-5 text-purple-600" />,
-      'weddings': <HeartHandshake className="w-5 h-5 text-pink-600" />,
-      'corporate': <Building2 className="w-5 h-5 text-blue-600" />,
-      'animators': <Users className="w-5 h-5 text-green-600" />,
-      'shows': <Zap className="w-5 h-5 text-orange-600" />,
-      'photo': <Camera className="w-5 h-5 text-indigo-600" />,
-      'decoration': <Palette className="w-5 h-5 text-red-600" />,
-      'anniversaries': <Cake className="w-5 h-5 text-yellow-600" />,
-      'seasonal': <Gift className="w-5 h-5 text-emerald-600" />,
-      'quests': <Gamepad2 className="w-5 h-5 text-cyan-600" />
-    };
-    return iconMap[category] || <Star className="w-5 h-5 text-purple-600" />;
-  };
-
-  // Функция для генерации пакетов по умолчанию (как в ServicesPage)
-  const generateDefaultPackages = (basePrice) => {
-    const priceNum = basePrice ? parseInt(basePrice.replace(/\D/g, '')) : 20000;
-    return [
-      { 
-        name: 'Базовый', 
-        price: `${priceNum.toLocaleString()} ₸`, 
-        duration: '2 часа', 
-        features: ['Основная программа', 'Стандартный реквизит'] 
-      },
-      { 
-        name: 'Стандарт', 
-        price: `${Math.round(priceNum * 1.5).toLocaleString()} ₸`, 
-        duration: '3 часа', 
-        features: ['Расширенная программа', 'Дополнительный реквизит', 'Фотосессия'] 
-      },
-      { 
-        name: 'Премиум', 
-        price: `${Math.round(priceNum * 2).toLocaleString()} ₸`, 
-        duration: '4 часа', 
-        features: ['VIP программа', 'Премиум реквизит', 'Фото и видео', 'Подарки'] 
-      }
-    ];
-  };
-
-  // Категории услуг (обновленный формат с иконками из lucide-react)
+  // Категории услуг (сохраняем для старого стиля выбора категории)
   const categories = [
     { 
       id: 'children', 
       name: 'Детские праздники', 
-      iconComponent: Baby,
       icon: <Baby className="w-6 h-6 text-purple-600" />,
-      count: 15,
-      packages: generateDefaultPackages('85000')
     },
     { 
       id: 'weddings', 
       name: 'Свадьбы', 
-      iconComponent: HeartHandshake,
       icon: <HeartHandshake className="w-6 h-6 text-pink-600" />,
-      count: 8,
-      packages: generateDefaultPackages('400000')
     },
     { 
       id: 'corporate', 
       name: 'Корпоративы', 
-      iconComponent: Building2,
       icon: <Building2 className="w-6 h-6 text-blue-600" />,
-      count: 12,
-      packages: generateDefaultPackages('200000')
     },
     { 
       id: 'anniversaries', 
       name: 'Юбилеи', 
-      iconComponent: Cake,
       icon: <Cake className="w-6 h-6 text-yellow-600" />,
-      count: 10,
-      packages: generateDefaultPackages('150000')
     },
     { 
       id: 'shows', 
       name: 'Шоу-программы', 
-      iconComponent: Zap,
       icon: <Zap className="w-6 h-6 text-orange-600" />,
-      count: 6,
-      packages: generateDefaultPackages('180000')
     }
   ];
 
@@ -182,243 +120,36 @@ const Header = () => {
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
-  // Функции для бронирования (обновленные под формат ServicesPage)
+  // Функции для работы с выбором категории (сохраняем старый стиль)
   const openCategorySelect = () => {
     setShowCategorySelect(true);
     document.body.style.overflow = 'hidden';
   };
 
   const selectCategory = (category) => {
-    const selectedCategory = categories.find(c => c.id === category.id);
-    setSelectedService({
-      id: category.id,
-      title: category.name,
-      category: category.id,
-      icon: getCategoryIcon(category.id),
-      packages: selectedCategory.packages,
-      duration: '2-3 часа',
-      rating: 5.0,
-      reviews: selectedCategory.count,
-      price: selectedCategory.packages[0].price,
-      priceDescription: 'за услугу',
-      description: `Организация ${category.name.toLowerCase()} с полным комплексом услуг`
-    });
-    
-    setBookingForm(prev => ({
-      ...prev,
-      prev: prev,
-      selectedPackage: selectedCategory.packages[0].name,
-      totalPrice: parseFloat(selectedCategory.packages[0].price.replace(/[^\d]/g, '')),
-      category: category.id
-    }));
-    
     setShowCategorySelect(false);
-    setBookingStep(1);
-    setShowBookingForm(true);
+    setShowBookingModal(true);
   };
 
-  const closeBookingForm = () => {
-    setShowBookingForm(false);
+  const closeCategorySelect = () => {
     setShowCategorySelect(false);
-    setBookingSuccess(false);
-    setBookingStep(1);
-    setSelectedService(null);
     document.body.style.overflow = 'auto';
   };
 
-  const nextBookingStep = () => {
-    setBookingStep(prev => Math.min(prev + 1, 3));
-  };
-
-  const prevBookingStep = () => {
-    setBookingStep(prev => Math.max(prev - 1, 1));
-  };
-
-  const updateBookingForm = (field, value) => {
-    setBookingForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const selectPackage = (packageData) => {
-    const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
-    setBookingForm(prev => ({
-      ...prev,
-      selectedPackage: packageData.name,
-      totalPrice: price
-    }));
-  };
-
-  const submitBooking = async () => {
-    setIsSubmitting(true);
-  
-    try {
-      // Функция для форматирования даты в строку YYYY-MM-DD
-      const formatDate = (dateValue) => {
-        if (!dateValue) return null;
-        
-        // Если это уже строка в правильном формате
-        if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-          return dateValue;
-        }
-        
-        // Если это объект Date
-        if (dateValue instanceof Date) {
-          return dateValue.toISOString().split('T')[0];
-        }
-        
-        // Попытаемся преобразовать в Date и затем в строку
-        const date = new Date(dateValue);
-        if (!isNaN(date.getTime())) {
-          return date.toISOString().split('T')[0];
-        }
-        
-        return null;
-      };
-        // Функция для форматирования времени в строку HH:MM
-      const formatTime = (timeValue) => {
-        if (!timeValue) return null;
-        
-        // Если это уже строка в правильном формате
-        if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
-          return timeValue;
-        }
-        
-        // Если это объект Date
-        if (timeValue instanceof Date) {
-          return timeValue.toTimeString().slice(0, 5);
-        }
-        
-        // Если это строка времени в другом формате
-        if (typeof timeValue === 'string') {
-          const time = new Date(`2000-01-01T${timeValue}`);
-          if (!isNaN(time.getTime())) {
-            return time.toTimeString().slice(0, 5);
-          }
-        }
-        
-        return null;
-      };
-
-        // Правильно сформированные данные для отправки на бэкенд
-      const bookingData = {
-        // Обязательные поля
-        name: bookingForm.clientName || '',
-        phone: formatPhoneNumber(bookingForm.clientPhone),
-        
-        // Опциональные поля (используем правильные названия)
-        email: bookingForm.clientEmail || null,
-        service_id: selectedService?.id || null,
-        event_date: formatDate(bookingForm.selectedDate),
-        event_time: formatTime(bookingForm.selectedTime),
-        guests_count: bookingForm.guestCount ? parseInt(bookingForm.guestCount) : null,
-        budget: bookingForm.totalPrice ? bookingForm.totalPrice.toString() : null,
-        location: bookingForm.location || null,
-        message: bookingForm.specialRequests
-      };
-
-
-      // Валидация перед отправкой
-      if (!bookingData.name.trim()) {
-        throw new Error('Имя обязательно для заполнения');
-      }
-      
-      if (!bookingData.phone.trim()) {
-        throw new Error('Телефон обязателен для заполнения');
-      }
-
-      // Отправляем бронирование на сервер
-      const result = await apiService.createBooking(bookingData);
-      
-      if (result.success) {
-        setBookingSuccess(true);
-        setBookingStep(3);
-        
-        // Очищаем форму после успешной отправки
-        setBookingForm({
-          prev: bookingForm,
-          selectedDate: null,
-          selectedTime: null,
-          selectedPackage: null,
-          clientName: '',
-          clientPhone: '',
-          clientEmail: '',
-          guestCount: '',
-          specialRequests: '',
-          location: '',
-          totalPrice: 0
-        });
-        
-        } else {
-          throw new Error(result.error || 'Ошибка при создании бронирования');
-        }
-    } catch (error) {
-      console.error('Ошибка бронирования:', error);
-      
-      // Более детальная обработка ошибок
-      let errorMessage = 'Произошла ошибка при бронировании';
-      
-      if (error.message.includes('400')) {
-        errorMessage = 'Проверьте правильность заполнения всех полей';
-      } else if (error.message.includes('401')) {
-        errorMessage = 'Необходима авторизация';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'Ошибка сервера. Попробуйте позже';
-      } else {
-        errorMessage = error.message;
-      }
-      
-      alert(errorMessage);
-      
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Календарь (как в ServicesPage)
-  const generateCalendarDays = () => {
-    const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth();
-    
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-    
-    const days = [];
-    for (let i = 0; i < 42; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      days.push(date);
-    }
-    
-    return days;
-  };
-
-  const navigateCalendar = (direction) => {
-    const newDate = new Date(currentCalendarDate);
-    newDate.setMonth(newDate.getMonth() + direction);
-    setCurrentCalendarDate(newDate);
-  };
-
-  const monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-  ];
-
-  const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((showBookingForm || showCategorySelect) && e.key === 'Escape') {
-        closeBookingForm();
+      if ((showBookingModal || showCategorySelect) && e.key === 'Escape') {
+        if (showCategorySelect) {
+          closeCategorySelect();
+        } else {
+          closeBookingModal();
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showBookingForm, showCategorySelect]);
+  }, [showBookingModal, showCategorySelect]);
 
   return (
     <>
@@ -616,7 +347,7 @@ const Header = () => {
         </AnimatePresence>
       </header>
 
-      {/* Модальное окно выбора категории (обновлено с иконками lucide-react) */}
+      {/* Модальное окно выбора категории (сохраняем старый стиль) */}
       <AnimatePresence>
         {showCategorySelect && (
           <motion.div
@@ -624,7 +355,7 @@ const Header = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center p-4"
-            onClick={closeBookingForm}
+            onClick={closeCategorySelect}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -636,7 +367,7 @@ const Header = () => {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Выберите тип праздника</h3>
                 <button
-                  onClick={closeBookingForm}
+                  onClick={closeCategorySelect}
                   className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors rounded-full hover:bg-gray-100"
                 >
                   <X size={20} />
@@ -839,61 +570,20 @@ const Header = () => {
                       </div>
 
                       <div>
- <label className="block text-sm font-medium text-gray-700 mb-2">
-   Телефон *
- </label>
- <input
-   type="tel"
-   value={bookingForm.clientPhone}
-   onChange={(e) => {
-     // Удаляем все кроме цифр
-     const digits = e.target.value.replace(/\D/g, '');
-     
-     // Если начинается с 8, заменяем на 7
-     let formattedDigits = digits;
-     if (digits.startsWith('8')) {
-       formattedDigits = '7' + digits.slice(1);
-     }
-     
-     // Если не начинается с 7, добавляем 7
-     if (!formattedDigits.startsWith('7')) {
-       formattedDigits = '7' + formattedDigits;
-     }
-     
-     // Ограничиваем до 11 цифр
-     formattedDigits = formattedDigits.slice(0, 11);
-     
-     // Форматируем в +7 (XXX) XXX-XX-XX
-     let formatted = '+7';
-     if (formattedDigits.length > 1) {
-       const phoneNumber = formattedDigits.slice(1);
-       if (phoneNumber.length > 0) {
-         formatted += ` (${phoneNumber.slice(0, 3)}`;
-         if (phoneNumber.length >= 3) {
-           formatted += ')';
-           if (phoneNumber.length > 3) {
-             formatted += ` ${phoneNumber.slice(3, 6)}`;
-             if (phoneNumber.length > 6) {
-               formatted += `-${phoneNumber.slice(6, 8)}`;
-               if (phoneNumber.length > 8) {
-                 formatted += `-${phoneNumber.slice(8, 10)}`;
-               }
-             }
-           }
-         }
-       }
-     }
-     
-     updateBookingForm('clientPhone', formatted);
-   }}
-   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
-   placeholder="+7 (777) 123-45-67"
-   maxLength={18}
-   required
- />
-</div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Телефон *
+                        </label>
+                        <input
+                          type="tel"
+                          value={bookingForm.clientPhone}
+                          onChange={(e) => updateBookingForm('clientPhone', e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                          placeholder="+7 (___) ___-__-__"
+                          required
+                        />
+                      </div>
 
-                      {/* <div>
+                      <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Email
                         </label>
@@ -904,9 +594,9 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="your@email.com"
                         />
-                      </div> */}
+                      </div>
 
-                      {/* <div>
+                      <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                           <Users className="w-4 h-4 text-purple-600" />
                           Количество гостей
@@ -918,10 +608,10 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="10"
                         />
-                      </div> */}
+                      </div>
                     </div>
 
-                    {/* <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-purple-600" />
                         Особые пожелания
@@ -933,7 +623,7 @@ const Header = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Расскажите о ваших пожеланиях к мероприятию..."
                       />
-                    </div> */}
+                    </div>
                   </div>
                 )}
 

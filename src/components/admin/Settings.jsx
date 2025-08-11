@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Settings as SettingsIcon, Users, MessageSquare, TrendingUp } from 'lucide-react';
 import { useAdminSettings } from '../../hooks/useSettings';
-import { formatPhoneNumber } from '../../utils/helpers';
 
 const Settings = ({ showNotification }) => {
   const [activeSettingsTab, setActiveSettingsTab] = useState('company');
@@ -213,20 +212,41 @@ const Settings = ({ showNotification }) => {
           </label>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <div>
-            <h4 className="font-medium text-gray-900">Telegram уведомления</h4>
-            <p className="text-sm text-gray-600">Дублировать уведомления в Telegram</p>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div>
+              <h4 className="font-medium text-gray-900">Telegram уведомления</h4>
+              <p className="text-sm text-gray-600">Дублировать уведомления в Telegram</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={localSettings.telegram_notifications || false}
+                onChange={(e) => updateLocalSetting('telegram_notifications', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={localSettings.telegram_notifications || false}
-              onChange={(e) => updateLocalSetting('telegram_notifications', e.target.checked)}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-          </label>
+          
+          {/* Дополнительное поле Chat ID появляется только при включенных Telegram уведомлениях */}
+          {localSettings.telegram_notifications && (
+            <div className="ml-4 p-3 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Telegram Chat ID
+              </label>
+              <input
+                type="text"
+                value={localSettings.telegram_chat_id || ''}
+                onChange={(e) => updateLocalSetting('telegram_chat_id', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Например: -1001234567890"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Получить Chat ID можно через @korolevstvo_chudes_bot в Telegram.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
