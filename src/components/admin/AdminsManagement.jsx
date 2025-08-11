@@ -4,7 +4,7 @@ import { Plus, User, Edit, Trash2, Save, X, Shield } from 'lucide-react';
 import { formatDate, adminRoles, validateEmail, validatePassword } from '../../utils/helpers';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
-import Applications from './modals/Applications'; // ДОБАВЛЕН ИМПОРТ
+import Applications from './Applications';; // ДОБАВЛЕН ИМПОРТ
 
 const AdminsManagement = ({ 
   admin, 

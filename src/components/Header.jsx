@@ -31,7 +31,6 @@ import { formatPhoneNumber } from '../utils/helpers';
 import { useSettings, useCompanyInfo } from '../contexts/SettingsContext';
 import BookingModal from './BookingModal';
 
-
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,8 +38,28 @@ const Header = () => {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showCategorySelect, setShowCategorySelect] = useState(false);
   
+  // Состояния для старой формы бронирования
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [bookingStep, setBookingStep] = useState(1);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingForm, setBookingForm] = useState({
+    selectedDate: '',
+    selectedTime: '',
+    clientName: '',
+    clientPhone: '',
+    clientEmail: '',
+    guestCount: '',
+    specialRequests: '',
+    selectedPackage: 'Стандартный',
+    totalPrice: 50000
+  });
+
   const location = useLocation();
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
+  
   const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
   const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
@@ -48,7 +67,15 @@ const Header = () => {
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
-  // Функции для работы с модалом бронирования (как в HeroSection)
+  // Константы для календаря
+  const monthNames = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+
+  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+  // Функции для работы с модалом бронирования
   const openBookingModal = () => {
     setShowBookingModal(true);
   };
@@ -56,6 +83,93 @@ const Header = () => {
   const closeBookingModal = () => {
     setShowBookingModal(false);
     setShowCategorySelect(false);
+  };
+
+  // Функции для старой формы бронирования
+  const closeBookingForm = () => {
+    setShowBookingForm(false);
+    setBookingStep(1);
+    setBookingSuccess(false);
+    setSelectedService(null);
+    setBookingForm({
+      selectedDate: '',
+      selectedTime: '',
+      clientName: '',
+      clientPhone: '',
+      clientEmail: '',
+      guestCount: '',
+      specialRequests: '',
+      selectedPackage: 'Стандартный',
+      totalPrice: 50000
+    });
+  };
+
+  const updateBookingForm = (field, value) => {
+    setBookingForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const navigateCalendar = (direction) => {
+    setCurrentCalendarDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(newDate.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  const nextBookingStep = () => {
+    setBookingStep(prev => prev + 1);
+  };
+
+  const prevBookingStep = () => {
+    setBookingStep(prev => prev - 1);
+  };
+
+  const submitBooking = async () => {
+    setIsSubmitting(true);
+    try {
+      // Имитация отправки данных
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setBookingSuccess(true);
+      setBookingStep(3);
+    } catch (error) {
+      console.error('Ошибка отправки:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const generateCalendarDays = () => {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Понедельник = 0
+    
+    const days = [];
+    
+    // Дни предыдущего месяца
+    const prevMonth = new Date(year, month - 1, 0);
+    for (let i = startDay - 1; i >= 0; i--) {
+      days.push(new Date(year, month - 1, prevMonth.getDate() - i));
+    }
+    
+    // Дни текущего месяца
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+    
+    // Дни следующего месяца
+    const totalCells = 42; // 6 недель
+    const remainingCells = totalCells - days.length;
+    for (let day = 1; day <= remainingCells; day++) {
+      days.push(new Date(year, month + 1, day));
+    }
+    
+    return days;
   };
 
   // Отслеживание скролла для изменения стиля хедера
@@ -83,7 +197,7 @@ const Header = () => {
     { name: 'Контакты', path: '/kontakty' },
   ];
 
-  // Категории услуг (сохраняем для старого стиля выбора категории)
+  // Категории услуг
   const categories = [
     { 
       id: 'children', 
@@ -120,7 +234,7 @@ const Header = () => {
     setActiveDropdown(activeDropdown === index ? null : index);
   };
 
-  // Функции для работы с выбором категории (сохраняем старый стиль)
+  // Функции для работы с выбором категории
   const openCategorySelect = () => {
     setShowCategorySelect(true);
     document.body.style.overflow = 'hidden';
@@ -128,7 +242,8 @@ const Header = () => {
 
   const selectCategory = (category) => {
     setShowCategorySelect(false);
-    setShowBookingModal(true);
+    setSelectedService({ title: category.name, id: category.id });
+    setShowBookingForm(true);
   };
 
   const closeCategorySelect = () => {
@@ -138,9 +253,11 @@ const Header = () => {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((showBookingModal || showCategorySelect) && e.key === 'Escape') {
+      if ((showBookingModal || showCategorySelect || showBookingForm) && e.key === 'Escape') {
         if (showCategorySelect) {
           closeCategorySelect();
+        } else if (showBookingForm) {
+          closeBookingForm();
         } else {
           closeBookingModal();
         }
@@ -149,7 +266,7 @@ const Header = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showBookingModal, showCategorySelect]);
+  }, [showBookingModal, showCategorySelect, showBookingForm]);
 
   return (
     <>
@@ -347,7 +464,7 @@ const Header = () => {
         </AnimatePresence>
       </header>
 
-      {/* Модальное окно выбора категории (сохраняем старый стиль) */}
+      {/* Модальное окно выбора категории */}
       <AnimatePresence>
         {showCategorySelect && (
           <motion.div
@@ -403,7 +520,7 @@ const Header = () => {
         )}
       </AnimatePresence>
 
-      {/* Форма бронирования (точно как в ServicesPage) */}
+      {/* Форма бронирования */}
       <AnimatePresence>
         {showBookingForm && (
           <motion.div
@@ -583,7 +700,7 @@ const Header = () => {
                         />
                       </div>
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Email
                         </label>
@@ -594,9 +711,9 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="your@email.com"
                         />
-                      </div>
+                      </div> */}
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                           <Users className="w-4 h-4 text-purple-600" />
                           Количество гостей
@@ -608,10 +725,10 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="10"
                         />
-                      </div>
+                      </div> */}
                     </div>
 
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-purple-600" />
                         Особые пожелания
@@ -623,7 +740,7 @@ const Header = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Расскажите о ваших пожеланиях к мероприятию..."
                       />
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
@@ -643,8 +760,8 @@ const Header = () => {
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
                             <p>Услуга: {selectedService?.title}</p>
-                            <p>Дата: {new Date(bookingForm.prev.selectedDate).toLocaleDateString('ru-RU')}</p>
-                            <p>Время: {bookingForm.prev.selectedTime}</p>
+                            <p>Дата: {bookingForm.selectedDate ? new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
+                            <p>Время: {bookingForm.selectedTime}</p>
                           </div>
                         </div>
                       </>
@@ -745,6 +862,12 @@ const Header = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Современная форма бронирования (через BookingModal) */}
+      <BookingModal 
+        isOpen={showBookingModal} 
+        onClose={closeBookingModal}
+      />
     </>
   );
 };
