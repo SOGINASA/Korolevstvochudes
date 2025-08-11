@@ -35,6 +35,7 @@ import PricingPage from './pages/PricingPage';
 import ContactsPage from './pages/ContactsPage';
 import BlogPage from './pages/BlogPage';
 import ReviewsPage from './pages/ReviewsPage';
+import FaqPage from './pages/FaqPage';
 
 // 404 страница
 import NotFoundPage from './pages/NotFoundPage';
@@ -95,6 +96,9 @@ function App() {
                   
                   {/* Контакты */}
                   <Route path="kontakty" element={<ContactsPage />} />
+                  
+                  {/* FAQ страница */}
+                  <Route path="faq" element={<FaqPage />} />
                   
                   {/* 404 страница должна быть последней */}
                   <Route path="*" element={<NotFoundPage />} />

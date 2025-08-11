@@ -32,6 +32,7 @@ const Footer = () => {
     { name: 'Отзывы', path: '/otzyvy-klientov' },
     { name: 'Блог', path: '/blog' },
     { name: 'Контакты', path: '/kontakty' },
+    { name: 'FAQ', path: '/faq' },
   ];
 
   return (
