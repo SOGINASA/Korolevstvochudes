@@ -1,6 +1,6 @@
 // components/admin/Applications.js
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2, ChevronLeft, ChevronRight, X, User, MessageSquare, DollarSign, Users, MapPin } from 'lucide-react';
+import { Search, Filter, Download, Phone, Mail, Calendar, Clock, Eye, Edit, Trash2, ChevronLeft, ChevronRight, X, User, MessageSquare, DollarSign, Users, MapPin, Save, AlertCircle } from 'lucide-react';
 import { formatDate, getStatusColor, getStatusText } from '../../utils/helpers';
 
 const Applications = ({ 
@@ -13,6 +13,7 @@ const Applications = ({
   onExportBookings,
   onBookingsPageChange,
   onLoadBookings,
+  onUpdateBooking, // Новая функция для обновления заявки
   showNotification 
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +22,10 @@ const Applications = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [editFormErrors, setEditFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Применяем фильтры при их изменении
   useEffect(() => {
@@ -109,6 +114,118 @@ const Applications = ({
   const closeDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedApplication(null);
+  };
+
+  // Функции для редактирования заявок
+  const handleEditApplication = (application) => {
+    setSelectedApplication(application);
+    setEditFormData({
+      name: application.name || '',
+      phone: application.phone || '',
+      email: application.email || '',
+      service_title: application.service_title || '',
+      service_id: application.service_id || '',
+      event_date: application.event_date || '',
+      event_time: application.event_time || '',
+      guests_count: application.guests_count || '',
+      budget: application.budget || '',
+      location: application.location || '',
+      message: application.message || '',
+      status: application.status || 'new'
+    });
+    setEditFormErrors({});
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setSelectedApplication(null);
+    setEditFormData({});
+    setEditFormErrors({});
+  };
+
+  const handleEditFormChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Очищаем ошибку при изменении поля
+    if (editFormErrors[field]) {
+      setEditFormErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  const validateEditForm = () => {
+    const errors = {};
+    
+    if (!editFormData.name?.trim()) {
+      errors.name = 'Имя обязательно для заполнения';
+    }
+    
+    if (!editFormData.phone?.trim()) {
+      errors.phone = 'Телефон обязателен для заполнения';
+    } else if (!/^[\+]?[0-9\s\-\(\)]+$/.test(editFormData.phone)) {
+      errors.phone = 'Неверный формат телефона';
+    }
+    
+    if (editFormData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)) {
+      errors.email = 'Неверный формат email';
+    }
+    
+    if (editFormData.event_date && !/^\d{4}-\d{2}-\d{2}$/.test(editFormData.event_date)) {
+      errors.event_date = 'Неверный формат даты (YYYY-MM-DD)';
+    }
+    
+    if (editFormData.event_time && !/^\d{2}:\d{2}$/.test(editFormData.event_time)) {
+      errors.event_time = 'Неверный формат времени (HH:MM)';
+    }
+    
+    if (editFormData.guests_count && (isNaN(editFormData.guests_count) || editFormData.guests_count < 0)) {
+      errors.guests_count = 'Количество гостей должно быть числом';
+    }
+    
+    return errors;
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    
+    const errors = validateEditForm();
+    if (Object.keys(errors).length > 0) {
+      setEditFormErrors(errors);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Подготавливаем данные для отправки
+      const updateData = {
+        ...editFormData,
+        guests_count: editFormData.guests_count ? parseInt(editFormData.guests_count) : null,
+        budget: editFormData.budget || null,
+        location: editFormData.location || null,
+        message: editFormData.message || null,
+        email: editFormData.email || null,
+        service_id: editFormData.service_id || null
+      };
+
+      await onUpdateBooking(selectedApplication.id, updateData);
+      showNotification('Заявка успешно обновлена', 'success');
+      closeEditModal();
+      
+      // Обновляем данные в списке
+      onLoadBookings(bookingsPagination?.page || 1);
+    } catch (error) {
+      console.error('Ошибка при обновлении заявки:', error);
+      showNotification('Ошибка при обновлении заявки', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatCreatedDate = (dateString) => {
@@ -299,6 +416,13 @@ const Applications = ({
                           <Eye className="h-4 w-4" />
                         </button>
                         <button 
+                          onClick={() => handleEditApplication(app)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Редактировать"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
                           onClick={() => handleDelete(app.id)}
                           className={`${
                             showDeleteConfirm === app.id 
@@ -424,107 +548,6 @@ const Applications = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">Имя</label>
-                    <p className="text-gray-900 font-medium">{selectedApplication.name}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Телефон</label>
-                    <p className="text-gray-900 flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-gray-500" />
-                      {selectedApplication.phone}
-                    </p>
-                  </div>
-                  {selectedApplication.email && (
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-                      <p className="text-gray-900 flex items-center">
-                        <Mail className="h-4 w-4 mr-2 text-gray-500" />
-                        {selectedApplication.email}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Информация о мероприятии */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-blue-600" />
-                  Детали мероприятия
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Услуга</label>
-                    <p className="text-gray-900">{selectedApplication.service_title || 'Не указано'}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Дата события</label>
-                    <p className="text-gray-900 flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                      {selectedApplication.event_date || 'Не указана'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Время события</label>
-                    <p className="text-gray-900 flex items-center">
-                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                      {selectedApplication.event_time || 'Не указано'}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Количество гостей</label>
-                    <p className="text-gray-900 flex items-center">
-                      <Users className="h-4 w-4 mr-2 text-gray-500" />
-                      {selectedApplication.guests_count || 'Не указано'}
-                    </p>
-                  </div>
-                  {selectedApplication.budget && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Бюджет</label>
-                      <p className="text-gray-900 flex items-center">
-                        <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
-                        {selectedApplication.budget}
-                      </p>
-                    </div>
-                  )}
-                  {selectedApplication.location && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-600 mb-1">Место проведения</label>
-                      <p className="text-gray-900 flex items-center">
-                        <MapPin className="h-4 w-4 mr-2 text-gray-500" />
-                        {selectedApplication.location}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Сообщение клиента */}
-              {selectedApplication.message && (
-                <div className="bg-green-50 rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
-                    Сообщение клиента
-                  </h4>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedApplication.message}</p>
-                </div>
-              )}
-
-              {/* Статус и системная информация */}
-              <div className="bg-purple-50 rounded-lg p-4">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">Системная информация</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Текущий статус</label>
-                    <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedApplication.status)}`}>
-                      {getStatusDisplayText(selectedApplication.status)}
-                    </span>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Дата создания</label>
-                    <p className="text-gray-900">{formatCreatedDate(selectedApplication.created_at)}</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">ID заявки</label>
                     <p className="text-gray-900">#{selectedApplication.id}</p>
                   </div>
                   {selectedApplication.service_id && (
@@ -567,6 +590,314 @@ const Applications = ({
                 Закрыть
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальное окно редактирования заявки */}
+      {showEditModal && selectedApplication && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок модального окна */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                <Edit className="h-6 w-6 mr-2 text-blue-600" />
+                Редактирование заявки #{selectedApplication.id}
+              </h3>
+              <button 
+                onClick={closeEditModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={isSubmitting}
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Форма редактирования */}
+            <form onSubmit={handleSaveEdit} className="p-6">
+              <div className="space-y-8">
+                {/* Информация о клиенте */}
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <User className="h-5 w-5 mr-2 text-purple-600" />
+                    Информация о клиенте
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Имя <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.name}
+                        onChange={(e) => handleEditFormChange('name', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.name ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Введите имя клиента"
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.name && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.name}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Телефон <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={editFormData.phone}
+                        onChange={(e) => handleEditFormChange('phone', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.phone ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="+7 (XXX) XXX-XX-XX"
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.phone && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.phone}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={editFormData.email}
+                        onChange={(e) => handleEditFormChange('email', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.email ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="example@email.com"
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.email && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Информация об услуге */}
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                    Услуга и мероприятие
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Название услуги
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.service_title}
+                        onChange={(e) => handleEditFormChange('service_title', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Например: Детский день рождения"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ID услуги
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.service_id}
+                        onChange={(e) => handleEditFormChange('service_id', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Идентификатор услуги"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Дата события
+                      </label>
+                      <input
+                        type="date"
+                        value={editFormData.event_date}
+                        onChange={(e) => handleEditFormChange('event_date', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.event_date ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.event_date && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.event_date}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Время события
+                      </label>
+                      <input
+                        type="time"
+                        value={editFormData.event_time}
+                        onChange={(e) => handleEditFormChange('event_time', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.event_time ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.event_time && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.event_time}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Количество гостей
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editFormData.guests_count}
+                        onChange={(e) => handleEditFormChange('guests_count', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                          editFormErrors.guests_count ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="Например: 15"
+                        disabled={isSubmitting}
+                      />
+                      {editFormErrors.guests_count && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          {editFormErrors.guests_count}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Бюджет
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.budget}
+                        onChange={(e) => handleEditFormChange('budget', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Например: 50000 тенге"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Место проведения
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.location}
+                        onChange={(e) => handleEditFormChange('location', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Например: Ресторан 'Жемчужина', ул. Абая 15"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Статус заявки */}
+                <div className="bg-purple-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    Статус заявки
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Текущий статус
+                      </label>
+                      <select
+                        value={editFormData.status}
+                        onChange={(e) => handleEditFormChange('status', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        disabled={isSubmitting}
+                      >
+                        <option value="new">Новая</option>
+                        <option value="confirmed">Подтверждена</option>
+                        <option value="in-progress">В работе</option>
+                        <option value="completed">Завершена</option>
+                        <option value="cancelled">Отменена</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Сообщение клиента */}
+                <div className="bg-green-50 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <MessageSquare className="h-5 w-5 mr-2 text-green-600" />
+                    Сообщение клиента
+                  </h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Дополнительная информация
+                    </label>
+                    <textarea
+                      value={editFormData.message}
+                      onChange={(e) => handleEditFormChange('message', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      rows={4}
+                      placeholder="Дополнительные пожелания клиента..."
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Футер формы */}
+              <div className="flex justify-end space-x-3 mt-8 pt-6 border-t border-gray-200">
+                <button 
+                  type="button"
+                  onClick={closeEditModal}
+                  className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  Отмена
+                </button>
+                <button 
+                  type="submit"
+                  className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Сохранение...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      <span>Сохранить изменения</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -839,20 +839,61 @@ const Header = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Телефон *
-                        </label>
-                        <input
-                          type="tel"
-                          value={bookingForm.clientPhone}
-                          onChange={(e) => updateBookingForm('clientPhone', e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
-                          placeholder="+7 (___) ___-__-__"
-                          required
-                        />
-                      </div>
+ <label className="block text-sm font-medium text-gray-700 mb-2">
+   Телефон *
+ </label>
+ <input
+   type="tel"
+   value={bookingForm.clientPhone}
+   onChange={(e) => {
+     // Удаляем все кроме цифр
+     const digits = e.target.value.replace(/\D/g, '');
+     
+     // Если начинается с 8, заменяем на 7
+     let formattedDigits = digits;
+     if (digits.startsWith('8')) {
+       formattedDigits = '7' + digits.slice(1);
+     }
+     
+     // Если не начинается с 7, добавляем 7
+     if (!formattedDigits.startsWith('7')) {
+       formattedDigits = '7' + formattedDigits;
+     }
+     
+     // Ограничиваем до 11 цифр
+     formattedDigits = formattedDigits.slice(0, 11);
+     
+     // Форматируем в +7 (XXX) XXX-XX-XX
+     let formatted = '+7';
+     if (formattedDigits.length > 1) {
+       const phoneNumber = formattedDigits.slice(1);
+       if (phoneNumber.length > 0) {
+         formatted += ` (${phoneNumber.slice(0, 3)}`;
+         if (phoneNumber.length >= 3) {
+           formatted += ')';
+           if (phoneNumber.length > 3) {
+             formatted += ` ${phoneNumber.slice(3, 6)}`;
+             if (phoneNumber.length > 6) {
+               formatted += `-${phoneNumber.slice(6, 8)}`;
+               if (phoneNumber.length > 8) {
+                 formatted += `-${phoneNumber.slice(8, 10)}`;
+               }
+             }
+           }
+         }
+       }
+     }
+     
+     updateBookingForm('clientPhone', formatted);
+   }}
+   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+   placeholder="+7 (777) 123-45-67"
+   maxLength={18}
+   required
+ />
+</div>
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Email
                         </label>
@@ -863,9 +904,9 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="your@email.com"
                         />
-                      </div>
+                      </div> */}
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                           <Users className="w-4 h-4 text-purple-600" />
                           Количество гостей
@@ -877,10 +918,10 @@ const Header = () => {
                           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                           placeholder="10"
                         />
-                      </div>
+                      </div> */}
                     </div>
 
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-purple-600" />
                         Особые пожелания
@@ -892,7 +933,7 @@ const Header = () => {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Расскажите о ваших пожеланиях к мероприятию..."
                       />
-                    </div>
+                    </div> */}
                   </div>
                 )}
 

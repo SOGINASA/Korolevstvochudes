@@ -4,17 +4,29 @@ import { Plus, User, Edit, Trash2, Save, X, Shield } from 'lucide-react';
 import { formatDate, adminRoles, validateEmail, validatePassword } from '../../utils/helpers';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
+import Applications from './modals/Applications'; // ДОБАВЛЕН ИМПОРТ
 
 const AdminsManagement = ({ 
   admin, 
   admins, 
   onLoadAdmins, 
-  showNotification 
+  showNotification,
+  // Пропсы для Applications
+  recentApplications,
+  loadingBookings,
+  bookingsPagination,
+  onUpdateBookingStatus,
+  onDeleteBooking,
+  onBulkDeleteBookings,
+  onExportBookings,
+  onBookingsPageChange,
+  onLoadBookings
 }) => {
   const { register } = useAuth();
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [activeTab, setActiveTab] = useState('admins'); // ДОБАВЛЕНО для переключения табов
   
   const [adminForm, setAdminForm] = useState({
     name: '',
@@ -166,107 +178,174 @@ const AdminsManagement = ({
     return false;
   };
 
+  // ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ЗАЯВОК - ДОБАВЛЕНА ЗДЕСЬ
+  const onUpdateBooking = async (bookingId, updateData) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Ошибка обновления заявки');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Ошибка:', error);
+      throw error;
+    }
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Управление администраторами</h2>
-        {(admin?.role === 'super_admin' || admin?.role === 'admin') && (
-          <button 
-            onClick={() => setShowAddAdmin(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Добавить администратора</span>
-          </button>
-        )}
+      {/* ТАБЫ ДЛЯ ПЕРЕКЛЮЧЕНИЯ МЕЖДУ АДМИНАМИ И ЗАЯВКАМИ */}
+      <div className="flex space-x-4 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('admins')}
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'admins' 
+              ? 'text-purple-600 border-b-2 border-purple-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Администраторы
+        </button>
+        <button
+          onClick={() => setActiveTab('applications')}
+          className={`px-4 py-2 font-medium ${
+            activeTab === 'applications' 
+              ? 'text-purple-600 border-b-2 border-purple-600' 
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Заявки
+        </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Администратор
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Роль
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Последний вход
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Статус
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Действия
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {admins.map(adminItem => (
-                <tr key={adminItem.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                        <User className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {adminItem.name}
-                          {adminItem.id === admin.id && (
-                            <span className="ml-2 text-xs text-purple-600">(Вы)</span>
+      {/* СОДЕРЖИМОЕ ТАБОВ */}
+      {activeTab === 'admins' ? (
+        // ТАБ АДМИНИСТРАТОРОВ
+        <>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Управление администраторами</h2>
+            {(admin?.role === 'super_admin' || admin?.role === 'admin') && (
+              <button 
+                onClick={() => setShowAddAdmin(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Добавить администратора</span>
+              </button>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Администратор
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Роль
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Последний вход
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Статус
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Действия
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {admins.map(adminItem => (
+                    <tr key={adminItem.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            <User className="h-5 w-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {adminItem.name}
+                              {adminItem.id === admin.id && (
+                                <span className="ml-2 text-xs text-purple-600">(Вы)</span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500">{adminItem.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(adminItem.role)}`}>
+                          {getRoleLabel(adminItem.role)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {adminItem.last_login ? formatDate(adminItem.last_login) : 'Никогда'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          adminItem.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {adminItem.active ? 'Активен' : 'Заблокирован'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          {canManageAdmin(adminItem) && (
+                            <>
+                              <button 
+                                onClick={() => handleEditAdmin(adminItem)}
+                                className="text-blue-600 hover:text-blue-900"
+                                title="Редактировать"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              {adminItem.id !== admin.id && (
+                                <button 
+                                  onClick={() => handleDeleteAdmin(adminItem.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Удалить"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
-                        <div className="text-sm text-gray-500">{adminItem.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(adminItem.role)}`}>
-                      {getRoleLabel(adminItem.role)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {adminItem.last_login ? formatDate(adminItem.last_login) : 'Никогда'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      adminItem.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {adminItem.active ? 'Активен' : 'Заблокирован'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      {canManageAdmin(adminItem) && (
-                        <>
-                          <button 
-                            onClick={() => handleEditAdmin(adminItem)}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Редактировать"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          {adminItem.id !== admin.id && (
-                            <button 
-                              onClick={() => handleDeleteAdmin(adminItem.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Удалить"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      ) : (
+        // ТАБ ЗАЯВОК - ЗДЕСЬ ИСПОЛЬЗУЕТСЯ КОМПОНЕНТ Applications
+        <Applications
+          recentApplications={recentApplications}
+          loadingBookings={loadingBookings}
+          bookingsPagination={bookingsPagination}
+          onUpdateBookingStatus={onUpdateBookingStatus}
+          onDeleteBooking={onDeleteBooking}
+          onBulkDeleteBookings={onBulkDeleteBookings}
+          onExportBookings={onExportBookings}
+          onBookingsPageChange={onBookingsPageChange}
+          onLoadBookings={onLoadBookings}
+          onUpdateBooking={onUpdateBooking} // ПЕРЕДАЕМ ФУНКЦИЮ СЮДА
+          showNotification={showNotification}
+        />
+      )}
 
       {/* Modal для добавления/редактирования администратора */}
       {showAddAdmin && (
