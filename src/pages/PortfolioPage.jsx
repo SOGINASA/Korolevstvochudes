@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import BookingModal from '../components/BookingModal';
 import { 
   Grid, 
   List, 
@@ -19,7 +20,9 @@ import {
   Clock,
   ArrowRight,
   ArrowLeft,
-  Loader
+  Loader,
+  Sparkles,
+  Link
 } from 'lucide-react';
 
 const PortfolioPage = () => {
@@ -51,6 +54,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Загрузка данных портфолио из API
   useEffect(() => {
@@ -202,6 +206,15 @@ const PortfolioPage = () => {
     }));
   };
 
+  // Функции для работы с модалом бронирования
+const openBookingModal = () => {
+  setShowBookingModal(true);
+};
+
+const closeBookingModal = () => {
+  setShowBookingModal(false);
+};
+
   const selectPackage = (packageData) => {
     const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
     setBookingForm(prev => ({
@@ -250,7 +263,7 @@ const PortfolioPage = () => {
   };
 
   const handleCtaOrderClick = () => {
-    setShowCategorySelect(true);
+    openBookingModal();
   };
 
   // Календарь
@@ -642,7 +655,7 @@ const PortfolioPage = () => {
               </div>
             </section>
 
-            {/* CTA секция */}
+                {/* CTA секция */}
             <section className="py-20 bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
               <div className="container-custom text-center">
                 <motion.div
@@ -1299,6 +1312,11 @@ const PortfolioPage = () => {
           )}
         </AnimatePresence>
       </div>
+      {/* Модальное окно бронирования */}
+      <BookingModal 
+        isOpen={showBookingModal} 
+        onClose={closeBookingModal} 
+      />
     </>
   );
 };
