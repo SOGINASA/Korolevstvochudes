@@ -26,6 +26,7 @@ import WarehouseStock from './warehouse/WarehouseStock';
 // Модальные окна (будут созданы отдельно)
 import AddItemModal from './warehouse/modals/AddItemModal';
 import { AddStockModal, RemoveStockModal } from './warehouse/modals/StockOperationModals';
+import { success } from 'zod/v4';
 
 const Warehouse = ({ showNotification }) => {
   // Основные состояния

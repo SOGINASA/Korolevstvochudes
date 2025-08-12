@@ -13,6 +13,8 @@ import {
   Loader
 } from 'lucide-react';
 
+import Quagga from "quagga"; // импортируем библиотеку
+
 const AddItemModal = ({ 
   isOpen, 
   onClose, 
@@ -133,10 +135,35 @@ const AddItemModal = ({
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Здесь должна быть логика распознавания штрих-кода из изображения
-      // Пока используем заглушку
-      const mockBarcode = Math.random().toString().substring(2, 15);
-      handleBarcodeDetected(mockBarcode);
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const imageSrc = reader.result;
+
+        Quagga.decodeSingle(
+          {
+            src: imageSrc, // путь к фото (base64)
+            numOfWorkers: 0, // для браузера в decodeSingle ставим 0
+            inputStream: {
+              size: 800, // масштаб изображения для улучшения распознавания
+            },
+            decoder: {
+              readers: ["ean_reader"], 
+              // можно указать нужные форматы штрих-кодов
+            },
+          },
+          (result) => {
+            if (result && result.codeResult) {
+              console.log()
+              handleBarcodeDetected(result.codeResult.code);
+            } else {
+              console.warn("Штрих-код не распознан");
+            }
+          }
+        );
+      };
+
+      reader.readAsDataURL(file); // читаем файл как base64
     }
   };
 
@@ -146,17 +173,19 @@ const AddItemModal = ({
       // Проверяем существование товара в базе
       const searchResults = await onSearchItems(barcode);
       if (searchResults.length > 0) {
+        console.log('Проблема здесь');
         setExistingItem(searchResults[0]);
         setFormData(prev => ({ ...prev, ...searchResults[0] }));
         setStep(2);
         return;
       }
-
+      
       // Получаем информацию о товаре по штрих-коду
       const barcodeResult = await onGetBarcodeInfo(barcode);
+      console.log(barcodeResult);
       if (barcodeResult.success) {
         setBarcodeInfo(barcodeResult);
-        
+        console.log('Проблема здесь 1');
         if (barcodeResult.external_data) {
           setFormData(prev => ({
             ...prev,
@@ -167,8 +196,8 @@ const AddItemModal = ({
           }));
           
           // Автозаполнение категорий
-          if (barcodeResult.external_data.categories) {
-            setSelectedCategories(barcodeResult.external_data.categories);
+          if (barcodeResult.external_data.category) {
+            setSelectedCategories(barcodeResult.external_data.category.split('/').map(item => item.trim()));
           }
         } else {
           setFormData(prev => ({ ...prev, barcode: barcode }));
@@ -177,6 +206,8 @@ const AddItemModal = ({
         setStep(2);
       }
     } catch (error) {
+      console.log(error);
+      console.log('Проблема здесь 2');
       console.error('Error processing barcode:', error);
       // Все равно переходим к форме с пустым штрих-кодом
       setFormData(prev => ({ ...prev, barcode: barcode }));
@@ -445,18 +476,23 @@ const AddItemModal = ({
           />
         </div>
 
-        {/* Артикул */}
+        {/* Начальное количество */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Артикул
+            Начальное количество
           </label>
           <input
-            type="text"
-            value={formData.sku}
-            onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="SKU товара"
+            type="number"
+            value={formData.current_quantity}
+            onChange={(e) => setFormData(prev => ({ ...prev, current_quantity: parseInt(e.target.value) || 0 }))}
+            className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+              errors.current_quantity ? 'border-red-500' : 'border-gray-300'
+            }`}
+            min="0"
           />
+          {errors.current_quantity && (
+            <p className="mt-1 text-sm text-red-600">{errors.current_quantity}</p>
+          )}
         </div>
 
         {/* Описание */}
@@ -605,24 +641,7 @@ const AddItemModal = ({
           )}
         </div>
 
-        {/* Начальное количество */}
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Начальное количество
-          </label>
-          <input
-            type="number"
-            value={formData.current_quantity}
-            onChange={(e) => setFormData(prev => ({ ...prev, current_quantity: parseInt(e.target.value) || 0 }))}
-            className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-              errors.current_quantity ? 'border-red-500' : 'border-gray-300'
-            }`}
-            min="0"
-          />
-          {errors.current_quantity && (
-            <p className="mt-1 text-sm text-red-600">{errors.current_quantity}</p>
-          )}
-        </div>
+        
       </div>
     </div>
   );
