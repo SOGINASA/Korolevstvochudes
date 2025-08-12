@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import BookingModal from '../components/BookingModal';
 import { 
   Grid, 
   List, 
@@ -19,7 +20,9 @@ import {
   Clock,
   ArrowRight,
   ArrowLeft,
-  Loader
+  Loader,
+  Sparkles,
+  Link
 } from 'lucide-react';
 
 const PortfolioPage = () => {
@@ -51,6 +54,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Загрузка данных портфолио из API
   useEffect(() => {
@@ -202,6 +206,15 @@ const PortfolioPage = () => {
     }));
   };
 
+  // Функции для работы с модалом бронирования
+const openBookingModal = () => {
+  setShowBookingModal(true);
+};
+
+const closeBookingModal = () => {
+  setShowBookingModal(false);
+};
+
   const selectPackage = (packageData) => {
     const price = parseFloat(packageData.price.replace(/[^\d]/g, ''));
     setBookingForm(prev => ({
@@ -250,7 +263,7 @@ const PortfolioPage = () => {
   };
 
   const handleCtaOrderClick = () => {
-    setShowCategorySelect(true);
+    openBookingModal();
   };
 
   // Календарь
@@ -642,7 +655,7 @@ const PortfolioPage = () => {
               </div>
             </section>
 
-            {/* CTA секция */}
+                {/* CTA секция */}
             <section className="py-20 bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
               <div className="container-custom text-center">
                 <motion.div
@@ -1096,80 +1109,87 @@ const PortfolioPage = () => {
                     </div>
                   )}
 
-                  {bookingStep === 3 && (
-                    <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-gray-900">Контактная информация</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Имя *
-                          </label>
-                          <input
-                            type="text"
-                            value={bookingForm.clientName}
-                            onChange={(e) => updateBookingForm('clientName', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                            placeholder="Ваше имя"
-                            required
-                          />
-                        </div>
+{bookingStep === 2 && (
+  <div className="space-y-4 sm:space-y-6">
+    <h3 className="text-lg sm:text-xl font-bold text-gray-900">Контактная информация</h3>
+    
+    <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      {/* Имя - всегда на полную ширину на мобильных */}
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Имя *
+        </label>
+        <input
+          type="text"
+          value={bookingForm.clientName}
+          onChange={(e) => updateBookingForm('clientName', e.target.value)}
+          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
+          placeholder="Ваше имя"
+          required
+        />
+      </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Телефон *
-                          </label>
-                          <input
-                            type="tel"
-                            value={bookingForm.clientPhone}
-                            onChange={(e) => updateBookingForm('clientPhone', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                            placeholder="+7 (___) ___-__-__"
-                            required
-                          />
-                        </div>
+      {/* Телефон - всегда на полную ширину на мобильных */}
+      <div className="w-full">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Телефон *
+        </label>
+        <input
+          type="tel"
+          value={bookingForm.clientPhone}
+          onChange={(e) => updateBookingForm('clientPhone', e.target.value)}
+          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
+          placeholder="+7 (___) ___-__-__"
+          required
+        />
+      </div>
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            value={bookingForm.clientEmail}
-                            onChange={(e) => updateBookingForm('clientEmail', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                            placeholder="your@email.com"
-                          />
-                        </div>
+      {/* Закомментированные поля - сохраняем как есть */}
+      {/* <div className="w-full md:w-1/2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Email
+        </label>
+        <input
+          type="email"
+          value={bookingForm.clientEmail}
+          onChange={(e) => updateBookingForm('clientEmail', e.target.value)}
+          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
+          placeholder="your@email.com"
+        />
+      </div> */}
 
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Количество гостей
-                          </label>
-                          <input
-                            type="number"
-                            value={bookingForm.guestCount}
-                            onChange={(e) => updateBookingForm('guestCount', e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                            placeholder="10"
-                          />
-                        </div>
-                      </div>
+      {/* <div className="w-full md:w-1/2">
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+          <Users className="w-4 h-4 text-purple-600" />
+          Количество гостей
+        </label>
+        <input
+          type="number"
+          value={bookingForm.guestCount}
+          onChange={(e) => updateBookingForm('guestCount', e.target.value)}
+          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
+          placeholder="10"
+          min="1"
+        />
+      </div> */}
+    </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Особые пожелания
-                        </label>
-                        <textarea
-                          value={bookingForm.specialRequests}
-                          onChange={(e) => updateBookingForm('specialRequests', e.target.value)}
-                          rows={4}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Расскажите о ваших пожеланиях к празднику..."
-                        />
-                      </div>
-                    </div>
-                  )}
+    {/* Особые пожелания - закомментировано */}
+    {/* <div className="w-full">
+      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+        <MessageCircle className="w-4 h-4 text-purple-600" />
+        Особые пожелания
+      </label>
+      <textarea
+        value={bookingForm.specialRequests}
+        onChange={(e) => updateBookingForm('specialRequests', e.target.value)}
+        rows={4}
+        className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors resize-vertical"
+        placeholder="Расскажите о ваших пожеланиях к мероприятию..."
+      />
+    </div> */}
+  </div>
+)}
 
                   {bookingStep === 4 && (
                     <div className="text-center space-y-6">
@@ -1292,6 +1312,11 @@ const PortfolioPage = () => {
           )}
         </AnimatePresence>
       </div>
+      {/* Модальное окно бронирования */}
+      <BookingModal 
+        isOpen={showBookingModal} 
+        onClose={closeBookingModal} 
+      />
     </>
   );
 };

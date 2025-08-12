@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Calendar, Clock, User, Eye, Search, Filter, ChevronLeft, ChevronRight, Tag, Star, Share2, ArrowRight, Sparkles, TrendingUp, FileText } from 'lucide-react';
 import { apiService } from '../services/api';
+import BookingModal from '../components/BookingModal';
 
 const BlogPage = () => {
   const { slug } = useParams();
@@ -17,6 +18,7 @@ const BlogPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   
   // Пагинация и фильтры
   const [pagination, setPagination] = useState({
@@ -89,6 +91,15 @@ const BlogPage = () => {
       }, 2000);
     }
   };
+
+  // Функции для работы с модалом бронирования
+const openBookingModal = () => {
+  setShowBookingModal(true);
+};
+
+const closeBookingModal = () => {
+  setShowBookingModal(false);
+};
 
   // Функции загрузки данных (остаются без изменений)
   const loadBlogPost = async (postSlug) => {
@@ -765,47 +776,50 @@ const BlogPage = () => {
             </div>
           )}
 
-          {/* CTA секция */}
-          <div className="mt-20">
-            <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden">
-              <div className="relative p-12 text-center text-white">
-                <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 rounded-full bg-white bg-opacity-10"></div>
-                <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-32 h-32 rounded-full bg-white bg-opacity-5"></div>
+          {/* CTA секция с обновленными кнопками */}
+      <div className="mt-20">
+        <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 rounded-3xl shadow-2xl overflow-hidden">
+          <div className="relative p-12 text-center text-white">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 rounded-full bg-white bg-opacity-10"></div>
+            <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-32 h-32 rounded-full bg-white bg-opacity-5"></div>
+            
+            <div className="relative z-10 max-w-3xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
+                <Sparkles className="h-8 w-8 mr-3 text-yellow-300" />
+                <span className="text-lg font-medium text-purple-100">Готовы к празднику?</span>
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                Воплотим ваши мечты о <span className="text-yellow-300">идеальном празднике</span>
+              </h2>
+              
+              <p className="text-xl text-purple-100 mb-8">
+                Более 1000 счастливых клиентов доверили нам свои самые важные моменты
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {/* Заменяем Link на button с функцией открытия модального окна */}
+                <button
+                  onClick={openBookingModal}
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 rounded-2xl hover:from-yellow-500 hover:to-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-bold"
+                >
+                  <Star className="h-5 w-5 mr-2" />
+                  Заказать праздник
+                </button>
                 
-                <div className="relative z-10 max-w-3xl mx-auto">
-                  <div className="flex items-center justify-center mb-6">
-                    <Sparkles className="h-8 w-8 mr-3 text-yellow-300" />
-                    <span className="text-lg font-medium text-purple-100">Готовы к празднику?</span>
-                  </div>
-                  
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                    Воплотим ваши мечты о <span className="text-yellow-300">идеальном празднике</span>
-                  </h2>
-                  
-                  <p className="text-xl text-purple-100 mb-8">
-                    Более 1000 счастливых клиентов доверили нам свои самые важные моменты
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link
-                      to="/zakazat-prazdnik"
-                      className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 rounded-2xl hover:from-yellow-500 hover:to-orange-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-bold"
-                    >
-                      <Star className="h-5 w-5 mr-2" />
-                      Заказать праздник
-                    </Link>
-                    <Link
-                      to="/portfolio"
-                      className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-2xl hover:bg-white hover:text-purple-700 transition-all duration-300 font-medium"
-                    >
-                      <Eye className="h-5 w-5 mr-2" />
-                      Посмотреть работы
-                    </Link>
-                  </div>
-                </div>
+                {/* Эта кнопка остается как Link, если нужно перейти на страницу портфолио */}
+                <Link
+                  to="/portfolio"
+                  className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-2xl hover:bg-white hover:text-purple-700 transition-all duration-300 font-medium"
+                >
+                  <Eye className="h-5 w-5 mr-2" />
+                  Посмотреть работы
+                </Link>
               </div>
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     );
@@ -814,6 +828,12 @@ const BlogPage = () => {
   return (
     <div>
       {isPostView ? <BlogPostView /> : <BlogListView />}
+      
+      {/* Модальное окно бронирования - ТОЛЬКО ЗДЕСЬ */}
+      <BookingModal 
+        isOpen={showBookingModal} 
+        onClose={closeBookingModal} 
+      />
     </div>
   );
 };
