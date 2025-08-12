@@ -28,7 +28,7 @@ const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
   ];
 
   return (
-    <aside className="w-64 bg-white shadow-sm h-[calc(100vh)] sticky top-16">
+    <aside className="w-64 bg-white shadow-sm h-[calc(100vh)] sticky top">
       <nav className="p-4">
         <ul className="space-y-2">
           {menuItems.map(item => (

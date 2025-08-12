@@ -1056,7 +1056,9 @@ class ApiService {
       return { success: false, error: error.message };
     }
   }
-  async getWarehouseDashboard() {
+// Обновленные методы API для склада с поддержкой множественных категорий
+
+async getWarehouseDashboard() {
   try {
     const response = await this.request('/warehouse/dashboard');
     return { success: true, ...response };
@@ -1065,10 +1067,18 @@ class ApiService {
   }
 }
 
-async getWarehouseCategories(parentId = null) {
+async getWarehouseCategories(parentId = null, includeChildren = true) {
   try {
-    const params = parentId ? `?parent_id=${parentId}` : '';
-    const response = await this.request(`/warehouse/categories${params}`);
+    const params = new URLSearchParams();
+    if (parentId !== null) {
+      params.append('parent_id', parentId);
+    }
+    if (includeChildren) {
+      params.append('include_children', 'true');
+    }
+    
+    const queryString = params.toString();
+    const response = await this.request(`/warehouse/categories${queryString ? `?${queryString}` : ''}`);
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };
@@ -1087,9 +1097,36 @@ async createWarehouseCategory(categoryData) {
   }
 }
 
+async searchWarehouseCategories(query, limit = 10) {
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      limit: limit.toString()
+    });
+    const response = await this.request(`/warehouse/categories/search?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 async getWarehouseItems(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    // Поддержка множественных категорий
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        // Добавляем каждый category_id отдельно для поддержки массивов
+        value.forEach(id => params.append('category_ids', id.toString()));
+      } else if (key === 'category_path' && Array.isArray(value)) {
+        // Поддержка пути категорий (для breadcrumbs)
+        value.forEach(id => params.append('category_ids', id.toString()));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/items?${params}`);
     return { success: true, ...response };
   } catch (error) {
@@ -1099,9 +1136,27 @@ async getWarehouseItems(filters = {}) {
 
 async createWarehouseItem(itemData) {
   try {
+    // Обработка множественных категорий
+    const processedData = { ...itemData };
+    
+    // Если переданы selectedCategories (из модального окна)
+    if (itemData.selectedCategories && Array.isArray(itemData.selectedCategories)) {
+      processedData.selectedCategories = itemData.selectedCategories;
+    }
+    
+    // Если переданы category_ids
+    if (itemData.category_ids && Array.isArray(itemData.category_ids)) {
+      processedData.category_ids = itemData.category_ids;
+    }
+    
+    // Если переданы category_names
+    if (itemData.category_names && Array.isArray(itemData.category_names)) {
+      processedData.category_names = itemData.category_names;
+    }
+    
     const response = await this.request('/warehouse/items', {
       method: 'POST',
-      body: JSON.stringify(itemData)
+      body: JSON.stringify(processedData)
     });
     return { success: true, ...response };
   } catch (error) {
@@ -1111,9 +1166,20 @@ async createWarehouseItem(itemData) {
 
 async updateWarehouseItem(itemId, itemData) {
   try {
+    // Обработка множественных категорий при обновлении
+    const processedData = { ...itemData };
+    
+    if (itemData.selectedCategories && Array.isArray(itemData.selectedCategories)) {
+      processedData.selectedCategories = itemData.selectedCategories;
+    }
+    
+    if (itemData.category_ids && Array.isArray(itemData.category_ids)) {
+      processedData.category_ids = itemData.category_ids;
+    }
+    
     const response = await this.request(`/warehouse/items/${itemId}`, {
       method: 'PUT',
-      body: JSON.stringify(itemData)
+      body: JSON.stringify(processedData)
     });
     return { success: true, ...response };
   } catch (error) {
@@ -1132,13 +1198,34 @@ async deleteWarehouseItem(itemId) {
   }
 }
 
-async searchWarehouseItems(query, categoryId = null) {
+async searchWarehouseItems(query, options = {}) {
   try {
     const params = new URLSearchParams({
       q: query,
-      limit: 10,
-      ...(categoryId && { category_id: categoryId })
+      limit: (options.limit || 10).toString()
     });
+    
+    // Поддержка поиска в конкретных категориях
+    if (options.category_ids && Array.isArray(options.category_ids)) {
+      options.category_ids.forEach(id => params.append('category_ids', id.toString()));
+    } else if (options.category_id) {
+      params.append('category_id', options.category_id.toString());
+    }
+    
+    // Поддержка поиска в пути категорий
+    if (options.category_path && Array.isArray(options.category_path)) {
+      options.category_path.forEach(id => params.append('category_ids', id.toString()));
+    }
+    
+    // Дополнительные фильтры
+    if (options.status) {
+      params.append('status', options.status);
+    }
+    
+    if (options.stock_filter) {
+      params.append('stock_filter', options.stock_filter);
+    }
+    
     const response = await this.request(`/warehouse/items/search?${params}`);
     return response.items || [];
   } catch (error) {
@@ -1170,7 +1257,16 @@ async getBarcodeInfo(barcode) {
 
 async getWarehouseOperations(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        value.forEach(id => params.append('category_ids', id.toString()));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/operations?${params}`);
     return { success: true, ...response };
   } catch (error) {
@@ -1240,7 +1336,20 @@ async bulkRemoveStock(itemsData) {
 
 async getWarehouseStock(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        // Поддержка множественных категорий для остатков
+        value.forEach(id => params.append('category_ids', id.toString()));
+      } else if (key === 'category_path' && Array.isArray(value)) {
+        // Поддержка пути категорий
+        value.forEach(id => params.append('category_ids', id.toString()));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/stock?${params}`);
     return { success: true, ...response };
   } catch (error) {
@@ -1257,12 +1366,61 @@ async getWarehouseConstants() {
   }
 }
 
+// Аналитика склада с поддержкой множественных категорий
+async getWarehouseAnalytics(options = {}) {
+  try {
+    const params = new URLSearchParams();
+    
+    if (options.days) {
+      params.append('days', options.days.toString());
+    }
+    
+    if (options.category_ids && Array.isArray(options.category_ids)) {
+      options.category_ids.forEach(id => params.append('category_ids', id.toString()));
+    } else if (options.category_id) {
+      params.append('category_id', options.category_id.toString());
+    }
+    
+    const response = await this.request(`/warehouse/analytics/stock-movement?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getLowStockAlerts(categoryIds = null) {
+  try {
+    const params = new URLSearchParams();
+    
+    if (categoryIds && Array.isArray(categoryIds)) {
+      categoryIds.forEach(id => params.append('category_ids', id.toString()));
+    }
+    
+    const queryString = params.toString();
+    const response = await this.request(`/warehouse/analytics/low-stock-alerts${queryString ? `?${queryString}` : ''}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Методы экспорта с поддержкой множественных категорий
 async exportWarehouseItems(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        params.append('category_ids', value.join(','));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/export/items?${params}`, {
       headers: { 'Accept': 'text/csv' }
     });
+    
     if (typeof response === 'string') {
       const blob = new Blob([response], { type: 'text/csv' });
       return { success: true, blob };
@@ -1275,10 +1433,20 @@ async exportWarehouseItems(filters = {}) {
 
 async exportWarehouseOperations(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        params.append('category_ids', value.join(','));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/export/operations?${params}`, {
       headers: { 'Accept': 'text/csv' }
     });
+    
     if (typeof response === 'string') {
       const blob = new Blob([response], { type: 'text/csv' });
       return { success: true, blob };
@@ -1291,14 +1459,107 @@ async exportWarehouseOperations(filters = {}) {
 
 async exportWarehouseStock(filters = {}) {
   try {
-    const params = new URLSearchParams(filters).toString();
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (key === 'category_ids' && Array.isArray(value)) {
+        params.append('category_ids', value.join(','));
+      } else if (key === 'category_path' && Array.isArray(value)) {
+        params.append('category_ids', value.join(','));
+      } else if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
     const response = await this.request(`/warehouse/export/stock?${params}`, {
       headers: { 'Accept': 'text/csv' }
     });
+    
     if (typeof response === 'string') {
       const blob = new Blob([response], { type: 'text/csv' });
       return { success: true, blob };
     }
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Дополнительные методы для работы с категориями
+async getCategoryHierarchy(categoryId = null) {
+  try {
+    const params = categoryId ? `?category_id=${categoryId}` : '';
+    const response = await this.request(`/warehouse/categories/hierarchy${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getCategoryPath(categoryId) {
+  try {
+    const response = await this.request(`/warehouse/categories/${categoryId}/path`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getItemsInCategoryTree(categoryIds, options = {}) {
+  try {
+    const params = new URLSearchParams();
+    
+    if (Array.isArray(categoryIds)) {
+      categoryIds.forEach(id => params.append('category_ids', id.toString()));
+    } else {
+      params.append('category_ids', categoryIds.toString());
+    }
+    
+    // Дополнительные параметры
+    Object.entries(options).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
+    const response = await this.request(`/warehouse/items/by-categories?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Вспомогательные методы для работы с множественными категориями
+async addItemToCategories(itemId, categoryIds) {
+  try {
+    const response = await this.request(`/warehouse/items/${itemId}/categories`, {
+      method: 'POST',
+      body: JSON.stringify({ category_ids: categoryIds })
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async removeItemFromCategories(itemId, categoryIds) {
+  try {
+    const response = await this.request(`/warehouse/items/${itemId}/categories`, {
+      method: 'DELETE',
+      body: JSON.stringify({ category_ids: categoryIds })
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async setItemCategories(itemId, categoryIds) {
+  try {
+    const response = await this.request(`/warehouse/items/${itemId}/categories`, {
+      method: 'PUT',
+      body: JSON.stringify({ category_ids: categoryIds })
+    });
     return { success: true, ...response };
   } catch (error) {
     return { success: false, error: error.message };

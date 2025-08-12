@@ -181,9 +181,9 @@ const WarehouseOperations = ({
 
       {/* Фильтры */}
       <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {/* Поиск */}
-          <div className="md:col-span-2 relative">
+          <div className="md:col-span-2 xl:col-span-2 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
@@ -194,41 +194,51 @@ const WarehouseOperations = ({
             />
           </div>
 
-          {/* Тип операции */}
-          <select
-            value={filters.operation_type}
-            onChange={(e) => setFilters(prev => ({ ...prev, operation_type: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="">Все операции</option>
-            {Object.entries(constants.operation_types || {}).map(([key, value]) => (
-              <option key={key} value={key}>{value}</option>
-            ))}
-          </select>
+    {/* Тип операции */}
+    <div className="xl:col-span-1">
+      <select
+        value={filters.operation_type}
+        onChange={(e) => setFilters(prev => ({ ...prev, operation_type: e.target.value }))}
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      >
+        <option value="">Все операции</option>
+        {Object.entries(constants.operation_types || {}).map(([key, value]) => (
+          <option key={key} value={key}>{value}</option>
+        ))}
+      </select>
+    </div>
 
-          {/* Дата с */}
-          <input
-            type="date"
-            value={filters.date_from}
-            onChange={(e) => setFilters(prev => ({ ...prev, date_from: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
+    {/* Дата с */}
+    <div className="xl:col-span-1">
+      <input
+        type="date"
+        value={filters.date_from}
+        onChange={(e) => setFilters(prev => ({ ...prev, date_from: e.target.value }))}
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        placeholder="Дата с"
+      />
+    </div>
 
-          {/* Дата по */}
-          <input
-            type="date"
-            value={filters.date_to}
-            onChange={(e) => setFilters(prev => ({ ...prev, date_to: e.target.value }))}
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
+    {/* Дата по */}
+    <div className="xl:col-span-1">
+      <input
+        type="date"
+        value={filters.date_to}
+        onChange={(e) => setFilters(prev => ({ ...prev, date_to: e.target.value }))}
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        placeholder="Дата по"
+      />
+    </div>
 
-          {/* Кнопка сброса */}
-          <button
-            onClick={resetFilters}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            Сбросить
-          </button>
+    {/* Кнопка сброса */}
+    <div className="xl:col-span-1">
+      <button
+        onClick={resetFilters}
+        className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+      >
+        Сбросить
+      </button>
+    </div>
         </div>
       </div>
 
