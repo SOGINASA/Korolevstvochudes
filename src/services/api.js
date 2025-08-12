@@ -321,16 +321,6 @@ class ApiService {
     }
   }
 
-  async getServices(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    try {
-      const response = await this.request(`/services/?${queryString}`);
-      return { success: true, ...response };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-
   logout() {
     this.setToken(null);
     localStorage.removeItem('admin_data');
@@ -1066,6 +1056,254 @@ class ApiService {
       return { success: false, error: error.message };
     }
   }
+  async getWarehouseDashboard() {
+  try {
+    const response = await this.request('/warehouse/dashboard');
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getWarehouseCategories(parentId = null) {
+  try {
+    const params = parentId ? `?parent_id=${parentId}` : '';
+    const response = await this.request(`/warehouse/categories${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async createWarehouseCategory(categoryData) {
+  try {
+    const response = await this.request('/warehouse/categories', {
+      method: 'POST',
+      body: JSON.stringify(categoryData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getWarehouseItems(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/items?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async createWarehouseItem(itemData) {
+  try {
+    const response = await this.request('/warehouse/items', {
+      method: 'POST',
+      body: JSON.stringify(itemData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async updateWarehouseItem(itemId, itemData) {
+  try {
+    const response = await this.request(`/warehouse/items/${itemId}`, {
+      method: 'PUT',
+      body: JSON.stringify(itemData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async deleteWarehouseItem(itemId) {
+  try {
+    const response = await this.request(`/warehouse/items/${itemId}`, {
+      method: 'DELETE'
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async searchWarehouseItems(query, categoryId = null) {
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      limit: 10,
+      ...(categoryId && { category_id: categoryId })
+    });
+    const response = await this.request(`/warehouse/items/search?${params}`);
+    return response.items || [];
+  } catch (error) {
+    console.error('Error searching warehouse items:', error);
+    return [];
+  }
+}
+
+async getItemByBarcode(barcode) {
+  try {
+    const response = await this.request(`/warehouse/items/barcode/${barcode}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getBarcodeInfo(barcode) {
+  try {
+    const response = await this.request('/warehouse/barcode/info', {
+      method: 'POST',
+      body: JSON.stringify({ barcode })
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getWarehouseOperations(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/operations?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async addStock(operationData) {
+  try {
+    const response = await this.request('/warehouse/operations/add-stock', {
+      method: 'POST',
+      body: JSON.stringify(operationData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async removeStock(operationData) {
+  try {
+    const response = await this.request('/warehouse/operations/remove-stock', {
+      method: 'POST',
+      body: JSON.stringify(operationData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async adjustStock(operationData) {
+  try {
+    const response = await this.request('/warehouse/operations/adjust-stock', {
+      method: 'POST',
+      body: JSON.stringify(operationData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async bulkAddStock(itemsData) {
+  try {
+    const response = await this.request('/warehouse/operations/bulk-add', {
+      method: 'POST',
+      body: JSON.stringify(itemsData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async bulkRemoveStock(itemsData) {
+  try {
+    const response = await this.request('/warehouse/operations/bulk-remove', {
+      method: 'POST',
+      body: JSON.stringify(itemsData)
+    });
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getWarehouseStock(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/stock?${params}`);
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async getWarehouseConstants() {
+  try {
+    const response = await this.request('/warehouse/constants');
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async exportWarehouseItems(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/export/items?${params}`, {
+      headers: { 'Accept': 'text/csv' }
+    });
+    if (typeof response === 'string') {
+      const blob = new Blob([response], { type: 'text/csv' });
+      return { success: true, blob };
+    }
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async exportWarehouseOperations(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/export/operations?${params}`, {
+      headers: { 'Accept': 'text/csv' }
+    });
+    if (typeof response === 'string') {
+      const blob = new Blob([response], { type: 'text/csv' });
+      return { success: true, blob };
+    }
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async exportWarehouseStock(filters = {}) {
+  try {
+    const params = new URLSearchParams(filters).toString();
+    const response = await this.request(`/warehouse/export/stock?${params}`, {
+      headers: { 'Accept': 'text/csv' }
+    });
+    if (typeof response === 'string') {
+      const blob = new Blob([response], { type: 'text/csv' });
+      return { success: true, blob };
+    }
+    return { success: true, ...response };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
 }
 
 export const apiService = new ApiService();

@@ -1,4 +1,3 @@
-// components/admin/AdminSidebar.js
 import React from 'react';
 import { 
   BarChart3, 
@@ -9,17 +8,18 @@ import {
   Gift, 
   Settings, 
   Users,
-  Sparkles
+  Sparkles,
+  Package // Добавить импорт
 } from 'lucide-react';
 
 const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Дашборд' },
     { id: 'applications', icon: MessageSquare, label: 'Заявки' },
+    { id: 'warehouse', icon: Package, label: 'Склад' }, // Добавить эту строку
     { id: 'portfolio', icon: Image, label: 'Портфолио' },
     { id: 'reviews', icon: Star, label: 'Отзывы' },
     { id: 'blog', icon: PenTool, label: 'Блог' },
-    /*{ id: 'promotions', icon: Gift, label: 'Акции' },*/
     { id: 'services', icon: Sparkles, label: 'Услуги' },
     ...(admin?.role === 'super_admin' || admin?.role === 'admin' 
       ? [{ id: 'admins', icon: Users, label: 'Администраторы' }] 

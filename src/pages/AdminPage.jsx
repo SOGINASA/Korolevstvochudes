@@ -17,6 +17,9 @@ import Promotions from '../components/admin/Promotions';
 import Services from '../components/admin/Services';
 import AdminsManagement from '../components/admin/AdminsManagement';
 import Settings from '../components/admin/Settings';
+import Warehouse from '../components/admin/Warehouse';
+
+import { Package } from 'lucide-react';
 
 // Импорт модальных окон
 import ConfirmModal from '../components/admin/modals/ConfirmModal';
@@ -703,6 +706,8 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
         return <Services {...commonProps} />;
       case 'admins': 
         return <AdminsManagement {...commonProps} />;
+      case 'warehouse': 
+        return <Warehouse showNotification={showNotification} />;
       case 'settings': 
         return <Settings {...commonProps} />;
       default: 
