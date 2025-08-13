@@ -272,7 +272,8 @@ const Warehouse = ({ showNotification }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
       {/* Заголовок */}
       <div className="flex items-center justify-between">
         <div>
@@ -335,17 +336,20 @@ const Warehouse = ({ showNotification }) => {
       {renderContent()}
 
       {/* Модальные окна */}
-      <AddItemModal
-        isOpen={showAddItemModal}
-        onClose={() => setShowAddItemModal(false)}
-        onSubmit={handleCreateItem}
-        onSearchItems={handleSearchItems}
-        onGetBarcodeInfo={handleGetBarcodeInfo}
-        loadCategories={loadCategories}
-        categories={categories}
-        constants={constants}
-      />
+      
 
+      </div>
+      <AddItemModal
+          isOpen={showAddItemModal}
+          onClose={() => setShowAddItemModal(false)}
+          onSubmit={handleCreateItem}
+          onSearchItems={handleSearchItems}
+          onGetBarcodeInfo={handleGetBarcodeInfo}
+          loadCategories={loadCategories}
+          categories={categories}
+          constants={constants}
+        />
+      
       <AddStockModal
         isOpen={showAddStockModal}
         onClose={() => setShowAddStockModal(false)}
@@ -361,7 +365,7 @@ const Warehouse = ({ showNotification }) => {
         onSearchItems={handleSearchItems}
         constants={constants}
       />
-    </div>
+    </>
   );
 };
 

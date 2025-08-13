@@ -717,7 +717,6 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <AdminHeader admin={admin} stats={stats} />
       
       <div className="flex">
         <AdminSidebar 
