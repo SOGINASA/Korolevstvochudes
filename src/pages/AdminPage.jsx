@@ -15,6 +15,7 @@ import Reviews from '../components/admin/Reviews';
 import Blog from '../components/admin/Blog';
 import Promotions from '../components/admin/Promotions';
 import Services from '../components/admin/Services';
+import LeadsPage from '../components/admin/LeadsPage';
 import AdminsManagement from '../components/admin/AdminsManagement';
 import Settings from '../components/admin/Settings';
 import Warehouse from '../components/admin/Warehouse';
@@ -686,6 +687,7 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
   showNotification,
   setActiveTab
 };
+  
 
   // Рендер контента в зависимости от активной вкладки
   const renderContent = () => {
@@ -696,6 +698,8 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
         return <Applications {...commonProps} />;
       case 'portfolio': 
         return <Portfolio {...commonProps} />;
+      case 'leads':
+        return <LeadsPage {...commonProps} />;
       case 'reviews': 
         return <Reviews {...commonProps} />;
       case 'blog': 
