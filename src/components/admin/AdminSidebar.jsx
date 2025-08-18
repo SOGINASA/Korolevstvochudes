@@ -9,15 +9,17 @@ import {
   Settings, 
   Users,
   Sparkles,
-  Package // Добавить импорт
+  Package, // Добавить импорт
+  User
 } from 'lucide-react';
 
 const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Дашборд' },
     { id: 'applications', icon: MessageSquare, label: 'Заявки' },
-    { id: 'warehouse', icon: Package, label: 'Склад' }, // Добавить эту строку
+    { id: 'warehouse', icon: Package, label: 'Склад' },
     { id: 'portfolio', icon: Image, label: 'Портфолио' },
+    { id: 'leads', icon: User, label: 'Лиды' },
     { id: 'reviews', icon: Star, label: 'Отзывы' },
     { id: 'blog', icon: PenTool, label: 'Блог' },
     { id: 'services', icon: Sparkles, label: 'Услуги' },
@@ -25,7 +27,7 @@ const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
       ? [{ id: 'admins', icon: Users, label: 'Администраторы' }] 
       : []),
     { id: 'settings', icon: Settings, label: 'Настройки' }
-  ];
+];
 
   return (
     <aside className="w-64 bg-white shadow-sm h-[calc(100vh)] sticky top">
