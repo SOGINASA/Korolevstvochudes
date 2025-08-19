@@ -272,11 +272,11 @@ const Portfolio = ({ showNotification }) => {
   return (
     <div className="space-y-6">
       {/* Заголовок и статистика */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Портфолио</h2>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Портфолио</h2>
           {stats && (
-            <div className="flex items-center gap-6 mt-2 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center gap-3 lg:gap-6 mt-2 text-xs lg:text-sm text-gray-600">
               <span>Всего: {stats.total}</span>
               <span>Опубликовано: {stats.published}</span>
               <span>Черновики: {stats.draft}</span>
@@ -285,22 +285,22 @@ const Portfolio = ({ showNotification }) => {
           )}
         </div>
         <button 
-          onClick={() => setShowAddProject(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-        >
+            onClick={() => setShowAddProject(true)}
+            className="flex items-center justify-center space-x-2 px-3 lg:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 w-full lg:w-auto text-sm lg:text-base"
+          >
           <Plus className="h-4 w-4" />
           <span>Добавить проект</span>
         </button>
       </div>
 
       {/* Фильтры */}
-      <div className="flex flex-wrap gap-4 bg-white p-4 rounded-lg shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 lg:gap-4 bg-white p-3 lg:p-4 rounded-lg shadow-sm">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Статус</label>
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-sm lg:text-base"
           >
             <option value="all">Все статусы</option>
             <option value="published">Опубликовано</option>
@@ -312,9 +312,9 @@ const Portfolio = ({ showNotification }) => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Категория</label>
           <select
-            value={selectedCategory}
+            value={selectedStatus}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500"
+            className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-sm lg:text-base"
           >
             <option value="all">Все категории</option>
             {categories.map(cat => (
@@ -325,10 +325,10 @@ const Portfolio = ({ showNotification }) => {
       </div>
 
       {/* Список проектов */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
         {portfolioItems.map(item => (
-          <div key={item.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="relative h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+          <div key={item.id} className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg overflow-hidden">
+            <div className="relative h-40 lg:h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
               {item.coverImage ? (
                 <img 
                   src={item.coverImage} 
@@ -355,15 +355,15 @@ const Portfolio = ({ showNotification }) => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 lg:p-6">
               <div className="flex items-start justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">
+              <h3 className="text-base lg:text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">
                   {item.title}
                 </h3>
                 <select
                   value={item.status}
                   onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                  className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-purple-500 ${getStatusColor(item.status)}`}
+                  className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-purple-500 min-w-0 ${getStatusColor(item.status)}`}
                 >
                   <option value="draft">Черновик</option>
                   <option value="published">Опубликовано</option>
@@ -372,7 +372,7 @@ const Portfolio = ({ showNotification }) => {
               </div>
 
               {/* Информация о проекте */}
-              <div className="space-y-2 mb-4 text-sm text-gray-600">
+              <div className="space-y-1 lg:space-y-2 mb-3 lg:mb-4 text-xs lg:text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>{item.date ? new Date(item.date).toLocaleDateString('ru-RU') : 'Не указана'}</span>
@@ -426,33 +426,33 @@ const Portfolio = ({ showNotification }) => {
 
               {/* Действия */}
               <div className="flex gap-2">
-                <button 
-                  onClick={() => handleEditProject(item)}
-                  className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors"
-                >
-                  <Edit className="h-4 w-4 inline mr-1" />
-                  Редактировать
-                </button>
+              <button 
+                onClick={() => handleEditProject(item)}
+                className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors"
+              >
+              <Edit className="h-4 w-4 inline mr-1" />
+                Редактировать
+              </button>
                 
-                <button 
-                  onClick={() => handleToggleFeatured(item.id, item.featured)}
-                  className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
-                    item.featured 
-                      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title={item.featured ? 'Убрать из избранного' : 'Добавить в избранное'}
-                >
-                  <Star className={`h-4 w-4 ${item.featured ? 'fill-current' : ''}`} />
-                </button>
-                
-                <button 
-                  onClick={() => handleDeleteProject(item.id)}
-                  className="bg-red-100 text-red-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
-                  title="Удалить проект"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+              <button 
+  onClick={() => handleToggleFeatured(item.id, item.featured)}
+  className={`py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
+    item.featured 
+      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' 
+      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+  }`}
+  title={item.featured ? 'Убрать из избранного' : 'Добавить в избранное'}
+>
+  <Star className={`h-3 w-3 lg:h-4 lg:w-4 ${item.featured ? 'fill-current' : ''}`} />
+</button>
+
+<button 
+  onClick={() => handleDeleteProject(item.id)}
+  className="bg-red-100 text-red-700 py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium hover:bg-red-200 transition-colors"
+  title="Удалить проект"
+>
+  <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
+</button>
               </div>
             </div>
           </div>
@@ -470,9 +470,9 @@ const Portfolio = ({ showNotification }) => {
       {/* Modal для добавления/редактирования проекта */}
       {showAddProject && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
+            <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
+                <h3 className="text-lg lg:text-xl font-bold text-gray-900">
                 {editingProject ? 'Редактировать проект' : 'Добавить новый проект'}
               </h3>
               <button
@@ -483,10 +483,10 @@ const Portfolio = ({ showNotification }) => {
               </button>
             </div>
 
-            <form onSubmit={handleProjectSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleProjectSubmit} className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Название проекта *
                   </label>
                   <input
@@ -500,7 +500,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Категория *
                   </label>
                   <select
@@ -517,7 +517,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Дата мероприятия *
                   </label>
                   <input
@@ -530,7 +530,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Бюджет проекта
                   </label>
                   <input
@@ -543,7 +543,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Имя клиента
                   </label>
                   <input
@@ -556,7 +556,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Место проведения
                   </label>
                   <input
@@ -569,7 +569,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Количество гостей
                   </label>
                   <input
@@ -582,7 +582,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Рейтинг
                   </label>
                   <select
@@ -599,7 +599,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     Статус
                   </label>
                   <select
@@ -614,7 +614,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                     URL обложки
                   </label>
                   <input
@@ -628,7 +628,7 @@ const Portfolio = ({ showNotification }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                   Описание проекта
                 </label>
                 <textarea
@@ -642,7 +642,7 @@ const Portfolio = ({ showNotification }) => {
 
               {/* Теги */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
                   Теги
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
@@ -687,10 +687,10 @@ const Portfolio = ({ showNotification }) => {
                 </label>
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 text-sm lg:text-base"
                 >
                   <Save className="h-4 w-4" />
                   <span>{editingProject ? 'Обновить проект' : 'Сохранить проект'}</span>
@@ -698,7 +698,7 @@ const Portfolio = ({ showNotification }) => {
                 <button
                   type="button"
                   onClick={() => { setShowAddProject(false); resetProjectForm(); }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 text-sm lg:text-base"
                 >
                   Отмена
                 </button>

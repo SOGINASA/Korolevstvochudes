@@ -218,50 +218,50 @@ const Services = ({ showNotification }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Управление услугами</h2>
-        <button 
-          onClick={() => setShowAddService(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
-          disabled={loading}
-        >
-          <Plus className="h-4 w-4" />
-          <span>Добавить услугу</span>
-        </button>
-      </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+  <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление услугами</h2>
+  <button 
+    onClick={() => setShowAddService(true)}
+    className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+    disabled={loading}
+  >
+    <Plus className="h-4 w-4" />
+    <span>Добавить услугу</span>
+  </button>
+</div>
 
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+      <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
+    <div className="flex items-center">
+      <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500 mr-2 lg:mr-3 flex-shrink-0" />
+      <div className="min-w-0">
+        <p className="text-xs lg:text-sm font-medium text-gray-600">Всего услуг</p>
+        <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.total_services}</p>
+      </div>
+    </div>
+  </div>
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
           <div className="flex items-center">
-            <Sparkles className="h-8 w-8 text-purple-500 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-gray-600">Всего услуг</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total_services}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-green-500 mr-3" />
+            <TrendingUp className="h-8 w-8 text-green-500 mr-3 lg:mr-3 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-gray-600">Активные</p>
               <p className="text-2xl font-bold text-gray-900">{stats.active_services}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
           <div className="flex items-center">
-            <Star className="h-8 w-8 text-yellow-500 mr-3" />
+            <Star className="h-8 w-8 text-yellow-500 mr-3 lg:mr-3 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-gray-600">Популярные</p>
               <p className="text-2xl font-bold text-gray-900">{stats.featured_services}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
           <div className="flex items-center">
-            <Eye className="h-8 w-8 text-blue-500 mr-3" />
+            <Eye className="h-8 w-8 text-blue-500 mr-3 lg:mr-3 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-gray-600">Просмотры</p>
               <p className="text-2xl font-bold text-gray-900">{stats.total_views.toLocaleString()}</p>
@@ -271,20 +271,70 @@ const Services = ({ showNotification }) => {
       </div>
 
       {/* Таблица услуг */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Поиск услуг..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              disabled={loading}
-            />
+      <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg overflow-hidden">
+  <div className="p-4 lg:p-6 border-b border-gray-200">
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <input
+        type="text"
+        placeholder="Поиск услуг..."
+        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        disabled={loading}
+      />
+    </div>
+  </div>
+
+  {/* На мобильных - карточки вместо таблицы */}
+  <div className="block lg:hidden">
+    {filteredServices.map(service => (
+      <div key={service.id} className="border-b border-gray-200 p-4 hover:bg-gray-50">
+        <div className="flex items-start space-x-3">
+          <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Sparkles className="h-5 w-5 text-purple-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-medium text-gray-900 truncate">{service.title}</h3>
+                <p className="text-xs text-gray-500">{service.duration}</p>
+                <p className="text-xs text-gray-600 mt-1">{service.price}</p>
+              </div>
+              <div className="flex items-center space-x-1 ml-2">
+                <button className="text-purple-600 hover:text-purple-900 p-1">
+                  <Eye className="h-4 w-4" />
+                </button>
+                <button 
+                  onClick={() => handleEditService(service)}
+                  className="text-blue-600 hover:text-blue-900 p-1"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button 
+                  onClick={() => handleDeleteService(service.id)}
+                  className="text-red-600 hover:text-red-900 p-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-2">
+              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                {serviceCategories.find(cat => cat.value === service.category)?.label || service.category}
+              </span>
+              <div className="flex items-center">
+                <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                <span className="ml-1 text-xs text-gray-600">
+                  {service.rating ? service.rating.toFixed(1) : '0.0'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    ))}
+  </div>
 
         {loading ? (
           <div className="p-8 text-center">
@@ -439,8 +489,8 @@ const Services = ({ showNotification }) => {
 
       {/* Modal для добавления/редактирования услуги */}
       {showAddService && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">
                 {editingService ? 'Редактировать услугу' : 'Добавить новую услугу'}
@@ -454,8 +504,8 @@ const Services = ({ showNotification }) => {
               </button>
             </div>
 
-            <form onSubmit={handleServiceSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleServiceSubmit} className="p-4 lg:p-6 space-y-4 lg:space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Название услуги *</label>
                   <input

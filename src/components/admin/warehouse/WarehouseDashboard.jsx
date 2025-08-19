@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Package,
   AlertTriangle,
@@ -8,7 +9,7 @@ import {
   Minus
 } from "lucide-react";
 
-// Компонент главной страницы склада
+// Компонент главной страницы склада с адаптивностью
 const WarehouseDashboard = ({ 
   loading, 
   stats, 
@@ -25,20 +26,20 @@ const WarehouseDashboard = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Статистика */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Всего товаров
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {stats.total_items}
                 </dd>
               </dl>
@@ -46,17 +47,17 @@ const WarehouseDashboard = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <AlertTriangle className="h-8 w-8 text-orange-600" />
+              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Низкие остатки
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {stats.low_stock_items}
                 </dd>
               </dl>
@@ -64,17 +65,17 @@ const WarehouseDashboard = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <XCircle className="h-8 w-8 text-red-600" />
+              <XCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Нет в наличии
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {stats.out_of_stock_items}
                 </dd>
               </dl>
@@ -82,17 +83,17 @@ const WarehouseDashboard = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
             </div>
-            <div className="ml-5 w-0 flex-1">
+            <div className="ml-3 sm:ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-xs sm:text-sm font-medium text-gray-500 truncate">
                   Общая стоимость
                 </dt>
-                <dd className="text-lg font-medium text-gray-900">
+                <dd className="text-base sm:text-lg font-medium text-gray-900">
                   {new Intl.NumberFormat('ru-RU', {
                     style: 'currency',
                     currency: 'KZT',
@@ -106,15 +107,15 @@ const WarehouseDashboard = ({
       </div>
 
       {/* Быстрые действия */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Быстрые действия</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Быстрые действия</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <button
             onClick={onOpenAddItem}
-            className="p-6 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors group"
+            className="p-4 sm:p-6 border-2 border-dashed border-purple-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors group"
           >
             <div className="text-center">
-              <Plus className="mx-auto h-12 w-12 text-purple-400 group-hover:text-purple-500" />
+              <Plus className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-purple-400 group-hover:text-purple-500" />
               <span className="mt-2 block text-sm font-medium text-gray-900">
                 Добавить товар
               </span>
@@ -126,10 +127,10 @@ const WarehouseDashboard = ({
 
           <button
             onClick={onOpenAddStock}
-            className="p-6 border-2 border-dashed border-green-300 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors group"
+            className="p-4 sm:p-6 border-2 border-dashed border-green-300 rounded-lg hover:border-green-400 hover:bg-green-50 transition-colors group"
           >
             <div className="text-center">
-              <TrendingUp className="mx-auto h-12 w-12 text-green-400 group-hover:text-green-500" />
+              <TrendingUp className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-green-400 group-hover:text-green-500" />
               <span className="mt-2 block text-sm font-medium text-gray-900">
                 Поступление товара
               </span>
@@ -141,10 +142,10 @@ const WarehouseDashboard = ({
 
           <button
             onClick={onOpenRemoveStock}
-            className="p-6 border-2 border-dashed border-orange-300 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-colors group"
+            className="p-4 sm:p-6 border-2 border-dashed border-orange-300 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-colors group sm:col-span-2 lg:col-span-1"
           >
             <div className="text-center">
-              <Minus className="mx-auto h-12 w-12 text-orange-400 group-hover:text-orange-500" />
+              <Minus className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-orange-400 group-hover:text-orange-500" />
               <span className="mt-2 block text-sm font-medium text-gray-900">
                 Списать со склада
               </span>
@@ -158,4 +159,5 @@ const WarehouseDashboard = ({
     </div>
   );
 };
+
 export default WarehouseDashboard;

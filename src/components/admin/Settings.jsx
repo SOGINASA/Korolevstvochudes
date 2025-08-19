@@ -1,10 +1,11 @@
 // components/admin/Settings.js
 import React, { useState, useEffect } from 'react';
-import { Save, Settings as SettingsIcon, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { Save, Settings as SettingsIcon, Users, MessageSquare, TrendingUp, ChevronDown } from 'lucide-react';
 import { useAdminSettings } from '../../hooks/useSettings';
 
 const Settings = ({ showNotification }) => {
   const [activeSettingsTab, setActiveSettingsTab] = useState('company');
+  const [showMobileSections, setShowMobileSections] = useState(false);
   const { settings, loadSettings, saveSettings, loading, error } = useAdminSettings();
   const [localSettings, setLocalSettings] = useState({});
 
@@ -35,6 +36,11 @@ const Settings = ({ showNotification }) => {
     }));
   };
 
+  const handleSectionChange = (sectionId) => {
+    setActiveSettingsTab(sectionId);
+    setShowMobileSections(false);
+  };
+
   const handleSaveSettings = async () => {
     try {
       await saveSettings(localSettings);
@@ -49,9 +55,9 @@ const Settings = ({ showNotification }) => {
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-900 mb-4">Информация о компании</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
             Название компании
           </label>
           <input
@@ -64,7 +70,7 @@ const Settings = ({ showNotification }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
             Email компании
           </label>
           <input
@@ -77,7 +83,7 @@ const Settings = ({ showNotification }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
             Основной телефон
           </label>
           <input
@@ -90,7 +96,7 @@ const Settings = ({ showNotification }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
             WhatsApp номер
           </label>
           <input
@@ -104,7 +110,7 @@ const Settings = ({ showNotification }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
           Адрес компании
         </label>
         <textarea
@@ -117,7 +123,7 @@ const Settings = ({ showNotification }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
           Описание компании
         </label>
         <textarea
@@ -196,7 +202,7 @@ const Settings = ({ showNotification }) => {
       <h3 className="text-xl font-semibold text-gray-900 mb-4">Уведомления</h3>
       
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 lg:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
           <div>
             <h4 className="font-medium text-gray-900">Email уведомления о новых заявках</h4>
             <p className="text-sm text-gray-600">Получать письма при поступлении новых заявок</p>
@@ -213,7 +219,7 @@ const Settings = ({ showNotification }) => {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 lg:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
             <div>
               <h4 className="font-medium text-gray-900">Telegram уведомления</h4>
               <p className="text-sm text-gray-600">Дублировать уведомления в Telegram</p>
@@ -249,7 +255,7 @@ const Settings = ({ showNotification }) => {
           )}
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 lg:p-4 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
           <div>
             <h4 className="font-medium text-gray-900">SMS уведомления</h4>
             <p className="text-sm text-gray-600">Отправлять SMS о статусе заявок</p>
@@ -409,7 +415,7 @@ const Settings = ({ showNotification }) => {
             </span>
           </div>
           <p className="text-sm text-gray-600 mb-3">SMTP настройки для отправки писем</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text"
               placeholder="SMTP сервер"
@@ -452,7 +458,7 @@ const Settings = ({ showNotification }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
         <h2 className="text-2xl font-bold text-gray-900">Настройки системы</h2>
         <button 
           onClick={handleSaveSettings}
@@ -460,7 +466,7 @@ const Settings = ({ showNotification }) => {
           className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
-          <span>{loading ? 'Сохранение...' : 'Сохранить изменения'}</span>
+          <span className="text-sm lg:text-base">{loading ? 'Сохранение...' : 'Сохранить изменения'}</span>
         </button>
       </div>
 
@@ -470,12 +476,49 @@ const Settings = ({ showNotification }) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
         {/* Sidebar с разделами */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Разделы настроек</h3>
-            <nav className="space-y-2">
+        <div className="xl:col-span-1">
+  <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
+    <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-4">Разделы настроек</h3>
+    
+    {/* Мобильное меню-селект */}
+    <div className="block xl:hidden mb-4">
+      <button
+        onClick={() => setShowMobileSections(!showMobileSections)}
+        className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg bg-white text-left"
+      >
+        <span className="flex items-center space-x-2">
+          {settingsSections.find(s => s.id === activeSettingsTab)?.icon && 
+            React.createElement(settingsSections.find(s => s.id === activeSettingsTab).icon, { className: "h-4 w-4" })
+          }
+          <span className="text-sm font-medium">
+            {settingsSections.find(s => s.id === activeSettingsTab)?.label}
+          </span>
+        </span>
+        <ChevronDown className={`h-4 w-4 transform transition-transform ${showMobileSections ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {showMobileSections && (
+        <div className="mt-2 border border-gray-200 rounded-lg bg-white shadow-lg">
+          {settingsSections.map(section => (
+            <button
+              key={section.id}
+              onClick={() => handleSectionChange(section.id)}
+              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg ${
+                activeSettingsTab === section.id ? 'bg-purple-50 text-purple-700' : 'text-gray-700'
+              }`}
+            >
+              <section.icon className="h-4 w-4" />
+              <span className="text-sm">{section.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+
+              {/* Десктопное меню */}
+              <nav className="hidden xl:block space-y-2">
               {settingsSections.map(section => (
                 <button
                   key={section.id}
@@ -495,8 +538,8 @@ const Settings = ({ showNotification }) => {
         </div>
 
         {/* Основной контент настроек */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="xl:col-span-2">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
             {renderActiveSection()}
           </div>
         </div>

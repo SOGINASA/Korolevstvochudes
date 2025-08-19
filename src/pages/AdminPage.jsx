@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
+import { Menu, X } from 'lucide-react';
 
 // Импорт компонентов
 import AdminHeader from '../components/admin/AdminHeader';
@@ -29,6 +30,7 @@ import NotificationModal from '../components/admin/modals/NotificationModal';
 const AdminPage = () => {
   const { admin, isAuthenticated, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Состояния данных
   const [stats, setStats] = useState({
@@ -146,6 +148,23 @@ const handleDeleteBooking = async (bookingId) => {
     console.error('Error deleting booking:', error);
   }
 };
+
+const handleTabChange = (tab) => {
+  setActiveTab(tab);
+  setIsMobileMenuOpen(false); // Закрываем меню при выборе вкладки
+};
+
+// Добавить обработчик для закрытия меню при клике вне его
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (isMobileMenuOpen && !event.target.closest('.mobile-sidebar')) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, [isMobileMenuOpen]);
 
 // Функция массового удаления заявок
 const handleBulkDeleteBookings = async (bookingIds) => {
@@ -685,7 +704,9 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
   onLoadReviews: loadReviews,
   onLoadBookings: loadBookings,
   showNotification,
-  setActiveTab
+  setActiveTab,
+
+  setActiveTab: handleTabChange
 };
   
 
@@ -721,25 +742,53 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      
-      <div className="flex">
-        <AdminSidebar 
-          admin={admin}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
+      {/* ДОБАВЛЯЕМ мобильную шапку */}
+      <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-gray-900">Админ-панель</h1>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
+      </div>
+
+      <div className="flex relative">
+        {/* ДОБАВЛЯЕМ overlay для мобильных устройств */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" />
+        )}
+
+        {/* ИЗМЕНЯЕМ сайдбар - делаем его адаптивным */}
+        <div className={`
+          mobile-sidebar fixed lg:static inset-y-0 left-0 z-50 w-64 
+          transform transition-transform duration-300 ease-in-out
+          lg:transform-none lg:transition-none
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <AdminSidebar 
+            admin={admin}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            isMobile={true}
+          />
+        </div>
         
-        <main className="flex-1 p-8">
+        {/* ИЗМЕНЯЕМ main - делаем адаптивным */}
+        <main className="flex-1 p-4 lg:p-8 w-full lg:w-auto min-w-0">
           {renderContent()}
         </main>
       </div>
 
-      {/* Модальные окна */}
+      {/* Модальные окна остаются без изменений */}
       <ConfirmModal
         isOpen={!!confirmDeleteId}
         onClose={() => setConfirmDeleteId(null)}
         onConfirm={() => {
-          // Логика подтверждения будет обрабатываться в соответствующих компонентах
           setConfirmDeleteId(null);
         }}
         message="Вы уверены, что хотите удалить этот элемент?"
@@ -754,5 +803,6 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
     </div>
   );
 };
+
 
 export default AdminPage;

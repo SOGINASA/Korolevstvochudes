@@ -291,38 +291,38 @@ const Reviews = ({
   return (
     <div className="space-y-6">
       {/* Заголовок и действия */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Управление отзывами</h2>
-          <p className="text-gray-600 mt-1">
-            Всего: {reviews.length}, Показано: {filteredReviews.length}
-            {selectedReviews.length > 0 && ` | Выбрано: ${selectedReviews.length}`}
-          </p>
-        </div>
-        <div className="flex space-x-3">
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 ${
-              showFilters ? 'bg-blue-50 border-blue-300' : 'border-gray-300'
-            }`}
-          >
-            <Filter className="h-4 w-4" />
-            <span>Фильтры</span>
-          </button>
-          <button 
-            onClick={() => setShowAddReview(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Добавить отзыв</span>
-          </button>
-        </div>
-      </div>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
+  <div>
+    <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление отзывами</h2>
+    <p className="text-gray-600 mt-1 text-sm lg:text-base">
+      Всего: {reviews.length}, Показано: {filteredReviews.length}
+      {selectedReviews.length > 0 && ` | Выбрано: ${selectedReviews.length}`}
+    </p>
+  </div>
+  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <button 
+      onClick={() => setShowFilters(!showFilters)}
+      className={`flex items-center justify-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 ${
+        showFilters ? 'bg-blue-50 border-blue-300' : 'border-gray-300'
+      }`}
+    >
+      <Filter className="h-4 w-4" />
+      <span>Фильтры</span>
+    </button>
+    <button 
+      onClick={() => setShowAddReview(true)}
+      className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+    >
+      <Plus className="h-4 w-4" />
+      <span>Добавить отзыв</span>
+    </button>
+  </div>
+</div>
 
       {/* Панель фильтров */}
       {showFilters && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6 border border-gray-200">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Поиск</label>
               <div className="relative">
@@ -486,85 +486,85 @@ const Reviews = ({
             </div>
 
             {filteredReviews.map(review => (
-              <div key={review.id} className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => handleSelectReview(review.id)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      {selectedReviews.includes(review.id) ? (
-                        <CheckSquare className="h-5 w-5 text-purple-600" />
-                      ) : (
-                        <Square className="h-5 w-5" />
-                      )}
-                    </button>
-                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{review.name}</h3>
-                      <p className="text-sm text-gray-600">{review.service_type}</p>
-                      {review.email && (
-                        <p className="text-xs text-gray-500">{review.email}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                        />
-                      ))}
-                    </div>
-                    {getStatusBadge(review)}
-                  </div>
-                </div>
-                
-                <p className="text-gray-700 mb-4">{review.text}</p>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
-                    {formatDate(review.created_at || review.date)}
-                  </span>
-                  <div className="flex space-x-2">
-                    {!review.approved && (
-                      <button 
-                        onClick={() => onApproveReview(review.id)}
-                        className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-3 py-1 text-sm font-medium hover:bg-green-50 rounded"
-                      >
-                        <Eye className="h-4 w-4" />
-                        <span>Одобрить</span>
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => handleEditReview(review)}
-                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-3 py-1 text-sm font-medium hover:bg-blue-50 rounded"
-                    >
-                      <Edit className="h-4 w-4" />
-                      <span>Редактировать</span>
-                    </button>
-                    <button 
-                      onClick={() => confirmDelete(review.id)}
-                      className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-3 py-1 text-sm font-medium hover:bg-red-50 rounded"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Удалить</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+  <div key={review.id} className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6 border border-gray-200">
+    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4 space-y-3 lg:space-y-0">
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={() => handleSelectReview(review.id)}
+          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+        >
+          {selectedReviews.includes(review.id) ? (
+            <CheckSquare className="h-5 w-5 text-purple-600" />
+          ) : (
+            <Square className="h-5 w-5" />
+          )}
+        </button>
+        <div className="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <User className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-gray-900 text-sm lg:text-base truncate">{review.name}</h3>
+          <p className="text-xs lg:text-sm text-gray-600 truncate">{review.service_type}</p>
+          {review.email && (
+            <p className="text-xs text-gray-500 truncate">{review.email}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-3 space-y-2 lg:space-y-0">
+        <div className="flex items-center">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+            />
+          ))}
+        </div>
+        {getStatusBadge(review)}
+      </div>
+    </div>
+    
+    <p className="text-gray-700 mb-4 text-sm lg:text-base">{review.text}</p>
+    
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
+      <span className="text-xs lg:text-sm text-gray-500">
+        {formatDate(review.created_at || review.date)}
+      </span>
+      <div className="flex flex-wrap gap-2">
+        {!review.approved && (
+          <button 
+            onClick={() => onApproveReview(review.id)}
+            className="flex items-center space-x-1 text-green-600 hover:text-green-700 px-2 lg:px-3 py-1 text-xs lg:text-sm font-medium hover:bg-green-50 rounded"
+          >
+            <Eye className="h-3 w-3 lg:h-4 lg:w-4" />
+            <span>Одобрить</span>
+          </button>
+        )}
+        <button 
+          onClick={() => handleEditReview(review)}
+          className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 px-2 lg:px-3 py-1 text-xs lg:text-sm font-medium hover:bg-blue-50 rounded"
+        >
+          <Edit className="h-3 w-3 lg:h-4 lg:w-4" />
+          <span>Редактировать</span>
+        </button>
+        <button 
+          onClick={() => confirmDelete(review.id)}
+          className="flex items-center space-x-1 text-red-600 hover:text-red-700 px-2 lg:px-3 py-1 text-xs lg:text-sm font-medium hover:bg-red-50 rounded"
+        >
+          <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
+          <span>Удалить</span>
+        </button>
+      </div>
+    </div>
+  </div>
+))}
           </>
         )}
       </div>
 
       {/* Modal для добавления/редактирования отзыва */}
       {(showAddReview || showEditReview) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">
                 {editingReview ? 'Редактировать отзыв' : 'Добавить отзыв'}

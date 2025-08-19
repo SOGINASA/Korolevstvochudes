@@ -139,13 +139,13 @@ const WarehouseStock = ({
 
   const getStockStatusIcon = (item) => {
     if (item.current_quantity === 0) {
-      return <XCircle className="h-5 w-5 text-red-500" />;
+      return <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />;
     } else if (item.is_low_stock) {
-      return <AlertTriangle className="h-5 w-5 text-orange-500" />;
+      return <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />;
     } else if (item.is_overstocked) {
-      return <TrendingUp className="h-5 w-5 text-blue-500" />;
+      return <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />;
     } else {
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
+      return <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />;
     }
   };
 
@@ -183,11 +183,11 @@ const WarehouseStock = ({
 
   const getSortIcon = (column) => {
     if (filters.sort_by !== column) {
-      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+      return <ArrowUpDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />;
     }
     return filters.sort_order === 'asc' 
-      ? <ArrowUp className="h-4 w-4 text-purple-600" />
-      : <ArrowDown className="h-4 w-4 text-purple-600" />;
+      ? <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />
+      : <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600" />;
   };
 
   const resetFilters = () => {
@@ -210,19 +210,19 @@ const WarehouseStock = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Заголовок и статистика */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center space-x-2">
-            <Archive className="h-6 w-6 text-purple-600" />
-            <span>Остатки на складе</span>
+      <div className="flex flex-col sm:flex-row sm:items-start lg:items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 flex items-center space-x-2">
+            <Archive className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600 flex-shrink-0" />
+            <span className="truncate">Остатки на складе</span>
           </h2>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2">
-            <div className="text-sm text-gray-600">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-x-4 sm:gap-x-6 gap-y-1 sm:gap-y-2 mt-2">
+            <div className="text-xs sm:text-sm text-gray-600">
               Всего товаров: <span className="font-semibold">{summary.total_items}</span>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-xs sm:text-sm text-gray-600">
               Общая стоимость: <span className="font-semibold">{formatCurrency(summary.total_value)}</span>
             </div>
           </div>
@@ -230,37 +230,37 @@ const WarehouseStock = ({
         
         <button
           onClick={handleExportStock}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 self-start lg:self-auto"
+          className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1 sm:space-x-2 self-start sm:self-auto flex-shrink-0 text-xs sm:text-sm"
         >
           <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Экспорт</span>
+          <span>Экспорт</span>
         </button>
       </div>
 
       {/* Фильтры */}
-      <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-        <div className="grid grid-cols-1 gap-4">
+      <div className="bg-white rounded-lg shadow p-3 sm:p-4 lg:p-6">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4">
           {/* Первый ряд: Поиск */}
           <div className="w-full">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Поиск товаров..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="pl-8 sm:pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
             </div>
           </div>
           
           {/* Второй ряд: Фильтры */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {/* Категория */}
             <select
               value={filters.category_id}
               onChange={(e) => setFilters(prev => ({ ...prev, category_id: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">Все категории</option>
               {categories.map((category) => (
@@ -274,7 +274,7 @@ const WarehouseStock = ({
             <select
               value={filters.stock_filter}
               onChange={(e) => setFilters(prev => ({ ...prev, stock_filter: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               {Object.entries(constants.stock_filters || {}).map(([key, value]) => (
                 <option key={key} value={key}>{value}</option>
@@ -284,7 +284,7 @@ const WarehouseStock = ({
             {/* Кнопка сброса */}
             <button
               onClick={resetFilters}
-              className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
+              className="w-full sm:col-span-2 lg:col-span-1 bg-gray-100 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-xs sm:text-sm"
             >
               Сбросить
             </button>
@@ -293,13 +293,107 @@ const WarehouseStock = ({
       </div>
 
       {/* Таблица остатков */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        {/* Мобильная версия - карточки */}
+        <div className="block lg:hidden">
+          {loadingStock ? (
+            <div className="px-4 py-12 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+              <p className="mt-2 text-gray-500 text-xs sm:text-sm">Загрузка остатков...</p>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <Archive className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-gray-500 text-xs sm:text-sm">Товары не найдены</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {items.map((item) => (
+                <div key={item.id} className="p-4 space-y-3">
+                  {/* Заголовок товара */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">
+                        {item.name}
+                      </h3>
+                      {(item.sku || item.barcode) && (
+                        <p className="text-xs text-gray-500 truncate mt-1">
+                          {item.sku && `Артикул: ${item.sku}`}
+                          {item.barcode && ` • ${item.barcode}`}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-1 ml-2">
+                      <button className="text-purple-600 hover:text-purple-900 p-1">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button className="text-green-600 hover:text-green-900 p-1">
+                        <TrendingUp className="h-4 w-4" />
+                      </button>
+                      <button className="text-orange-600 hover:text-orange-900 p-1">
+                        <TrendingDown className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Категория */}
+                  {item.category?.name && (
+                    <div className="text-xs text-gray-600">
+                      <span className="font-medium">Категория:</span> {item.category.name}
+                    </div>
+                  )}
+                  
+                  {/* Остаток и статус */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">
+                        {item.current_quantity} {item.unit}
+                      </div>
+                      {item.reserved_quantity > 0 && (
+                        <div className="text-xs text-orange-600">
+                          Зарезервировано: {item.reserved_quantity}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500">
+                        Доступно: {item.available_quantity} {item.unit}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {getStockStatusIcon(item)}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStockStatusColor(item)}`}>
+                        {getStockStatusText(item)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Нормы */}
+                  <div className="text-xs text-gray-500 flex space-x-4">
+                    <span>Мин: {item.min_quantity}</span>
+                    <span>Макс: {item.max_quantity}</span>
+                  </div>
+                  
+                  {/* Стоимость */}
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">За единицу:</span>
+                    <span className="font-medium text-gray-900">{formatCurrency(item.cost_price)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">Общая стоимость:</span>
+                    <span className="font-medium text-gray-900">{formatCurrency(item.total_value)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Десктопная версия - таблица */}
+        <div className="hidden lg:block overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th 
-                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('name')}
                 >
                   <div className="flex items-center space-x-1">
@@ -307,11 +401,11 @@ const WarehouseStock = ({
                     {getSortIcon('name')}
                   </div>
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Категория
                 </th>
                 <th 
-                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('quantity')}
                 >
                   <div className="flex items-center space-x-1">
@@ -319,14 +413,14 @@ const WarehouseStock = ({
                     {getSortIcon('quantity')}
                   </div>
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Нормы
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Статус
                 </th>
                 <th 
-                  className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-3 sm:px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('value')}
                 >
                   <div className="flex items-center space-x-1">
@@ -334,7 +428,7 @@ const WarehouseStock = ({
                     {getSortIcon('value')}
                   </div>
                 </th>
-                <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Действия
                 </th>
               </tr>
@@ -342,47 +436,47 @@ const WarehouseStock = ({
             <tbody className="bg-white divide-y divide-gray-200">
               {loadingStock ? (
                 <tr>
-                  <td colSpan="7" className="px-4 sm:px-6 py-12 text-center">
+                  <td colSpan="7" className="px-3 sm:px-4 lg:px-6 py-12 text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
-                    <p className="mt-2 text-gray-500">Загрузка остатков...</p>
+                    <p className="mt-2 text-gray-500 text-xs sm:text-sm">Загрузка остатков...</p>
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-4 sm:px-6 py-12 text-center">
+                  <td colSpan="7" className="px-3 sm:px-4 lg:px-6 py-12 text-center">
                     <Archive className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-500">Товары не найдены</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">Товары не найдены</p>
                   </td>
                 </tr>
               ) : (
                 items.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900 break-words">
+                        <div className="text-xs sm:text-sm font-medium text-gray-900 break-words max-w-xs">
                           {item.name}
                         </div>
-                        <div className="text-sm text-gray-500 break-words">
+                        <div className="text-xs text-gray-500 break-words max-w-xs">
                           {item.sku && `Артикул: ${item.sku}`}
                           {item.barcode && ` • ${item.barcode}`}
                         </div>
                       </div>
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4">
-                      <div className="text-sm text-gray-900">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
+                      <div className="text-xs sm:text-sm text-gray-900 max-w-xs truncate">
                         {item.category?.name || 'Без категории'}
                       </div>
                       {item.category_path && (
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs text-gray-500 max-w-xs truncate">
                           {item.category_path}
                         </div>
                       )}
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">
                           {item.current_quantity} {item.unit}
                         </div>
                         {item.reserved_quantity > 0 && (
@@ -396,14 +490,14 @@ const WarehouseStock = ({
                       </div>
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4">
-                      <div className="text-sm text-gray-500">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
+                      <div className="text-xs text-gray-500">
                         <div>Мин: {item.min_quantity}</div>
                         <div>Макс: {item.max_quantity}</div>
                       </div>
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
                       <div className="flex items-center space-x-2">
                         {getStockStatusIcon(item)}
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStockStatusColor(item)}`}>
@@ -412,33 +506,33 @@ const WarehouseStock = ({
                       </div>
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-xs sm:text-sm font-medium text-gray-900">
                           {formatCurrency(item.cost_price)}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs text-gray-500">
                           Общая: {formatCurrency(item.total_value)}
                         </div>
                       </div>
                     </td>
                     
-                    <td className="px-4 sm:px-6 py-4 text-right text-sm font-medium">
-                      <div className="flex items-center justify-end space-x-2">
+                    <td className="px-3 sm:px-4 lg:px-6 py-4 text-right text-xs sm:text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                         <button
-                          className="text-purple-600 hover:text-purple-900"
+                          className="text-purple-600 hover:text-purple-900 p-1"
                           title="Просмотр"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          className="text-green-600 hover:text-green-900"
+                          className="text-green-600 hover:text-green-900 p-1"
                           title="Поступление"
                         >
                           <TrendingUp className="h-4 w-4" />
                         </button>
                         <button
-                          className="text-orange-600 hover:text-orange-900"
+                          className="text-orange-600 hover:text-orange-900 p-1"
                           title="Списание"
                         >
                           <TrendingDown className="h-4 w-4" />
@@ -454,26 +548,26 @@ const WarehouseStock = ({
 
         {/* Пагинация */}
         {pagination.pages > 1 && (
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div className="flex-1 flex justify-between sm:hidden">
+          <div className="bg-white px-3 sm:px-4 lg:px-6 py-3 flex items-center justify-between border-t border-gray-200">
+            <div className="flex-1 flex justify-between lg:hidden">
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                 disabled={!pagination.has_prev}
-                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Предыдущая
               </button>
               <button
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                 disabled={!pagination.has_next}
-                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="ml-3 relative inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Следующая
               </button>
             </div>
-            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div className="hidden lg:flex-1 lg:flex lg:items-center lg:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-xs sm:text-sm text-gray-700">
                   Показано <span className="font-medium">{((pagination.page - 1) * pagination.per_page) + 1}</span> до{' '}
                   <span className="font-medium">{Math.min(pagination.page * pagination.per_page, pagination.total)}</span> из{' '}
                   <span className="font-medium">{pagination.total}</span> результатов
@@ -484,7 +578,7 @@ const WarehouseStock = ({
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                     disabled={!pagination.has_prev}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Назад
                   </button>
@@ -506,7 +600,7 @@ const WarehouseStock = ({
                       <button
                         key={pageNum}
                         onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        className={`relative inline-flex items-center px-3 sm:px-4 py-2 border text-xs sm:text-sm font-medium ${
                           pagination.page === pageNum
                             ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
                             : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
@@ -520,7 +614,7 @@ const WarehouseStock = ({
                   <button
                     onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                     disabled={!pagination.has_next}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Вперед
                   </button>

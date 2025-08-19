@@ -1,10 +1,10 @@
-// components/admin/AdminsManagement.js
+// components/admin/AdminsManagement.js - Полная адаптивная версия
 import React, { useState } from 'react';
 import { Plus, User, Edit, Trash2, Save, X, Shield } from 'lucide-react';
 import { formatDate, adminRoles, validateEmail, validatePassword } from '../../utils/helpers';
 import { useAuth } from '../../contexts/AuthContext';
 import { apiService } from '../../services/api';
-import Applications from './Applications';; // ДОБАВЛЕН ИМПОРТ
+import Applications from './Applications';
 
 const AdminsManagement = ({ 
   admin, 
@@ -26,7 +26,7 @@ const AdminsManagement = ({
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-  const [activeTab, setActiveTab] = useState('admins'); // ДОБАВЛЕНО для переключения табов
+  const [activeTab, setActiveTab] = useState('admins');
   
   const [adminForm, setAdminForm] = useState({
     name: '',
@@ -86,7 +86,6 @@ const AdminsManagement = ({
 
     try {
       if (editingAdmin) {
-        // Обновление существующего админа
         const result = await apiService.updateAdmin(editingAdmin.id, {
           name: adminForm.name,
           email: adminForm.email,
@@ -101,7 +100,6 @@ const AdminsManagement = ({
           throw new Error(result.error);
         }
       } else {
-        // Создание нового админа
         const result = await register(adminForm);
         
         if (result.success) {
@@ -178,7 +176,6 @@ const AdminsManagement = ({
     return false;
   };
 
-  // ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ ЗАЯВОК - ДОБАВЛЕНА ЗДЕСЬ
   const onUpdateBooking = async (bookingId, updateData) => {
     try {
       const response = await fetch(`/api/bookings/${bookingId}`, {
@@ -201,12 +198,12 @@ const AdminsManagement = ({
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* ТАБЫ ДЛЯ ПЕРЕКЛЮЧЕНИЯ МЕЖДУ АДМИНАМИ И ЗАЯВКАМИ */}
-      <div className="flex space-x-4 border-b border-gray-200">
+      <div className="flex space-x-2 lg:space-x-4 border-b border-gray-200 overflow-x-auto">
         <button
           onClick={() => setActiveTab('admins')}
-          className={`px-4 py-2 font-medium ${
+          className={`px-3 lg:px-4 py-2 font-medium text-sm lg:text-base whitespace-nowrap ${
             activeTab === 'admins' 
               ? 'text-purple-600 border-b-2 border-purple-600' 
               : 'text-gray-500 hover:text-gray-700'
@@ -216,7 +213,7 @@ const AdminsManagement = ({
         </button>
         <button
           onClick={() => setActiveTab('applications')}
-          className={`px-4 py-2 font-medium ${
+          className={`px-3 lg:px-4 py-2 font-medium text-sm lg:text-base whitespace-nowrap ${
             activeTab === 'applications' 
               ? 'text-purple-600 border-b-2 border-purple-600' 
               : 'text-gray-500 hover:text-gray-700'
@@ -230,12 +227,12 @@ const AdminsManagement = ({
       {activeTab === 'admins' ? (
         // ТАБ АДМИНИСТРАТОРОВ
         <>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Управление администраторами</h2>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление администраторами</h2>
             {(admin?.role === 'super_admin' || admin?.role === 'admin') && (
               <button 
                 onClick={() => setShowAddAdmin(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                className="flex items-center justify-center space-x-2 px-3 lg:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm lg:text-base w-full lg:w-auto"
               >
                 <Plus className="h-4 w-4" />
                 <span>Добавить администратора</span>
@@ -243,7 +240,72 @@ const AdminsManagement = ({
             )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* Мобильная версия - карточки */}
+          <div className="block lg:hidden space-y-4">
+            {admins.map(adminItem => (
+              <div key={adminItem.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                      <User className="h-5 w-5 text-purple-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {adminItem.name}
+                        {adminItem.id === admin.id && (
+                          <span className="ml-1 text-xs text-purple-600">(Вы)</span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 truncate">{adminItem.email}</div>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(adminItem.role)}`}>
+                    {getRoleLabel(adminItem.role)}
+                  </span>
+                </div>
+                
+                <div className="space-y-2 mb-3">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">Последний вход:</span>
+                    <span className="text-gray-900">
+                      {adminItem.last_login ? formatDate(adminItem.last_login) : 'Никогда'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-600">Статус:</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      adminItem.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {adminItem.active ? 'Активен' : 'Заблокирован'}
+                    </span>
+                  </div>
+                </div>
+
+                {canManageAdmin(adminItem) && (
+                  <div className="flex space-x-2 pt-3 border-t border-gray-100">
+                    <button 
+                      onClick={() => handleEditAdmin(adminItem)}
+                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 text-sm"
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span>Редактировать</span>
+                    </button>
+                    {adminItem.id !== admin.id && (
+                      <button 
+                        onClick={() => handleDeleteAdmin(adminItem.id)}
+                        className="flex items-center justify-center px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Десктопная версия - таблица */}
+          <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
@@ -331,7 +393,7 @@ const AdminsManagement = ({
           </div>
         </>
       ) : (
-        // ТАБ ЗАЯВОК - ЗДЕСЬ ИСПОЛЬЗУЕТСЯ КОМПОНЕНТ Applications
+        // ТАБ ЗАЯВОК
         <Applications
           recentApplications={recentApplications}
           loadingBookings={loadingBookings}
@@ -342,7 +404,7 @@ const AdminsManagement = ({
           onExportBookings={onExportBookings}
           onBookingsPageChange={onBookingsPageChange}
           onLoadBookings={onLoadBookings}
-          onUpdateBooking={onUpdateBooking} // ПЕРЕДАЕМ ФУНКЦИЮ СЮДА
+          onUpdateBooking={onUpdateBooking}
           showNotification={showNotification}
         />
       )}
@@ -350,20 +412,20 @@ const AdminsManagement = ({
       {/* Modal для добавления/редактирования администратора */}
       {showAddAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto mx-4">
+            <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
+              <h3 className="text-lg lg:text-xl font-bold text-gray-900">
                 {editingAdmin ? 'Редактировать администратора' : 'Добавить администратора'}
               </h3>
               <button
                 onClick={() => { setShowAddAdmin(false); resetAdminForm(); }}
                 className="text-gray-400 hover:text-gray-600"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5 lg:h-6 lg:w-6" />
               </button>
             </div>
 
-            <form onSubmit={handleAdminSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleAdminSubmit} className="p-4 lg:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Полное имя *
@@ -373,7 +435,7 @@ const AdminsManagement = ({
                   required
                   value={adminForm.name}
                   onChange={(e) => setAdminForm({...adminForm, name: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  className={`w-full px-3 lg:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base ${
                     formErrors.name ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Имя администратора"
@@ -392,7 +454,7 @@ const AdminsManagement = ({
                   required
                   value={adminForm.email}
                   onChange={(e) => setAdminForm({...adminForm, email: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  className={`w-full px-3 lg:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base ${
                     formErrors.email ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="admin@example.com"
@@ -410,10 +472,9 @@ const AdminsManagement = ({
                   required
                   value={adminForm.role}
                   onChange={(e) => setAdminForm({...adminForm, role: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base"
                 >
                   {adminRoles.map(role => {
-                    // Супер-админа может назначить только супер-админ
                     if (role.value === 'super_admin' && admin.role !== 'super_admin') {
                       return null;
                     }
@@ -435,7 +496,7 @@ const AdminsManagement = ({
                   required={!editingAdmin}
                   value={adminForm.password}
                   onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  className={`w-full px-3 lg:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base ${
                     formErrors.password ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Минимум 6 символов"
@@ -454,7 +515,7 @@ const AdminsManagement = ({
                   required={!editingAdmin && adminForm.password}
                   value={adminForm.confirmPassword}
                   onChange={(e) => setAdminForm({...adminForm, confirmPassword: e.target.value})}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                  className={`w-full px-3 lg:px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base ${
                     formErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Повторите пароль"
@@ -464,10 +525,10 @@ const AdminsManagement = ({
                 )}
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 text-sm lg:text-base"
                 >
                   <Save className="h-4 w-4" />
                   <span>{editingAdmin ? 'Обновить' : 'Создать'}</span>
@@ -475,7 +536,7 @@ const AdminsManagement = ({
                 <button
                   type="button"
                   onClick={() => { setShowAddAdmin(false); resetAdminForm(); }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="px-4 lg:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm lg:text-base"
                 >
                   Отмена
                 </button>
@@ -487,28 +548,28 @@ const AdminsManagement = ({
 
       {/* Модальное окно подтверждения удаления */}
       {confirmDeleteId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
-            <div className="p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg lg:rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div className="p-4 lg:p-6">
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3 lg:mr-4 flex-shrink-0">
                   <Shield className="h-5 w-5 text-red-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Подтверждение удаления</h3>
+                <h3 className="text-base lg:text-lg font-semibold text-gray-900">Подтверждение удаления</h3>
               </div>
-              <p className="text-gray-700 mb-6">
+              <p className="text-sm lg:text-base text-gray-700 mb-6">
                 Вы уверены, что хотите удалить этого администратора? Это действие нельзя отменить.
               </p>
-              <div className="flex space-x-3">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                 <button
                   onClick={confirmDeletion}
-                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700"
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 text-sm lg:text-base"
                 >
                   Удалить
                 </button>
                 <button
                   onClick={() => setConfirmDeleteId(null)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 text-sm lg:text-base"
                 >
                   Отмена
                 </button>

@@ -132,19 +132,19 @@ const TengeIcon = ({ className }) => (
 );
 
   return (
-    <div className="max-w-[90rem] mx-auto space-y-8">
+    <div className="max-w-[90rem] mx-auto space-y-4 lg:space-y-8 px-4 lg:px-0">
       {/* Шапка / заголовок в стиле Blog */}
-      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 rounded-3xl p-8 text-white overflow-hidden shadow-2xl">
+      <div className="relative bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-700 rounded-2xl lg:rounded-3xl p-4 lg:p-8 text-white overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-40 h-40 rounded-full bg-white/10"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-32 h-32 rounded-full bg-white/5"></div>
-        <div className="relative z-10 flex items-center justify-between">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Управление лидами</h1>
-            <p className="text-indigo-100">Поиск, фильтрация, просмотр и добавление лидов</p>
+            <h1 className="text-2xl lg:text-4xl font-bold mb-2">Управление лидами</h1>
+            <p className="text-indigo-100 text-sm lg:text-base">Поиск, фильтрация, просмотр и добавление лидов</p>
           </div>
           <button
             onClick={() => setShowAddForm(true)}
-            className="bg-white text-indigo-700 px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2"
+            className="bg-white text-indigo-700 px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 text-sm lg:text-base w-full lg:w-auto justify-center"
           >
             <Plus className="h-5 w-5" />
             <span>Добавить лида</span>
@@ -153,24 +153,24 @@ const TengeIcon = ({ className }) => (
       </div>
 
       {/* Статистика — увеличенные карточки как в Blog */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="relative overflow-hidden bg-white rounded-2xl p-8 text-gray-900 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 rounded-full bg-blue-500/10" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+      <div className="relative overflow-hidden bg-white rounded-xl lg:rounded-2xl p-4 lg:p-8 text-gray-900 shadow-md lg:shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 rounded-full bg-blue-500/10" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-50 rounded-xl">
                 <User className="h-8 w-8 text-blue-600" />
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold">{totalLeads}</div>
-                <div className="text-sm text-gray-500">всего</div>
+                <div className="text-xl lg:text-4xl font-bold">{totalLeads}</div>
+                <div className="text-xs lg:text-sm text-gray-500">всего</div>
               </div>
             </div>
-            <h3 className="text-lg font-semibold">Всего лидов</h3>
+            <h3 className="text-sm lg:text-lg font-semibold">Всего лидов</h3>
           </div>
         </div>
 
-        <div className="relative overflow-hidden bg-white rounded-2xl p-8 text-gray-900 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="relative overflow-hidden bg-white rounded-xl lg:rounded-2xl p-4 lg:p-8 text-gray-900 shadow-md lg:shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 rounded-full bg-red-500/10" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -178,11 +178,11 @@ const TengeIcon = ({ className }) => (
                 <TrendingUp className="h-8 w-8 text-red-600" />
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold text-red-600">{hotLeads}</div>
-                <div className="text-sm text-gray-500">горячих</div>
+                <div className="text-xl lg:text-4xl font-bold text-red-600">{hotLeads}</div>
+                <div className="text-xs lg:text-sm text-gray-500">горячих</div>
               </div>
             </div>
-            <h3 className="text-lg font-semibold">Горячие лиды</h3>
+            <h3 className="text-sm lg:text-lg font-semibold">Горячие лиды</h3>
           </div>
         </div>
 
@@ -193,16 +193,16 @@ const TengeIcon = ({ className }) => (
               <TengeIcon className="h-8 w-8 text-green-600" />
             </div>
             <div className="text-right">
-              <div className="text-4xl font-bold text-green-600">
+              <div className="text-xl lg:text-4xl font-bold text-green-600">
                 {new Intl.NumberFormat('ru-RU').format(totalRevenue)} ₸
               </div>
-              <div className="text-sm text-gray-500">общая выручка</div>
+              <div className="text-xs lg:text-sm text-gray-500">общая выручка</div>
             </div>
           </div>
-          <h3 className="text-lg font-semibold">Выручка</h3>
+          <h3 className="text-sm lg:text-lg font-semibold">Выручка</h3>
         </div>
 
-        <div className="relative overflow-hidden bg-white rounded-2xl p-8 text-gray-900 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="relative overflow-hidden bg-white rounded-xl lg:rounded-2xl p-4 lg:p-8 text-gray-900 shadow-md lg:shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 rounded-full bg-purple-500/10" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-4">
@@ -210,23 +210,23 @@ const TengeIcon = ({ className }) => (
                 <Package className="h-8 w-8 text-purple-600" />
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold text-purple-600">{Math.round(avgOrderValue).toLocaleString('ru-RU')} ₸</div>
-                <div className="text-sm text-gray-500">средний заказ</div>
+                <div className="text-xl lg:text-4xl font-bold text-purple-600">{Math.round(avgOrderValue).toLocaleString('ru-RU')} ₸</div>
+                <div className="text-xs lg:text-sm text-gray-500">средний заказ</div>
               </div>
             </div>
-            <h3 className="text-lg font-semibold">Средний чек</h3>
+            <h3 className="text-sm lg:text-lg font-semibold">Средний чек</h3>
           </div>
         </div>
       </div>
 
       {/* Фильтры и поиск — крупные поля как в Blog */}
-      <div className="bg-white rounded-3xl shadow-xl p-8">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-md lg:shadow-xl p-4 lg:p-8">
         <div className="flex items-center mb-6">
           <Filter className="h-6 w-6 text-indigo-600 mr-3" />
           <h3 className="text-xl font-bold text-gray-900">Фильтры и поиск</h3>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-3 lg:gap-6">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -234,7 +234,7 @@ const TengeIcon = ({ className }) => (
               placeholder="Поиск по имени, компании, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300"
+              className="w-full pl-10 lg:pl-12 pr-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base"
             />
           </div>
 
@@ -242,7 +242,7 @@ const TengeIcon = ({ className }) => (
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full pl-4 pr-10 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 appearance-none bg-white transition-all duration-300"
+              className="w-full pl-3 lg:pl-4 pr-8 lg:pr-10 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 appearance-none bg-white transition-all duration-300 text-sm lg:text-base"
             >
               <option value="all">Все статусы</option>
               <option value="hot">Горячие</option>
@@ -262,38 +262,99 @@ const TengeIcon = ({ className }) => (
       </div>
 
       {/* Список лидов — увеличенные ячейки таблицы как в Blog */}
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl lg:rounded-3xl shadow-md lg:shadow-xl border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
+          {/* Мобильная версия - карточки */}
+<div className="block lg:hidden">
+  {filteredLeads.map((lead) => (
+    <div key={lead.id} className="border-b border-gray-100 p-4 hover:bg-gray-50">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900 text-sm">{lead.name}</h3>
+          <p className="text-xs text-gray-600">{lead.company}</p>
+        </div>
+        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold border ${statusColors[lead.status]}`}>
+          {statusLabels[lead.status]}
+        </span>
+      </div>
+      
+      <div className="space-y-2 mb-3">
+        <div className="flex items-center gap-2 text-xs text-gray-700">
+          <Phone className="h-3 w-3 text-gray-500" />
+          {lead.phone}
+        </div>
+        <div className="flex items-center gap-2 text-xs text-gray-700">
+          <Mail className="h-3 w-3 text-gray-500" />
+          {lead.email}
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
+        <span>Заказов: {lead.totalOrders}</span>
+        <span>{lead.totalValue.toLocaleString('ru-RU')} ₸</span>
+        <span>{lead.source}</span>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-500">
+          {new Date(lead.lastContact).toLocaleDateString('ru-RU')}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSelectedLead(lead)}
+            className="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          <button className="p-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+  
+  {filteredLeads.length === 0 && (
+    <div className="text-center py-8">
+      <User className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+      <p className="text-base font-semibold text-gray-500 mb-2">Лиды не найдены</p>
+      <p className="text-sm text-gray-400">Попробуйте изменить фильтры</p>
+    </div>
+  )}
+</div>
+
+{/* Десктопная версия - таблица */}
+<div className="hidden lg:block"></div>
           <table className="w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <th className="px-8 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Лид</th>
-                <th className="px-8 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Контакты</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Статус</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Источник</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Заказы</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Выручка</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Последний контакт</th>
-                <th className="px-8 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">Действия</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Лид</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Контакты</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Статус</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Источник</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Заказы</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Выручка</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Последний контакт</th>
+                <th className="px-4 lg:px-8 py-3 lg:py-4 text-left text-xs lg:text-sm font-bold text-gray-700 uppercase tracking-wider">Действия</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
               {filteredLeads.map((lead) => (
                 <tr key={lead.id} className="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
-                  <td className="px-8 py-6">
+                  <td className="px-4 lg:px-8 py-4 lg:py-6">
                     <div>
-                      <div className="text-base font-semibold text-gray-900">{lead.name}</div>
-                      <div className="text-sm text-gray-600">{lead.company}</div>
+                      <div className="text-sm lg:text-base font-semibold text-gray-900">{lead.name}</div>
+                      <div className="text-xs lg:text-sm text-gray-600">{lead.company}</div>
                     </div>
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 lg:px-8 py-4 lg:py-6">
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Phone className="h-5 w-5 text-gray-500" />
+                      <div className="text-sm lg:text-base font-semibold text-gray-900">
+                        <Phone className="text-xs lg:text-sm text-gray-600" />
                         {lead.phone}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Mail className="h-5 w-5 text-gray-500" />
+                      <div className="text-sm lg:text-base font-semibold text-gray-900">
+                        <Mail className="text-xs lg:text-sm text-gray-600" />
                         {lead.email}
                       </div>
                     </div>
@@ -327,7 +388,7 @@ const TengeIcon = ({ className }) => (
                   <td className="px-8 py-6 text-center text-sm text-gray-700">
                     {new Date(lead.lastContact).toLocaleDateString('ru-RU')}
                   </td>
-                  <td className="px-8 py-6">
+                  <td className="px-4 lg:px-8 py-4 lg:py-6">
                     <div className="flex items-center justify-center gap-3">
                       <button
                         onClick={() => setSelectedLead(lead)}
@@ -369,8 +430,8 @@ const TengeIcon = ({ className }) => (
       {/* Модальное окно добавления лида — крупный размер как в Blog */}
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 text-white">
+          <div className="bg-white rounded-2xl lg:rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden mx-4">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-4 lg:p-8 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2">Добавить нового лида</h2>
@@ -387,10 +448,10 @@ const TengeIcon = ({ className }) => (
             </div>
 
             <div className="overflow-y-auto max-h-[calc(90vh-140px)]">
-              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-4 lg:p-8 space-y-4 lg:space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Имя *</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Имя *</label>
                     <input
                       type="text"
                       value={newLead.name}
@@ -401,7 +462,7 @@ const TengeIcon = ({ className }) => (
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Компания</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Компания</label>
                     <input
                       type="text"
                       value={newLead.company}
@@ -414,7 +475,7 @@ const TengeIcon = ({ className }) => (
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Телефон *</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Телефон *</label>
                     <input
                       type="tel"
                       value={newLead.phone}
@@ -425,7 +486,7 @@ const TengeIcon = ({ className }) => (
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Email *</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Email *</label>
                     <input
                       type="email"
                       value={newLead.email}
@@ -438,7 +499,7 @@ const TengeIcon = ({ className }) => (
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Статус</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Статус</label>
                     <select
                       value={newLead.status}
                       onChange={(e) => setNewLead({...newLead, status: e.target.value})}
@@ -451,7 +512,7 @@ const TengeIcon = ({ className }) => (
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Источник</label>
+                    <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Источник</label>
                     <input
                       type="text"
                       value={newLead.source}
@@ -463,7 +524,7 @@ const TengeIcon = ({ className }) => (
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Примечания</label>
+                  <label className="w-full px-3 lg:px-4 py-3 lg:py-4 border-2 border-gray-200 rounded-xl lg:rounded-2xl focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 text-sm lg:text-base">Примечания</label>
                   <textarea
                     value={newLead.notes}
                     onChange={(e) => setNewLead({...newLead, notes: e.target.value})}
@@ -474,7 +535,7 @@ const TengeIcon = ({ className }) => (
                 </div>
               </div>
 
-              <div className="p-8 border-t border-gray-200 flex gap-4 justify-end">
+              <div className="p-4 lg:p-8 border-t border-gray-200 flex flex-col sm:flex-row gap-3 lg:gap-4 justify-end">
                 <button
                   onClick={() => setShowAddForm(false)}
                   className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold"
@@ -496,7 +557,7 @@ const TengeIcon = ({ className }) => (
       {/* Модальное окно просмотра лида — крупный размер как в Blog */}
       {selectedLead && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-2xl lg:rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden mx-4">
             <div className="p-8 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
               <div className="flex items-center justify-between">
                 <div>
@@ -510,51 +571,51 @@ const TengeIcon = ({ className }) => (
             </div>
 
             <div className="p-8 space-y-8 overflow-y-auto max-h-[calc(90vh-160px)]">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-5">
-                  <h3 className="text-lg font-semibold text-gray-900">Контактная информация</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-900">{selectedLead.phone}</span>
+              <div className="grid grid-cols-1 gap-4 lg:gap-8">
+                <div className="space-y-3 lg:space-y-5">
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900">Контактная информация</h3>
+                  <div className="space-y-2 lg:space-y-4">
+                    <div className="flex items-center gap-2 lg:gap-3">
+                      <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                      <span className="text-sm lg:text-base text-gray-900">{selectedLead.phone}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-900">{selectedLead.email}</span>
+                    <div className="flex items-center gap-2 lg:gap-3">
+                      <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                      <span className="text-sm lg:text-base text-gray-900">{selectedLead.email}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-900">
+                    <div className="flex items-center gap-2 lg:gap-3">
+                      <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-gray-400" />
+                      <span className="text-sm lg:text-base text-gray-900">
                         Последний контакт: {new Date(selectedLead.lastContact).toLocaleDateString('ru-RU')}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-5">
-                  <h3 className="text-lg font-semibold text-gray-900">Статистика заказов</h3>
-                  <div className="space-y-3">
+                <div className="space-y-3 lg:space-y-5 mt-4 lg:mt-0">
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900">Статистика заказов</h3>
+                  <div className="space-y-2 lg:space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm lg:text-base text-gray-600">Всего заказов:</span>
+                    <span className="text-sm lg:text-base font-semibold text-gray-900">{selectedLead.totalOrders}</span>
+                  </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Всего заказов:</span>
-                      <span className="font-semibold text-gray-900">{selectedLead.totalOrders}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Общая сумма:</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-sm lg:text-base text-gray-600">Общая сумма:</span>
+                      <span className="text-sm lg:text-base font-semibold text-gray-900">
                         {selectedLead.totalValue.toLocaleString('ru-RU')} ₸
                       </span>
                     </div>
                     {selectedLead.lastOrder && (
                       <>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Последний заказ:</span>
-                          <span className="text-gray-900">
+                          <span className="text-sm lg:text-base text-gray-600">Последний заказ:</span>
+                          <span className="text-sm lg:text-base font-semibold text-gray-900">
                             {new Date(selectedLead.lastOrder).toLocaleDateString('ru-RU')}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Сумма последнего:</span>
-                          <span className="font-semibold text-gray-900">
+                          <span className="text-sm lg:text-base text-gray-600">Сумма последнего:</span>
+                          <span className="text-sm lg:text-base font-semibold text-gray-900">
                             {selectedLead.lastOrderValue.toLocaleString('ru-RU')} ₸
                           </span>
                         </div>
@@ -565,8 +626,8 @@ const TengeIcon = ({ className }) => (
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Дополнительная информация</h3>
-                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                <h3 className="text-base lg:text-lg font-semibold text-gray-900 mb-3">Дополнительная информация</h3>
+                <div className="bg-gray-50 rounded-xl lg:rounded-2xl p-4 lg:p-6 border border-gray-200">
                   <div className="mb-3">
                     <span className="text-sm font-medium text-gray-600">Источник: </span>
                     <span className="text-sm text-gray-900">{selectedLead.source}</span>
@@ -579,14 +640,14 @@ const TengeIcon = ({ className }) => (
               </div>
             </div>
 
-            <div className="p-8 border-t border-gray-200 flex justify-end">
-              <button
-                onClick={() => setSelectedLead(null)}
-                className="px-8 py-4 bg-gray-700 text-white rounded-2xl hover:bg-gray-800 transition-all duration-300 font-semibold"
-              >
-                Закрыть
-              </button>
-            </div>
+            <div className="p-4 lg:p-8 border-t border-gray-200 flex justify-end">
+  <button
+    onClick={() => setSelectedLead(null)}
+    className="px-4 lg:px-8 py-3 lg:py-4 bg-gray-700 text-white rounded-xl lg:rounded-2xl hover:bg-gray-800 transition-all duration-300 font-semibold text-sm lg:text-base w-full sm:w-auto"
+  >
+    Закрыть
+  </button>
+</div>
           </div>
         </div>
       )}

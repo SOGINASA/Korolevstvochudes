@@ -13,7 +13,9 @@ import {
   Archive,
   AlertTriangle,
   CheckCircle,
-  XCircle
+  XCircle,
+  Menu,
+  X
 } from 'lucide-react';
 import { apiService } from '../../services/api';
 
@@ -32,6 +34,7 @@ const Warehouse = ({ showNotification }) => {
   // Основные состояния
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   // Данные
   const [stats, setStats] = useState({
@@ -232,10 +235,10 @@ const Warehouse = ({ showNotification }) => {
 
   // Вкладки
   const tabs = [
-    { id: 'dashboard', label: 'Главная', icon: BarChart3 },
-    { id: 'items', label: 'Товары', icon: Package },
-    { id: 'operations', label: 'Операции', icon: History },
-    { id: 'stock', label: 'Остатки', icon: Archive }
+    { id: 'dashboard', label: 'Главная', icon: BarChart3, shortLabel: 'Главная' },
+    { id: 'items', label: 'Товары', icon: Package, shortLabel: 'Товары' },
+    { id: 'operations', label: 'Операции', icon: History, shortLabel: 'Операции' },
+    { id: 'stock', label: 'Остатки', icon: Archive, shortLabel: 'Остатки' }
   ];
 
   // Рендер контента в зависимости от активной вкладки
@@ -273,82 +276,153 @@ const Warehouse = ({ showNotification }) => {
 
   return (
     <>
-      <div className="space-y-6">
-      {/* Заголовок */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
-            <Package className="h-8 w-8 text-purple-600" />
-            <span>Склад</span>
-          </h1>
-          <p className="text-gray-600 mt-1">Управление товарами и операциями</p>
-        </div>
-        
-        {/* Быстрые действия */}
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowAddItemModal(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Добавить товар</span>
-          </button>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Заголовок */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center space-x-2 sm:space-x-3">
+              <Package className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-purple-600 flex-shrink-0" />
+              <span className="truncate">Склад</span>
+            </h1>
+            <p className="text-gray-600 mt-1 text-xs sm:text-sm lg:text-base">Управление товарами и операциями</p>
+          </div>
           
-          <button
-            onClick={() => setShowAddStockModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <TrendingUp className="h-4 w-4" />
-            <span>Поступление</span>
-          </button>
-          
-          <button
-            onClick={() => setShowRemoveStockModal(true)}
-            className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2"
-          >
-            <Minus className="h-4 w-4" />
-            <span>Списание</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Навигация по вкладкам */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => (
+          {/* Быстрые действия для десктопа */}
+          <div className="hidden sm:flex items-center space-x-2 lg:space-x-3 flex-shrink-0">
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                activeTab === tab.id
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              onClick={() => setShowAddItemModal(true)}
+              className="bg-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm"
             >
-              <tab.icon className="h-4 w-4" />
-              <span>{tab.label}</span>
+              <Plus className="h-4 w-4" />
+              <span className="hidden md:inline">Добавить товар</span>
+              <span className="md:hidden">Товар</span>
             </button>
-          ))}
-        </nav>
-      </div>
+            
+            <button
+              onClick={() => setShowAddStockModal(true)}
+              className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden md:inline">Поступление</span>
+              <span className="md:hidden">+</span>
+            </button>
+            
+            <button
+              onClick={() => setShowRemoveStockModal(true)}
+              className="bg-orange-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm"
+            >
+              <Minus className="h-4 w-4" />
+              <span className="hidden md:inline">Списание</span>
+              <span className="md:hidden">-</span>
+            </button>
+          </div>
 
-      {/* Контент */}
-      {renderContent()}
+          {/* Мобильное меню быстрых действий */}
+          <div className="sm:hidden">
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Мобильное меню быстрых действий */}
+        {showMobileMenu && (
+          <div className="sm:hidden bg-white border border-gray-200 rounded-lg shadow-lg p-4 space-y-3">
+            <button
+              onClick={() => {
+                setShowAddItemModal(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 text-sm"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Добавить товар</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setShowAddStockModal(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 text-sm"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span>Поступление товара</span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setShowRemoveStockModal(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full bg-orange-600 text-white px-4 py-3 rounded-lg hover:bg-orange-700 transition-colors flex items-center space-x-2 text-sm"
+            >
+              <Minus className="h-4 w-4" />
+              <span>Списание товара</span>
+            </button>
+          </div>
+        )}
+
+        {/* Навигация по вкладкам */}
+        <div className="border-b border-gray-200">
+          {/* Десктопная навигация */}
+          <nav className="hidden sm:flex -mb-px space-x-4 lg:space-x-8 overflow-x-auto">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-2 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap flex items-center space-x-1 sm:space-x-2 flex-shrink-0 ${
+                  activeTab === tab.id
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                <span className="hidden md:inline">{tab.label}</span>
+                <span className="md:hidden">{tab.shortLabel}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* Мобильная навигация */}
+          <nav className="sm:hidden -mb-px flex overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-3 px-4 border-b-2 font-medium text-xs whitespace-nowrap flex flex-col items-center space-y-1 flex-shrink-0 min-w-0 ${
+                  activeTab === tab.id
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                <span className="truncate">{tab.shortLabel}</span>
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Контент */}
+        <div className="min-h-0 flex-1">
+          {renderContent()}
+        </div>
+      </div>
 
       {/* Модальные окна */}
-      
-
-      </div>
       <AddItemModal
-          isOpen={showAddItemModal}
-          onClose={() => setShowAddItemModal(false)}
-          onSubmit={handleCreateItem}
-          onSearchItems={handleSearchItems}
-          onGetBarcodeInfo={handleGetBarcodeInfo}
-          loadCategories={loadCategories}
-          categories={categories}
-          constants={constants}
-        />
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        onSubmit={handleCreateItem}
+        onSearchItems={handleSearchItems}
+        onGetBarcodeInfo={handleGetBarcodeInfo}
+        loadCategories={loadCategories}
+        categories={categories}
+        constants={constants}
+      />
       
       <AddStockModal
         isOpen={showAddStockModal}
@@ -365,10 +439,16 @@ const Warehouse = ({ showNotification }) => {
         onSearchItems={handleSearchItems}
         constants={constants}
       />
+
+      {/* Overlay для мобильного меню */}
+      {showMobileMenu && (
+        <div
+          className="sm:hidden fixed inset-0 bg-black bg-opacity-25 z-40"
+          onClick={() => setShowMobileMenu(false)}
+        />
+      )}
     </>
   );
 };
-
-
 
 export default Warehouse;
