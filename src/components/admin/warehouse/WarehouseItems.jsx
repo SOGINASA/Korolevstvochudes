@@ -264,9 +264,9 @@ const WarehouseItems = ({
                   // Подсчитываем количество товаров, которые будут показаны в таблице
                   const filteredItemsCount = selectedCategories.length > 0 
                     ? items.filter(item => {
-                        const itemCategories = item.category_names || [];
+                        const itemCategories = item.category_names.map(item => item.toLowerCase()) || [];
                         return selectedCategories.every(selectedCat => 
-                          itemCategories.includes(selectedCat)
+                          itemCategories.includes(selectedCat.toLowerCase())
                         );
                       }).length
                     : items.length;
@@ -348,9 +348,9 @@ const WarehouseItems = ({
     // Фильтруем товары по выбранным категориям
     const filteredItems = selectedCategories.length > 0 
       ? items.filter(item => {
-          const itemCategories = item.category_names || [];
+          const itemCategories = item.category_names.map(item => item.toLowerCase()) || [];
           return selectedCategories.every(selectedCat => 
-            itemCategories.includes(selectedCat)
+            itemCategories.includes(selectedCat.toLowerCase())
           );
         })
       : items;
