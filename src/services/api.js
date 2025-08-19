@@ -1565,6 +1565,241 @@ async setItemCategories(itemId, categoryIds) {
     return { success: false, error: error.message };
   }
 }
+
+    // ============ МЕТОДЫ ДЛЯ ЛИДОВ ============
+
+  // Получить лидов с фильтрацией и пагинацией
+  async getLeads(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/leads/?${queryString}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить конкретного лида
+  async getLead(leadId) {
+    try {
+      const response = await this.request(`/leads/${leadId}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Создать нового лида
+  async createLead(leadData) {
+    try {
+      const cleanData = {
+        name: leadData.name?.trim(),
+        phone: leadData.phone?.trim(),
+        email: leadData.email?.trim(),
+        source: leadData.source?.trim(),
+        event_type: leadData.event_type?.trim(),
+        preferred_budget: leadData.preferred_budget?.trim(),
+        guests_count: leadData.guests_count ? parseInt(leadData.guests_count) : null,
+        location_preference: leadData.location_preference?.trim(),
+        preferred_date: leadData.preferred_date,
+        status: leadData.status || 'new',
+        temperature: leadData.temperature || 'cold',
+        preferred_contact_method: leadData.preferred_contact_method || 'phone',
+        notes: leadData.notes?.trim(),
+        birthday: leadData.birthday,
+        age: leadData.age ? parseInt(leadData.age) : null,
+        gender: leadData.gender?.trim(),
+        referrer: leadData.referrer?.trim(),
+        assigned_to: leadData.assigned_to ? parseInt(leadData.assigned_to) : null,
+        interested_services: leadData.interested_services || [],
+        tags: leadData.tags || []
+      };
+
+      // Обрабатываем массивы из строк
+      if (typeof cleanData.interested_services === 'string') {
+        cleanData.interested_services = cleanData.interested_services.split(',').map(s => s.trim()).filter(s => s);
+      }
+      if (typeof cleanData.tags === 'string') {
+        cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+      }
+
+      const response = await this.request('/leads/', {
+        method: 'POST',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Обновить лида
+  async updateLead(leadId, leadData) {
+    try {
+      const cleanData = {
+        name: leadData.name?.trim(),
+        phone: leadData.phone?.trim(),
+        email: leadData.email?.trim(),
+        source: leadData.source?.trim(),
+        event_type: leadData.event_type?.trim(),
+        preferred_budget: leadData.preferred_budget?.trim(),
+        guests_count: leadData.guests_count ? parseInt(leadData.guests_count) : null,
+        location_preference: leadData.location_preference?.trim(),
+        preferred_date: leadData.preferred_date,
+        status: leadData.status || 'new',
+        temperature: leadData.temperature || 'cold',
+        preferred_contact_method: leadData.preferred_contact_method || 'phone',
+        notes: leadData.notes?.trim(),
+        birthday: leadData.birthday,
+        age: leadData.age ? parseInt(leadData.age) : null,
+        gender: leadData.gender?.trim(),
+        referrer: leadData.referrer?.trim(),
+        assigned_to: leadData.assigned_to ? parseInt(leadData.assigned_to) : null,
+        interested_services: leadData.interested_services || [],
+        tags: leadData.tags || []
+      };
+
+      // Обрабатываем массивы из строк
+      if (typeof cleanData.interested_services === 'string') {
+        cleanData.interested_services = cleanData.interested_services.split(',').map(s => s.trim()).filter(s => s);
+      }
+      if (typeof cleanData.tags === 'string') {
+        cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+      }
+
+      const response = await this.request(`/leads/${leadId}`, {
+        method: 'PUT',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Удалить лида
+  async deleteLead(leadId) {
+    try {
+      const response = await this.request(`/leads/${leadId}`, {
+        method: 'DELETE',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Добавить запись о контакте
+  async addContactRecord(leadId, contactData) {
+    try {
+      const cleanData = {
+        contact_date: contactData.contact_date || new Date().toISOString(),
+        result: contactData.result, // answered, no_answer, not_interested, interested
+        notes: contactData.notes?.trim()
+      };
+
+      const response = await this.request(`/leads/${leadId}/contact`, {
+        method: 'POST',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Конвертировать лида в заявку
+  async convertLeadToBooking(leadId, bookingData = {}) {
+    try {
+      const response = await this.request(`/leads/${leadId}/convert`, {
+        method: 'POST',
+        body: JSON.stringify(bookingData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить статистику лидов
+  async getLeadsStats(period = 30) {
+    try {
+      const response = await this.request(`/leads/stats?period=${period}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить лидов с приближающимися днями рождения
+  async getBirthdayLeads(days = 30) {
+    try {
+      const response = await this.request(`/leads/birthday?days=${days}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Импорт лидов
+  async importLeads(importData) {
+    try {
+      const response = await this.request('/leads/import', {
+        method: 'POST',
+        body: JSON.stringify(importData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Экспорт лидов
+  async exportLeads(filters = {}) {
+    try {
+      const params = new URLSearchParams(filters);
+      const response = await this.request(`/leads/export?${params}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Массовое обновление лидов
+  async bulkUpdateLeads(leadIds, updates) {
+    try {
+      const response = await this.request('/leads/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify({
+          lead_ids: leadIds,
+          updates: updates
+        }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить константы для лидов
+  async getLeadConstants() {
+    try {
+      const response = await this.request('/leads/constants');
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить воронку лидов
+  async getLeadsFunnel(period = 30) {
+    try {
+      const response = await this.request(`/leads/funnel?period=${period}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 export const apiService = new ApiService();
