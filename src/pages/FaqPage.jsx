@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ChevronDown, ChevronUp, Search, MessageCircle, Phone, Mail, Clock, MapPin } from 'lucide-react';
+import { 
+  ChevronDown, 
+  ChevronUp, 
+  Search, 
+  MessageCircle, 
+  Phone, 
+  Mail, 
+  Clock, 
+  MapPin,
+  HelpCircle,
+  Calendar,
+  CreditCard,
+  Sparkles,
+  Settings
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const FaqPage = () => {
@@ -9,11 +23,11 @@ const FaqPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
-    { id: 'general', name: 'Общие вопросы', icon: '❓' },
-    { id: 'booking', name: 'Бронирование', icon: '📅' },
-    { id: 'pricing', name: 'Цены и оплата', icon: '💰' },
-    { id: 'services', name: 'Услуги', icon: '🎉' },
-    { id: 'technical', name: 'Технические вопросы', icon: '⚙️' }
+    { id: 'general', name: 'Общие вопросы', icon: HelpCircle },
+    { id: 'booking', name: 'Бронирование', icon: Calendar },
+    { id: 'pricing', name: 'Цены и оплата', icon: CreditCard },
+    { id: 'services', name: 'Услуги', icon: Sparkles },
+    { id: 'technical', name: 'Технические вопросы', icon: Settings }
   ];
 
   const faqData = {
@@ -128,7 +142,7 @@ const FaqPage = () => {
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 text-white py-20">
-        <div className="container-custom">
+        <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
@@ -168,27 +182,30 @@ const FaqPage = () => {
 
       {/* FAQ Content */}
       <section className="py-16">
-        <div className="container-custom">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Categories Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-6 sticky top-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Категории</h3>
                 <div className="space-y-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setActiveCategory(category.id)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors flex items-center space-x-3 ${
-                        activeCategory === category.id
-                          ? 'bg-purple-100 text-purple-700 font-medium'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      <span className="text-xl">{category.icon}</span>
-                      <span>{category.name}</span>
-                    </button>
-                  ))}
+                  {categories.map((category) => {
+                    const IconComponent = category.icon;
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => setActiveCategory(category.id)}
+                        className={`w-full text-left p-3 rounded-lg transition-colors flex items-center space-x-3 ${
+                          activeCategory === category.id
+                            ? 'bg-purple-100 text-purple-700 font-medium'
+                            : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        <IconComponent className="w-5 h-5" />
+                        <span>{category.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -259,7 +276,7 @@ const FaqPage = () => {
 
       {/* Contact Section */}
       <section className="bg-white py-16">
-        <div className="container-custom">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Не нашли ответ на свой вопрос?
