@@ -187,8 +187,26 @@ const Footer = () => {
       <div className="border-t border-gray-800">
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-sm text-gray-400">
-              © {currentYear} Королевство Чудес. Все права защищены.
+            <div className="text-sm text-gray-400 flex items-center flex-wrap gap-1">
+              <span>© {currentYear} Королевство Чудес. Все права защищены.</span>
+              <span>Сделано by</span>
+              <Link 
+                to="/about-itshechka"
+                className="relative group text-cyan-400 hover:text-cyan-300 font-semibold transition-all duration-300 hover:scale-105 px-1 py-0.5 rounded"
+              >
+                <span className="relative z-10">ITshechka</span>
+                <div className="absolute inset-0 bg-cyan-400/20 rounded scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+                <div className="absolute inset-0 bg-cyan-400/10 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
+              </Link>
+              <span>and</span>
+              <a 
+                href="https://sunity.kz/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-300 hover:underline"
+              >
+                SunITy
+              </a>
             </div>
             
             <div className="flex space-x-6 text-sm">

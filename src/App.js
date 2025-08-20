@@ -36,6 +36,7 @@ import ContactsPage from './pages/ContactsPage';
 import BlogPage from './pages/BlogPage';
 import ReviewsPage from './pages/ReviewsPage';
 import FaqPage from './pages/FaqPage';
+import AboutITshechka from './pages/AboutITshechka';
 
 // 404 страница
 import NotFoundPage from './pages/NotFoundPage';
@@ -99,6 +100,8 @@ function App() {
                   
                   {/* FAQ страница */}
                   <Route path="faq" element={<FaqPage />} />
+
+                  <Route path="about-itshechka" element={<AboutITshechka />} />
                   
                   {/* 404 страница должна быть последней */}
                   <Route path="*" element={<NotFoundPage />} />
