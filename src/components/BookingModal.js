@@ -577,20 +577,57 @@ const BookingModal = ({ isOpen, onClose }) => {
                     {bookingForm.selectedDate && (
                       <div>
                         <h4 className="text-lg font-semibold mb-3">Выберите время</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'].map(time => (
-                            <button
-                              key={time}
-                              onClick={() => updateBookingForm('selectedTime', time)}
-                              className={`p-3 text-center rounded-lg border transition-colors ${
-                                bookingForm.selectedTime === time
-                                  ? 'border-purple-600 bg-purple-50 text-purple-700'
-                                  : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
-                              }`}
-                            >
-                              {time}
-                            </button>
-                          ))}
+                        <div className="space-y-4">
+                          {/* Время в формате HH:MM */}
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-1">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Время приема
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="time"
+                                  value={bookingForm.selectedTime || ''}
+                                  onChange={(e) => updateBookingForm('selectedTime', e.target.value)}
+                                  min="09:00"
+                                  max="21:00"
+                                  step="900" // 15 минут
+                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg font-medium appearance-none bg-white"
+                                />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Подсказка о рабочих часах */}
+                          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                            <div className="flex items-center space-x-2">
+                              <svg className="h-4 w-4 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <p className="text-sm text-purple-700">
+                                Рабочие часы: 09:00 - 21:00
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Отображение выбранного времени */}
+                          {bookingForm.selectedTime && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                              <div className="flex items-center space-x-2">
+                                <svg className="h-4 w-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <p className="text-sm text-green-700 font-medium">
+                                  Выбранное время: {bookingForm.selectedTime}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -632,50 +669,8 @@ const BookingModal = ({ isOpen, onClose }) => {
         />
       </div>
 
-      {/* Закомментированные поля - сохраняем как есть */}
-      {/* <div className="w-full md:w-1/2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Email
-        </label>
-        <input
-          type="email"
-          value={bookingForm.clientEmail}
-          onChange={(e) => updateBookingForm('clientEmail', e.target.value)}
-          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
-          placeholder="your@email.com"
-        />
-      </div> */}
-
-      {/* <div className="w-full md:w-1/2">
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-          <Users className="w-4 h-4 text-purple-600" />
-          Количество гостей
-        </label>
-        <input
-          type="number"
-          value={bookingForm.guestCount}
-          onChange={(e) => updateBookingForm('guestCount', e.target.value)}
-          className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors"
-          placeholder="10"
-          min="1"
-        />
-      </div> */}
+      
     </div>
-
-    {/* Особые пожелания - закомментировано */}
-    {/* <div className="w-full">
-      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-        <MessageCircle className="w-4 h-4 text-purple-600" />
-        Особые пожелания
-      </label>
-      <textarea
-        value={bookingForm.specialRequests}
-        onChange={(e) => updateBookingForm('specialRequests', e.target.value)}
-        rows={4}
-        className="w-full p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition-colors resize-vertical"
-        placeholder="Расскажите о ваших пожеланиях к мероприятию..."
-      />
-    </div> */}
   </div>
 )}
 
