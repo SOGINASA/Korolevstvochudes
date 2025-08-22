@@ -245,26 +245,37 @@ const BookingModal = ({ isOpen, onClose }) => {
 
       // Функция для форматирования времени в строку HH:MM
       const formatTime = (timeValue) => {
-        if (!timeValue) return null;
-        
-        if (typeof timeValue === 'string' && /^\d{2}:\d{2}$/.test(timeValue)) {
+        if (timeValue == null) return null;
+
+        // Уже готовая строка HH:MM
+        if (typeof timeValue === "string" && /^\d{2}:\d{2}$/.test(timeValue)) {
           return timeValue;
         }
-        
+
+        // Объект Date
         if (timeValue instanceof Date) {
           return timeValue.toTimeString().slice(0, 5);
         }
-        
-        if (typeof timeValue === 'string') {
+
+        // Если это число или строка-число (например 705 или "705")
+        if (!isNaN(timeValue)) {
+          const minutes = parseInt(timeValue, 10);
+          const hours = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+        }
+
+        // Строка вида "13:45:00"
+        if (typeof timeValue === "string") {
           const time = new Date(`2000-01-01T${timeValue}`);
           if (!isNaN(time.getTime())) {
             return time.toTimeString().slice(0, 5);
           }
         }
-        
+
         return null;
       };
-
+      console.log(bookingForm)
       // Данные для отправки
       const bookingData = {
         name: bookingForm.clientName || '',
