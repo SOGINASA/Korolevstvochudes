@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
@@ -577,58 +577,116 @@ const BookingModal = ({ isOpen, onClose }) => {
                     {bookingForm.selectedDate && (
                       <div>
                         <h4 className="text-lg font-semibold mb-3">Выберите время</h4>
-                        <div className="space-y-4">
-                          {/* Время в формате HH:MM */}
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-1">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Время приема
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="time"
-                                  value={bookingForm.selectedTime || ''}
-                                  onChange={(e) => updateBookingForm('selectedTime', e.target.value)}
-                                  min="09:00"
-                                  max="21:00"
-                                  step="900" // 15 минут
-                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg font-medium appearance-none bg-white"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
+                        
+                        <div className="space-y-6">
+                          {/* Основной ползунок */}
+                          <div className="relative">
+                            <input
+                              type="range"
+                              min={540} // 9:00
+                              max={1260} // 21:00
+                              step={15} // 15 минут
+                              value={bookingForm.selectedTime || 540}
+                              onChange={(e) => updateBookingForm('selectedTime', parseInt(e.target.value))}
+                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                              style={{
+                                background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${(((bookingForm.selectedTime || 540) - 540) / (1260 - 540)) * 100}%, #e5e7eb ${(((bookingForm.selectedTime || 540) - 540) / (1260 - 540)) * 100}%, #e5e7eb 100%)`
+                              }}
+                            />
+                            
+                            {/* Метки времени */}
+                            <div className="flex justify-between mt-2 text-xs text-gray-500">
+                              <span>9:00</span>
+                              <span>15:00</span>
+                              <span>21:00</span>
+                            </div>
+                          </div>
+                          
+                          {/* Отображение выбранного времени */}
+                          <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-32 h-16 bg-purple-100 rounded-2xl border-2 border-purple-200">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-purple-700">
+                                  {(() => {
+                                    const minutes = bookingForm.selectedTime || 540;
+                                    const hours = Math.floor(minutes / 60);
+                                    const mins = minutes % 60;
+                                    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+                                  })()}
+                                </div>
+                                <div className="text-xs text-purple-600">
+                                  {(() => {
+                                    const minutes = bookingForm.selectedTime || 540;
+                                    const hours = Math.floor(minutes / 60);
+                                    const mins = minutes % 60;
+                                    const period = hours >= 12 ? 'PM' : 'AM';
+                                    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+                                    return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
+                                  })()}
                                 </div>
                               </div>
                             </div>
                           </div>
-
-                          {/* Подсказка о рабочих часах */}
-                          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-2">
-                              <svg className="h-4 w-4 text-purple-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <p className="text-sm text-purple-700">
-                                Рабочие часы: 09:00 - 21:00
-                              </p>
+                          
+                          {/* Быстрый выбор популярного времени */}
+                          <div>
+                            <p className="text-sm text-gray-600 mb-3">Популярное время:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {[540, 600, 720, 780, 840, 960, 1080, 1200].map((time) => {
+                                const hours = Math.floor(time / 60);
+                                const mins = time % 60;
+                                const timeStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+                                
+                                return (
+                                  <button
+                                    key={time}
+                                    onClick={() => updateBookingForm('selectedTime', time)}
+                                    className={`px-3 py-1 text-sm rounded-full transition-all ${
+                                      bookingForm.selectedTime === time
+                                        ? 'bg-purple-600 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-700'
+                                    }`}
+                                  >
+                                    {timeStr}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
-
-                          {/* Отображение выбранного времени */}
-                          {bookingForm.selectedTime && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                              <div className="flex items-center space-x-2">
-                                <svg className="h-4 w-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                <p className="text-sm text-green-700 font-medium">
-                                  Выбранное время: {bookingForm.selectedTime}
-                                </p>
-                              </div>
-                            </div>
-                          )}
+                          
                         </div>
+                        
+                        {/* CSS стили */}
+                        <style jsx>{`
+                          .slider::-webkit-slider-thumb {
+                            appearance: none;
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #8b5cf6;
+                            cursor: pointer;
+                            border: 3px solid white;
+                            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                          }
+                          
+                          .slider::-moz-range-thumb {
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: #8b5cf6;
+                            cursor: pointer;
+                            border: 3px solid white;
+                            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                          }
+                          
+                          .slider:focus {
+                            outline: none;
+                          }
+                          
+                          .slider:focus::-webkit-slider-thumb {
+                            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+                          }
+                        `}</style>
                       </div>
                     )}
                   </div>
