@@ -1,6 +1,6 @@
 // components/admin/Portfolio.jsx
-import React, { useState, useEffect } from 'react';
-import { Plus, Image, Eye, Edit, Trash2, Upload, Save, X, TrendingUp, Calendar, MapPin, Users, Star } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Image, Eye, Edit, Trash2, Upload, Save, X, TrendingUp, Calendar, MapPin, Users, Star, Camera, Folder } from 'lucide-react';
 
 const Portfolio = ({ showNotification }) => {
   const [showAddProject, setShowAddProject] = useState(false);
@@ -10,6 +10,12 @@ const Portfolio = ({ showNotification }) => {
   const [stats, setStats] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  
+  // Refs для файловых инпутов
+  const coverImageInputRef = useRef(null);
+  const imagesInputRef = useRef(null);
   
   const [projectForm, setProjectForm] = useState({
     title: '',
@@ -76,6 +82,116 @@ const Portfolio = ({ showNotification }) => {
     fetchStats();
   }, [selectedStatus, selectedCategory]);
 
+  // Загрузка изображений на сервер
+  const uploadImageToServer = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('http://127.0.0.1:5000/api/upload/image', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('Ошибка загрузки изображения');
+      
+      const data = await response.json();
+      return data.url; // Предполагается, что сервер возвращает URL загруженного изображения
+    } catch (error) {
+      console.error('Ошибка загрузки изображения:', error);
+      throw error;
+    }
+  };
+
+  // Обработка загрузки обложки
+  const handleCoverImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Проверка типа файла
+    if (!file.type.startsWith('image/')) {
+      showNotification('Пожалуйста, выберите файл изображения', 'error');
+      return;
+    }
+
+    // Проверка размера файла (максимум 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showNotification('Размер файла не должен превышать 10MB', 'error');
+      return;
+    }
+
+    try {
+      setUploadingImages(true);
+      
+      // Создание превью
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target.result);
+      reader.readAsDataURL(file);
+      
+      // Загрузка на сервер
+      const imageUrl = await uploadImageToServer(file);
+      
+      setProjectForm({
+        ...projectForm,
+        cover_image: imageUrl
+      });
+      
+      showNotification('Обложка загружена успешно', 'success');
+    } catch (error) {
+      showNotification('Ошибка при загрузке обложки', 'error');
+      setImagePreview(null);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Обработка загрузки множественных изображений
+  const handleMultipleImagesUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    // Проверка файлов
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        showNotification(`Файл ${file.name} не является изображением`, 'error');
+        return false;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showNotification(`Файл ${file.name} превышает размер 10MB`, 'error');
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    try {
+      setUploadingImages(true);
+      
+      const uploadPromises = validFiles.map(file => uploadImageToServer(file));
+      const imageUrls = await Promise.all(uploadPromises);
+      
+      setProjectForm({
+        ...projectForm,
+        images: [...(projectForm.images || []), ...imageUrls]
+      });
+      
+      showNotification(`Загружено ${imageUrls.length} изображений`, 'success');
+    } catch (error) {
+      showNotification('Ошибка при загрузке изображений', 'error');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Удаление изображения из галереи
+  const removeImage = (indexToRemove) => {
+    setProjectForm({
+      ...projectForm,
+      images: projectForm.images.filter((_, index) => index !== indexToRemove)
+    });
+  };
+
   const resetProjectForm = () => {
     setProjectForm({
       title: '',
@@ -95,6 +211,7 @@ const Portfolio = ({ showNotification }) => {
       packages: []
     });
     setEditingProject(null);
+    setImagePreview(null);
   };
 
   const handleProjectSubmit = async (e) => {
@@ -144,6 +261,7 @@ const Portfolio = ({ showNotification }) => {
       images: project.images || [],
       packages: project.packages || []
     });
+    setImagePreview(project.cover_image || null);
     setShowAddProject(true);
   };
 
@@ -274,7 +392,7 @@ const Portfolio = ({ showNotification }) => {
       {/* Заголовок и статистика */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
         <div>
-        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Портфолио</h2>
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Портфолио</h2>
           {stats && (
             <div className="flex flex-wrap items-center gap-3 lg:gap-6 mt-2 text-xs lg:text-sm text-gray-600">
               <span>Всего: {stats.total}</span>
@@ -285,9 +403,9 @@ const Portfolio = ({ showNotification }) => {
           )}
         </div>
         <button 
-            onClick={() => setShowAddProject(true)}
-            className="flex items-center justify-center space-x-2 px-3 lg:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 w-full lg:w-auto text-sm lg:text-base"
-          >
+          onClick={() => setShowAddProject(true)}
+          className="flex items-center justify-center space-x-2 px-3 lg:px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 w-full lg:w-auto text-sm lg:text-base"
+        >
           <Plus className="h-4 w-4" />
           <span>Добавить проект</span>
         </button>
@@ -312,7 +430,7 @@ const Portfolio = ({ showNotification }) => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Категория</label>
           <select
-            value={selectedStatus}
+            value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 text-sm lg:text-base"
           >
@@ -357,7 +475,7 @@ const Portfolio = ({ showNotification }) => {
 
             <div className="p-4 lg:p-6">
               <div className="flex items-start justify-between mb-3">
-              <h3 className="text-base lg:text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">
+                <h3 className="text-base lg:text-lg font-semibold text-gray-900 line-clamp-2 flex-1 mr-2">
                   {item.title}
                 </h3>
                 <select
@@ -426,33 +544,33 @@ const Portfolio = ({ showNotification }) => {
 
               {/* Действия */}
               <div className="flex gap-2">
-              <button 
-                onClick={() => handleEditProject(item)}
-                className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors"
-              >
-              <Edit className="h-4 w-4 inline mr-1" />
-                Редактировать
-              </button>
+                <button 
+                  onClick={() => handleEditProject(item)}
+                  className="flex-1 bg-purple-100 text-purple-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-purple-200 transition-colors"
+                >
+                  <Edit className="h-4 w-4 inline mr-1" />
+                  Редактировать
+                </button>
                 
-              <button 
-  onClick={() => handleToggleFeatured(item.id, item.featured)}
-  className={`py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
-    item.featured 
-      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' 
-      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-  }`}
-  title={item.featured ? 'Убрать из избранного' : 'Добавить в избранное'}
->
-  <Star className={`h-3 w-3 lg:h-4 lg:w-4 ${item.featured ? 'fill-current' : ''}`} />
-</button>
+                <button 
+                  onClick={() => handleToggleFeatured(item.id, item.featured)}
+                  className={`py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
+                    item.featured 
+                      ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  title={item.featured ? 'Убрать из избранного' : 'Добавить в избранное'}
+                >
+                  <Star className={`h-3 w-3 lg:h-4 lg:w-4 ${item.featured ? 'fill-current' : ''}`} />
+                </button>
 
-<button 
-  onClick={() => handleDeleteProject(item.id)}
-  className="bg-red-100 text-red-700 py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium hover:bg-red-200 transition-colors"
-  title="Удалить проект"
->
-  <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
-</button>
+                <button 
+                  onClick={() => handleDeleteProject(item.id)}
+                  className="bg-red-100 text-red-700 py-2 px-2 lg:px-3 rounded-lg text-xs lg:text-sm font-medium hover:bg-red-200 transition-colors"
+                  title="Удалить проект"
+                >
+                  <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
+                </button>
               </div>
             </div>
           </div>
@@ -472,7 +590,7 @@ const Portfolio = ({ showNotification }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg lg:rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="flex items-center justify-between p-4 lg:p-6 border-b border-gray-200">
-                <h3 className="text-lg lg:text-xl font-bold text-gray-900">
+              <h3 className="text-lg lg:text-xl font-bold text-gray-900">
                 {editingProject ? 'Редактировать проект' : 'Добавить новый проект'}
               </h3>
               <button
@@ -486,7 +604,7 @@ const Portfolio = ({ showNotification }) => {
             <form onSubmit={handleProjectSubmit} className="p-4 lg:p-6 space-y-4 lg:space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Название проекта *
                   </label>
                   <input
@@ -500,7 +618,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Категория *
                   </label>
                   <select
@@ -517,7 +635,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Дата мероприятия *
                   </label>
                   <input
@@ -530,7 +648,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Бюджет проекта
                   </label>
                   <input
@@ -543,7 +661,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Имя клиента
                   </label>
                   <input
@@ -556,7 +674,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Место проведения
                   </label>
                   <input
@@ -569,7 +687,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Количество гостей
                   </label>
                   <input
@@ -582,7 +700,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Рейтинг
                   </label>
                   <select
@@ -599,7 +717,7 @@ const Portfolio = ({ showNotification }) => {
                 </div>
 
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Статус
                   </label>
                   <select
@@ -612,23 +730,139 @@ const Portfolio = ({ showNotification }) => {
                     <option value="archived">Архив</option>
                   </select>
                 </div>
+              </div>
 
+              {/* Обложка проекта */}
+              <div className="space-y-4">
                 <div>
-                  <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
-                    URL обложки
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Обложка проекта
                   </label>
+                  
+                  {/* Текущая обложка или превью */}
+                  {(imagePreview || projectForm.cover_image) && (
+                    <div className="mb-4">
+                      <img 
+                        src={imagePreview || projectForm.cover_image} 
+                        alt="Обложка"
+                        className="w-full h-48 object-cover rounded-lg border"
+                      />
+                    </div>
+                  )}
+
+                  {/* Варианты загрузки обложки */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Загрузка файла */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => coverImageInputRef.current?.click()}
+                        disabled={uploadingImages}
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors disabled:opacity-50"
+                      >
+                        {uploadingImages ? (
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                        ) : (
+                          <>
+                            <Upload className="h-5 w-5 text-gray-400" />
+                            <span className="text-sm text-gray-600">Загрузить файл</span>
+                          </>
+                        )}
+                      </button>
+                      <input
+                        ref={coverImageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCoverImageUpload}
+                        className="hidden"
+                      />
+                    </div>
+
+                    {/* Ввод URL */}
+                    <div>
+                      <input
+                        type="url"
+                        value={projectForm.cover_image}
+                        onChange={(e) => {
+                          setProjectForm({...projectForm, cover_image: e.target.value});
+                          setImagePreview(e.target.value);
+                        }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Или введите URL изображения"
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 10MB
+                  </p>
+                </div>
+
+                {/* Галерея изображений */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Галерея проекта ({projectForm.images?.length || 0} изображений)
+                  </label>
+
+                  {/* Текущие изображения */}
+                  {projectForm.images && projectForm.images.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      {projectForm.images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Изображение ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Загрузка новых изображений */}
+                  <button
+                    type="button"
+                    onClick={() => imagesInputRef.current?.click()}
+                    disabled={uploadingImages}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors disabled:opacity-50"
+                  >
+                    {uploadingImages ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                        <span className="text-sm text-gray-600">Загружаем изображения...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Folder className="h-6 w-6 text-gray-400" />
+                        <span className="text-sm text-gray-600">Выберите изображения для галереи</span>
+                      </>
+                    )}
+                  </button>
+                  
                   <input
-                    type="url"
-                    value={projectForm.cover_image}
-                    onChange={(e) => setProjectForm({...projectForm, cover_image: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="https://example.com/image.jpg"
+                    ref={imagesInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleMultipleImagesUpload}
+                    className="hidden"
                   />
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    Можно выбрать несколько файлов одновременно. Каждый файл до 10MB
+                  </p>
                 </div>
               </div>
 
               <div>
-                <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Описание проекта
                 </label>
                 <textarea
@@ -642,7 +876,7 @@ const Portfolio = ({ showNotification }) => {
 
               {/* Теги */}
               <div>
-                <label className="w-full px-3 lg:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Теги
                 </label>
                 <div className="flex flex-wrap gap-2 mb-2">
@@ -690,15 +924,20 @@ const Portfolio = ({ showNotification }) => {
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 text-sm lg:text-base"
+                  disabled={uploadingImages}
+                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm lg:text-base"
                 >
-                  <Save className="h-4 w-4" />
+                  {uploadingImages ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   <span>{editingProject ? 'Обновить проект' : 'Сохранить проект'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowAddProject(false); resetProjectForm(); }}
-                  className="flex-1 bg-purple-600 text-white py-3 px-4 lg:px-6 rounded-lg hover:bg-purple-700 flex items-center justify-center space-x-2 text-sm lg:text-base"
+                  className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 lg:px-6 rounded-lg hover:bg-gray-200 flex items-center justify-center space-x-2 text-sm lg:text-base"
                 >
                   Отмена
                 </button>
