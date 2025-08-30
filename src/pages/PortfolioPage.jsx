@@ -66,7 +66,7 @@ const PortfolioPage = () => {
           params.append('category', activeFilter);
         }
         
-        const response = await fetch(`http://127.0.0.1:5000/api/portfolio/?${params}`);
+        const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/?${params}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -96,7 +96,7 @@ const PortfolioPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/portfolio/categories');
+        const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/portfolio/categories');
         if (!response.ok) {
           throw new Error('Ошибка загрузки категорий');
         }
@@ -125,7 +125,7 @@ const PortfolioPage = () => {
   const openLightbox = async (project, imageIndex = 0) => {
     try {
       // Увеличиваем счетчик просмотров через API
-      const response = await fetch(`http://127.0.0.1:5000/api/portfolio/${project.id}`);
+      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/${project.id}`);
       if (response.ok) {
         const data = await response.json();
         // Обновляем данные проекта с актуальным счетчиком просмотров
@@ -229,7 +229,7 @@ const closeBookingModal = () => {
     
     try {
       // Отправляем данные бронирования на API
-      const response = await fetch('http://127.0.0.1:5000/api/bookings/', {
+      const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/bookings/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

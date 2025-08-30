@@ -45,7 +45,7 @@ const Portfolio = ({ showNotification }) => {
       if (selectedStatus !== 'all') params.append('status', selectedStatus);
       if (selectedCategory !== 'all') params.append('category', selectedCategory);
       
-      const response = await fetch(`http://127.0.0.1:5000/api/portfolio/admin?${params}`);
+      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin?${params}`);
       if (!response.ok) throw new Error('Ошибка загрузки данных');
       
       const data = await response.json();
@@ -61,7 +61,7 @@ const Portfolio = ({ showNotification }) => {
   // Загрузка статистики
   const fetchStats = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/portfolio/stats');
+      const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/portfolio/stats');
       if (!response.ok) throw new Error('Ошибка загрузки статистики');
       
       const data = await response.json();
@@ -102,8 +102,8 @@ const Portfolio = ({ showNotification }) => {
     
     try {
       const url = editingProject 
-        ? `http://127.0.0.1:5000/api/portfolio/admin/${editingProject.id}`
-        : 'http://127.0.0.1:5000/api/portfolio/admin';
+        ? `https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${editingProject.id}`
+        : 'https://korolevst.supertest.beast-inside.kz/api/portfolio/admin';
       
       const method = editingProject ? 'PUT' : 'POST';
       
@@ -151,7 +151,7 @@ const Portfolio = ({ showNotification }) => {
     // if (!confirm('Вы уверены, что хотите удалить этот проект?')) return;
     
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
         method: 'DELETE'
       });
       
@@ -168,7 +168,7 @@ const Portfolio = ({ showNotification }) => {
 
   const handleStatusChange = async (projectId, newStatus) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ const Portfolio = ({ showNotification }) => {
 
   const handleToggleFeatured = async (projectId, currentFeatured) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
