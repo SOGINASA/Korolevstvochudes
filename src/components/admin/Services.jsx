@@ -1,6 +1,6 @@
 // components/admin/Services.js
-import React, { useState, useEffect } from 'react';
-import { Plus, Search, Eye, Edit, Trash2, Star, Sparkles, TrendingUp, Save, X, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Search, Eye, Edit, Trash2, Star, Sparkles, TrendingUp, Save, X, AlertCircle, Upload, Folder, Camera } from 'lucide-react';
 import { getStatusColor, getStatusText, serviceCategories } from '../../utils/helpers';
 import { apiService } from '../../services/api';
 
@@ -10,6 +10,8 @@ const Services = ({ showNotification }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [adminServices, setAdminServices] = useState([]);
   const [stats, setStats] = useState({
     total_services: 0,
@@ -23,6 +25,10 @@ const Services = ({ showNotification }) => {
     total: 0,
     pages: 0
   });
+  
+  // Refs для файловых инпутов
+  const coverImageInputRef = useRef(null);
+  const imagesInputRef = useRef(null);
   
   const [serviceForm, setServiceForm] = useState({
     title: '',
@@ -47,6 +53,116 @@ const Services = ({ showNotification }) => {
     loadServices();
     loadStats();
   }, []);
+
+  // Загрузка изображений на сервер
+  const uploadImageToServer = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('http://127.0.0.1:5000/api/upload/image', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('Ошибка загрузки изображения');
+      
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Ошибка загрузки изображения:', error);
+      throw error;
+    }
+  };
+
+  // Обработка загрузки обложки
+  const handleCoverImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showNotification('Пожалуйста, выберите файл изображения', 'error');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showNotification('Размер файла не должен превышать 10MB', 'error');
+      return;
+    }
+
+    try {
+      setUploadingImages(true);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target.result);
+      reader.readAsDataURL(file);
+      
+      const imageUrl = await uploadImageToServer(file);
+      
+      setServiceForm({
+        ...serviceForm,
+        coverImage: imageUrl
+      });
+      
+      showNotification('Обложка загружена успешно', 'success');
+    } catch (error) {
+      showNotification('Ошибка при загрузке обложки', 'error');
+      setImagePreview(null);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Обработка загрузки множественных изображений
+  const handleMultipleImagesUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith('image/')) {
+        showNotification(`Файл ${file.name} не является изображением`, 'error');
+        return false;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showNotification(`Файл ${file.name} превышает размер 10MB`, 'error');
+        return false;
+      }
+      return true;
+    });
+
+    if (validFiles.length === 0) return;
+
+    try {
+      setUploadingImages(true);
+      
+      const uploadPromises = validFiles.map(file => uploadImageToServer(file));
+      const imageUrls = await Promise.all(uploadPromises);
+      
+      const currentImages = serviceForm.images ? serviceForm.images.split(', ').filter(img => img.trim()) : [];
+      const allImages = [...currentImages, ...imageUrls];
+      
+      setServiceForm({
+        ...serviceForm,
+        images: allImages.join(', ')
+      });
+      
+      showNotification(`Загружено ${imageUrls.length} изображений`, 'success');
+    } catch (error) {
+      showNotification('Ошибка при загрузке изображений', 'error');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Удаление изображения из галереи
+  const removeImageFromGallery = (indexToRemove) => {
+    const currentImages = serviceForm.images ? serviceForm.images.split(', ').filter(img => img.trim()) : [];
+    const updatedImages = currentImages.filter((_, index) => index !== indexToRemove);
+    setServiceForm({
+      ...serviceForm,
+      images: updatedImages.join(', ')
+    });
+  };
 
   // Загрузка услуг с бэкенда
   const loadServices = async (page = 1, search = searchQuery) => {
@@ -122,6 +238,7 @@ const Services = ({ showNotification }) => {
       status: 'active'
     });
     setEditingService(null);
+    setImagePreview(null);
   };
 
   const handleServiceSubmit = async (e) => {
@@ -185,6 +302,7 @@ const Services = ({ showNotification }) => {
       tags: Array.isArray(service.tags) ? service.tags.join(', ') : (service.tags || ''),
       status: service.status || 'active'
     });
+    setImagePreview(service.coverImage || null);
     setShowAddService(true);
   };
 
@@ -219,28 +337,28 @@ const Services = ({ showNotification }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-  <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление услугами</h2>
-  <button 
-    onClick={() => setShowAddService(true)}
-    className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
-    disabled={loading}
-  >
-    <Plus className="h-4 w-4" />
-    <span>Добавить услугу</span>
-  </button>
-</div>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление услугами</h2>
+        <button 
+          onClick={() => setShowAddService(true)}
+          className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+          disabled={loading}
+        >
+          <Plus className="h-4 w-4" />
+          <span>Добавить услугу</span>
+        </button>
+      </div>
 
       {/* Статистика */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
-      <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
-    <div className="flex items-center">
-      <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500 mr-2 lg:mr-3 flex-shrink-0" />
-      <div className="min-w-0">
-        <p className="text-xs lg:text-sm font-medium text-gray-600">Всего услуг</p>
-        <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.total_services}</p>
-      </div>
-    </div>
-  </div>
+        <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
+          <div className="flex items-center">
+            <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500 mr-2 lg:mr-3 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Всего услуг</p>
+              <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.total_services}</p>
+            </div>
+          </div>
+        </div>
         <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg p-4 lg:p-6">
           <div className="flex items-center">
             <TrendingUp className="h-8 w-8 text-green-500 mr-3 lg:mr-3 flex-shrink-0" />
@@ -272,69 +390,69 @@ const Services = ({ showNotification }) => {
 
       {/* Таблица услуг */}
       <div className="bg-white rounded-lg lg:rounded-xl shadow-md lg:shadow-lg overflow-hidden">
-  <div className="p-4 lg:p-6 border-b border-gray-200">
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-      <input
-        type="text"
-        placeholder="Поиск услуг..."
-        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        disabled={loading}
-      />
-    </div>
-  </div>
-
-  {/* На мобильных - карточки вместо таблицы */}
-  <div className="block lg:hidden">
-    {filteredServices.map(service => (
-      <div key={service.id} className="border-b border-gray-200 p-4 hover:bg-gray-50">
-        <div className="flex items-start space-x-3">
-          <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Sparkles className="h-5 w-5 text-purple-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-900 truncate">{service.title}</h3>
-                <p className="text-xs text-gray-500">{service.duration}</p>
-                <p className="text-xs text-gray-600 mt-1">{service.price}</p>
-              </div>
-              <div className="flex items-center space-x-1 ml-2">
-                <button className="text-purple-600 hover:text-purple-900 p-1">
-                  <Eye className="h-4 w-4" />
-                </button>
-                <button 
-                  onClick={() => handleEditService(service)}
-                  className="text-blue-600 hover:text-blue-900 p-1"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button 
-                  onClick={() => handleDeleteService(service.id)}
-                  className="text-red-600 hover:text-red-900 p-1"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center justify-between mt-2">
-              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                {serviceCategories.find(cat => cat.value === service.category)?.label || service.category}
-              </span>
-              <div className="flex items-center">
-                <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                <span className="ml-1 text-xs text-gray-600">
-                  {service.rating ? service.rating.toFixed(1) : '0.0'}
-                </span>
-              </div>
-            </div>
+        <div className="p-4 lg:p-6 border-b border-gray-200">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Поиск услуг..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm lg:text-base"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              disabled={loading}
+            />
           </div>
         </div>
-      </div>
-    ))}
-  </div>
+
+        {/* На мобильных - карточки вместо таблицы */}
+        <div className="block lg:hidden">
+          {filteredServices.map(service => (
+            <div key={service.id} className="border-b border-gray-200 p-4 hover:bg-gray-50">
+              <div className="flex items-start space-x-3">
+                <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{service.title}</h3>
+                      <p className="text-xs text-gray-500">{service.duration}</p>
+                      <p className="text-xs text-gray-600 mt-1">{service.price}</p>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-2">
+                      <button className="text-purple-600 hover:text-purple-900 p-1">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleEditService(service)}
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteService(service.id)}
+                        className="text-red-600 hover:text-red-900 p-1"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                      {serviceCategories.find(cat => cat.value === service.category)?.label || service.category}
+                    </span>
+                    <div className="flex items-center">
+                      <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                      <span className="ml-1 text-xs text-gray-600">
+                        {service.rating ? service.rating.toFixed(1) : '0.0'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {loading ? (
           <div className="p-8 text-center">
@@ -489,8 +607,8 @@ const Services = ({ showNotification }) => {
 
       {/* Modal для добавления/редактирования услуги */}
       {showAddService && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-900">
                 {editingService ? 'Редактировать услугу' : 'Добавить новую услугу'}
@@ -601,6 +719,139 @@ const Services = ({ showNotification }) => {
                 </div>
               </div>
 
+              {/* Обложка услуги */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Обложка услуги
+                  </label>
+                  
+                  {/* Текущая обложка или превью */}
+                  {(imagePreview || serviceForm.coverImage) && (
+                    <div className="mb-4">
+                      <img 
+                        src={imagePreview || serviceForm.coverImage} 
+                        alt="Обложка услуги"
+                        className="w-full h-48 object-cover rounded-lg border"
+                      />
+                    </div>
+                  )}
+
+                  {/* Варианты загрузки обложки */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Загрузка файла */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => coverImageInputRef.current?.click()}
+                        disabled={uploadingImages || submitLoading}
+                        className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors disabled:opacity-50"
+                      >
+                        {uploadingImages ? (
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                        ) : (
+                          <>
+                            <Upload className="h-5 w-5 text-gray-400" />
+                            <span className="text-sm text-gray-600">Загрузить файл</span>
+                          </>
+                        )}
+                      </button>
+                      <input
+                        ref={coverImageInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleCoverImageUpload}
+                        className="hidden"
+                        disabled={submitLoading}
+                      />
+                    </div>
+
+                    {/* Ввод URL */}
+                    <div>
+                      <input
+                        type="url"
+                        value={serviceForm.coverImage}
+                        onChange={(e) => {
+                          setServiceForm({...serviceForm, coverImage: e.target.value});
+                          setImagePreview(e.target.value);
+                        }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Или введите URL изображения"
+                        disabled={submitLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 10MB
+                  </p>
+                </div>
+
+                {/* Галерея изображений */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Галерея услуги ({serviceForm.images ? serviceForm.images.split(', ').filter(img => img.trim()).length : 0} изображений)
+                  </label>
+
+                  {/* Текущие изображения */}
+                  {serviceForm.images && serviceForm.images.trim() && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      {serviceForm.images.split(', ').filter(img => img.trim()).map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image.trim()}
+                            alt={`Изображение ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImageFromGallery(index)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            disabled={submitLoading}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Загрузка новых изображений */}
+                  <button
+                    type="button"
+                    onClick={() => imagesInputRef.current?.click()}
+                    disabled={uploadingImages || submitLoading}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors disabled:opacity-50"
+                  >
+                    {uploadingImages ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                        <span className="text-sm text-gray-600">Загружаем изображения...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Folder className="h-6 w-6 text-gray-400" />
+                        <span className="text-sm text-gray-600">Выберите изображения для галереи</span>
+                      </>
+                    )}
+                  </button>
+                  
+                  <input
+                    ref={imagesInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleMultipleImagesUpload}
+                    className="hidden"
+                    disabled={submitLoading}
+                  />
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    Можно выбрать несколько файлов одновременно. Каждый файл до 10MB
+                  </p>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Рейтинг</label>
                 <div className="flex items-center space-x-2">
@@ -657,30 +908,6 @@ const Services = ({ showNotification }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">URL обложки</label>
-                <input
-                  type="url"
-                  value={serviceForm.coverImage}
-                  onChange={(e) => setServiceForm({...serviceForm, coverImage: e.target.value})}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
-                  disabled={submitLoading}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">URL изображений (через запятую)</label>
-                <textarea
-                  value={serviceForm.images}
-                  onChange={(e) => setServiceForm({...serviceForm, images: e.target.value})}
-                  rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-                  disabled={submitLoading}
-                />
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Теги (через запятую)</label>
                 <input
                   type="text"
@@ -707,13 +934,13 @@ const Services = ({ showNotification }) => {
               <div className="flex space-x-3 pt-4 border-t border-gray-200">
                 <button
                   type="submit"
-                  disabled={submitLoading}
-                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+                  disabled={submitLoading || uploadingImages}
+                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
-                  {submitLoading ? (
+                  {submitLoading || uploadingImages ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Сохранение...</span>
+                      <span>{uploadingImages ? 'Загружаем изображения...' : 'Сохранение...'}</span>
                     </>
                   ) : (
                     <>
@@ -725,7 +952,7 @@ const Services = ({ showNotification }) => {
                 <button
                   type="button"
                   onClick={() => { setShowAddService(false); resetServiceForm(); }}
-                  disabled={submitLoading}
+                  disabled={submitLoading || uploadingImages}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                 >
                   Отмена
