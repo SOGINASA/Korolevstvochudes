@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Image, Eye, Edit, Trash2, Upload, Save, X, TrendingUp, Calendar, MapPin, Users, Star, Camera, Folder } from 'lucide-react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 const Portfolio = ({ showNotification }) => {
   const [showAddProject, setShowAddProject] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -51,7 +53,7 @@ const Portfolio = ({ showNotification }) => {
       if (selectedStatus !== 'all') params.append('status', selectedStatus);
       if (selectedCategory !== 'all') params.append('category', selectedCategory);
       
-      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin?${params}`);
+      const response = await fetch(`${API_BASE_URL}/portfolio/admin?${params}`);
       if (!response.ok) throw new Error('Ошибка загрузки данных');
       
       const data = await response.json();
@@ -67,7 +69,7 @@ const Portfolio = ({ showNotification }) => {
   // Загрузка статистики
   const fetchStats = async () => {
     try {
-      const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/portfolio/stats');
+      const response = await fetch(`${API_BASE_URL}/portfolio/stats`);
       if (!response.ok) throw new Error('Ошибка загрузки статистики');
       
       const data = await response.json();
@@ -84,105 +86,137 @@ const Portfolio = ({ showNotification }) => {
 
   // Загрузка изображений на сервер
   const uploadImageToServer = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      const response = await fetch('http://127.0.0.1:5000/api/upload/image', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) throw new Error('Ошибка загрузки изображения');
-      
-      const data = await response.json();
-      return data.url; // Предполагается, что сервер возвращает URL загруженного изображения
-    } catch (error) {
-      console.error('Ошибка загрузки изображения:', error);
-      throw error;
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка загрузки изображения');
     }
-  };
+    
+    const data = await response.json();
+    return data.url; // Возвращаем URL загруженного изображения
+  } catch (error) {
+    console.error('Ошибка загрузки изображения:', error);
+    throw error;
+  }
+};
+
 
   // Обработка загрузки обложки
-  const handleCoverImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+ const handleCoverImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
 
-    // Проверка типа файла
-    if (!file.type.startsWith('image/')) {
-      showNotification('Пожалуйста, выберите файл изображения', 'error');
-      return;
-    }
+  // Проверка типа файла
+  if (!file.type.startsWith('image/')) {
+    showNotification('Пожалуйста, выберите файл изображения', 'error');
+    return;
+  }
 
-    // Проверка размера файла (максимум 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      showNotification('Размер файла не должен превышать 10MB', 'error');
-      return;
-    }
+  // Проверка размера файла (максимум 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showNotification('Размер файла не должен превышать 10MB', 'error');
+    return;
+  }
 
-    try {
-      setUploadingImages(true);
-      
-      // Создание превью
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target.result);
-      reader.readAsDataURL(file);
-      
-      // Загрузка на сервер
-      const imageUrl = await uploadImageToServer(file);
-      
-      setProjectForm({
-        ...projectForm,
-        cover_image: imageUrl
-      });
-      
-      showNotification('Обложка загружена успешно', 'success');
-    } catch (error) {
-      showNotification('Ошибка при загрузке обложки', 'error');
-      setImagePreview(null);
-    } finally {
-      setUploadingImages(false);
-    }
-  };
+  try {
+    setUploadingImages(true);
+    
+    // Создание превью
+    const reader = new FileReader();
+    reader.onload = (e) => setImagePreview(e.target.result);
+    reader.readAsDataURL(file);
+    
+    // Загрузка на сервер
+    const imageUrl = await uploadImageToServer(file);
+    
+    setProjectForm({
+      ...projectForm,
+      cover_image: imageUrl
+    });
+    
+    showNotification('Обложка загружена успешно', 'success');
+  } catch (error) {
+    showNotification(error.message || 'Ошибка при загрузке обложки', 'error');
+    setImagePreview(null);
+  } finally {
+    setUploadingImages(false);
+  }
+};
+
 
   // Обработка загрузки множественных изображений
   const handleMultipleImagesUpload = async (event) => {
-    const files = Array.from(event.target.files);
-    if (files.length === 0) return;
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
 
-    // Проверка файлов
-    const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        showNotification(`Файл ${file.name} не является изображением`, 'error');
-        return false;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        showNotification(`Файл ${file.name} превышает размер 10MB`, 'error');
-        return false;
-      }
-      return true;
-    });
-
-    if (validFiles.length === 0) return;
-
-    try {
-      setUploadingImages(true);
-      
-      const uploadPromises = validFiles.map(file => uploadImageToServer(file));
-      const imageUrls = await Promise.all(uploadPromises);
-      
-      setProjectForm({
-        ...projectForm,
-        images: [...(projectForm.images || []), ...imageUrls]
-      });
-      
-      showNotification(`Загружено ${imageUrls.length} изображений`, 'success');
-    } catch (error) {
-      showNotification('Ошибка при загрузке изображений', 'error');
-    } finally {
-      setUploadingImages(false);
+  // Проверка файлов
+  const validFiles = files.filter(file => {
+    if (!file.type.startsWith('image/')) {
+      showNotification(`Файл ${file.name} не является изображением`, 'error');
+      return false;
     }
-  };
+    if (file.size > 10 * 1024 * 1024) {
+      showNotification(`Файл ${file.name} превышает размер 10MB`, 'error');
+      return false;
+    }
+    return true;
+  });
+
+  if (validFiles.length === 0) return;
+
+  try {
+    setUploadingImages(true);
+    
+    // Создаем FormData для множественной загрузки
+    const formData = new FormData();
+    validFiles.forEach(file => {
+      formData.append('images', file);
+    });
+    
+    const response = await fetch(`${API_BASE_URL}/upload/images`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка загрузки изображений');
+    }
+    
+    const data = await response.json();
+    
+    // Извлекаем URLs загруженных изображений
+    const imageUrls = data.images.map(img => img.url);
+    
+    setProjectForm({
+      ...projectForm,
+      images: [...(projectForm.images || []), ...imageUrls]
+    });
+    
+    showNotification(`Загружено ${imageUrls.length} изображений`, 'success');
+    
+    // Показываем ошибки, если они были
+    if (data.errors && data.errors.length > 0) {
+      data.errors.forEach(error => {
+        showNotification(error, 'warning');
+      });
+    }
+    
+  } catch (error) {
+    console.error('Ошибка загрузки изображений:', error);
+    showNotification('Ошибка при загрузке изображений', 'error');
+  } finally {
+    setUploadingImages(false);
+  }
+};
 
   // Удаление изображения из галереи
   const removeImage = (indexToRemove) => {
@@ -215,43 +249,75 @@ const Portfolio = ({ showNotification }) => {
   };
 
   const handleProjectSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  
+  // Валидация формы
+  if (!projectForm.title.trim()) {
+    showNotification('Введите название проекта', 'error');
+    return;
+  }
+  
+  if (!projectForm.category) {
+    showNotification('Выберите категорию', 'error');
+    return;
+  }
+  
+  if (!projectForm.date) {
+    showNotification('Выберите дату мероприятия', 'error');
+    return;
+  }
+  
+  try {
+    setLoading(true);
     
-    try {
-      const url = editingProject 
-        ? `https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${editingProject.id}`
-        : 'https://korolevst.supertest.beast-inside.kz/api/portfolio/admin';
-      
-      const method = editingProject ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(projectForm)
-      });
-      
-      if (!response.ok) throw new Error('Ошибка сохранения проекта');
-      
-      const result = await response.json();
-      
-      if (editingProject) {
-        showNotification('Проект обновлен', 'success');
-      } else {
-        showNotification('Проект создан', 'success');
-      }
-      
-      setShowAddProject(false);
-      resetProjectForm();
-      fetchPortfolioData();
-      fetchStats();
-      
-    } catch (error) {
-      console.error('Ошибка:', error);
-      showNotification('Ошибка при сохранении проекта', 'error');
+    // Подготавливаем данные для отправки
+    const submitData = {
+      ...projectForm,
+      // Убеждаемся, что массивы правильно обрабатываются
+      tags: Array.isArray(projectForm.tags) ? projectForm.tags : [],
+      images: Array.isArray(projectForm.images) ? projectForm.images : [],
+      packages: Array.isArray(projectForm.packages) ? projectForm.packages : []
+    };
+    
+    const url = editingProject 
+      ? `${API_BASE_URL}/portfolio/admin/${editingProject.id}`
+      : `${API_BASE_URL}/portfolio/admin`;
+    
+    const method = editingProject ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submitData)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка сохранения проекта');
     }
-  };
+    
+    const result = await response.json();
+    
+    if (editingProject) {
+      showNotification('Проект обновлен', 'success');
+    } else {
+      showNotification('Проект создан', 'success');
+    }
+    
+    setShowAddProject(false);
+    resetProjectForm();
+    fetchPortfolioData();
+    fetchStats();
+    
+  } catch (error) {
+    console.error('Ошибка:', error);
+    showNotification(error.message || 'Ошибка при сохранении проекта', 'error');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleEditProject = (project) => {
     setEditingProject(project);
@@ -269,7 +335,7 @@ const Portfolio = ({ showNotification }) => {
     // if (!confirm('Вы уверены, что хотите удалить этот проект?')) return;
     
     try {
-      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/portfolio/admin/${projectId}`, {
         method: 'DELETE'
       });
       
@@ -286,7 +352,7 @@ const Portfolio = ({ showNotification }) => {
 
   const handleStatusChange = async (projectId, newStatus) => {
     try {
-      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/portfolio/admin/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -307,7 +373,7 @@ const Portfolio = ({ showNotification }) => {
 
   const handleToggleFeatured = async (projectId, currentFeatured) => {
     try {
-      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/admin/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/portfolio/admin/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

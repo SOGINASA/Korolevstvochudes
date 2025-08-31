@@ -25,6 +25,8 @@ import {
   Link
 } from 'lucide-react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 const PortfolioPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
@@ -66,7 +68,7 @@ const PortfolioPage = () => {
           params.append('category', activeFilter);
         }
         
-        const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/?${params}`);
+        const response = await fetch(`${API_BASE_URL}/portfolio/?${params}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -96,7 +98,7 @@ const PortfolioPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/portfolio/categories');
+        const response = await fetch(`${API_BASE_URL}/portfolio/categories`);
         if (!response.ok) {
           throw new Error('Ошибка загрузки категорий');
         }
@@ -125,7 +127,7 @@ const PortfolioPage = () => {
   const openLightbox = async (project, imageIndex = 0) => {
     try {
       // Увеличиваем счетчик просмотров через API
-      const response = await fetch(`https://korolevst.supertest.beast-inside.kz/api/portfolio/${project.id}`);
+      const response = await fetch(`${API_BASE_URL}/portfolio/${project.id}`);
       if (response.ok) {
         const data = await response.json();
         // Обновляем данные проекта с актуальным счетчиком просмотров
@@ -229,7 +231,7 @@ const closeBookingModal = () => {
     
     try {
       // Отправляем данные бронирования на API
-      const response = await fetch('https://korolevst.supertest.beast-inside.kz/api/bookings/', {
+      const response = await fetch(`${API_BASE_URL}/bookings/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

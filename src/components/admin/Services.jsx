@@ -4,6 +4,8 @@ import { Plus, Search, Eye, Edit, Trash2, Star, Sparkles, TrendingUp, Save, X, A
 import { getStatusColor, getStatusText, serviceCategories } from '../../utils/helpers';
 import { apiService } from '../../services/api';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL
+
 const Services = ({ showNotification }) => {
   const [showAddService, setShowAddService] = useState(false);
   const [editingService, setEditingService] = useState(null);
@@ -27,7 +29,7 @@ const Services = ({ showNotification }) => {
   });
   
   // Refs для файловых инпутов
-  const coverImageInputRef = useRef(null);
+  const cover_imageInputRef = useRef(null);
   const imagesInputRef = useRef(null);
   
   const [serviceForm, setServiceForm] = useState({
@@ -37,11 +39,11 @@ const Services = ({ showNotification }) => {
     minGuests: '',
     rating: 5,
     price: '',
-    priceDescription: '',
+    price_description: '',
     description: '',
     features: '',
     subcategories: '',
-    coverImage: '',
+    cover_image: '',
     images: '',
     featured: false,
     tags: '',
@@ -60,7 +62,7 @@ const Services = ({ showNotification }) => {
       const formData = new FormData();
       formData.append('image', file);
       
-      const response = await fetch('http://127.0.0.1:5000/api/upload/image', {
+      const response = await fetch(`${API_BASE_URL}/upload/image`, {
         method: 'POST',
         body: formData
       });
@@ -76,7 +78,7 @@ const Services = ({ showNotification }) => {
   };
 
   // Обработка загрузки обложки
-  const handleCoverImageUpload = async (event) => {
+  const handlecover_imageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -101,7 +103,7 @@ const Services = ({ showNotification }) => {
       
       setServiceForm({
         ...serviceForm,
-        coverImage: imageUrl
+        cover_image: imageUrl
       });
       
       showNotification('Обложка загружена успешно', 'success');
@@ -227,11 +229,11 @@ const Services = ({ showNotification }) => {
       minGuests: '',
       rating: 5,
       price: '',
-      priceDescription: '',
+      price_description: '',
       description: '',
       features: '',
       subcategories: '',
-      coverImage: '',
+      cover_image: '',
       images: '',
       featured: false,
       tags: '',
@@ -292,17 +294,17 @@ const Services = ({ showNotification }) => {
       minGuests: service.minGuests || '',
       rating: service.rating || 5,
       price: service.price || '',
-      priceDescription: service.priceDescription || '',
+      price_description: service.price_description || '',
       description: service.description || '',
       features: Array.isArray(service.features) ? service.features.join(', ') : (service.features || ''),
       subcategories: Array.isArray(service.subcategories) ? service.subcategories.join(', ') : (service.subcategories || ''),
-      coverImage: service.coverImage || '',
+      cover_image: service.cover_image || '',
       images: Array.isArray(service.images) ? service.images.join(', ') : (service.images || ''),
       featured: service.featured || false,
       tags: Array.isArray(service.tags) ? service.tags.join(', ') : (service.tags || ''),
       status: service.status || 'active'
     });
-    setImagePreview(service.coverImage || null);
+    setImagePreview(service.cover_image || null);
     setShowAddService(true);
   };
 
@@ -514,7 +516,7 @@ const Services = ({ showNotification }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{service.price}</div>
-                      <div className="text-sm text-gray-500">{service.priceDescription}</div>
+                      <div className="text-sm text-gray-500">{service.price_description}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -696,8 +698,8 @@ const Services = ({ showNotification }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Описание цены</label>
                   <input
                     type="text"
-                    value={serviceForm.priceDescription}
-                    onChange={(e) => setServiceForm({...serviceForm, priceDescription: e.target.value})}
+                    value={serviceForm.price_description}
+                    onChange={(e) => setServiceForm({...serviceForm, price_description: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="Например: базовый пакет"
                     disabled={submitLoading}
@@ -727,10 +729,10 @@ const Services = ({ showNotification }) => {
                   </label>
                   
                   {/* Текущая обложка или превью */}
-                  {(imagePreview || serviceForm.coverImage) && (
+                  {(imagePreview || serviceForm.cover_image) && (
                     <div className="mb-4">
                       <img 
-                        src={imagePreview || serviceForm.coverImage} 
+                        src={imagePreview || serviceForm.cover_image} 
                         alt="Обложка услуги"
                         className="w-full h-48 object-cover rounded-lg border"
                       />
@@ -743,7 +745,7 @@ const Services = ({ showNotification }) => {
                     <div>
                       <button
                         type="button"
-                        onClick={() => coverImageInputRef.current?.click()}
+                        onClick={() => cover_imageInputRef.current?.click()}
                         disabled={uploadingImages || submitLoading}
                         className="w-full flex items-center justify-center space-x-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors disabled:opacity-50"
                       >
@@ -757,10 +759,10 @@ const Services = ({ showNotification }) => {
                         )}
                       </button>
                       <input
-                        ref={coverImageInputRef}
+                        ref={cover_imageInputRef}
                         type="file"
                         accept="image/*"
-                        onChange={handleCoverImageUpload}
+                        onChange={handlecover_imageUpload}
                         className="hidden"
                         disabled={submitLoading}
                       />
@@ -770,9 +772,9 @@ const Services = ({ showNotification }) => {
                     <div>
                       <input
                         type="url"
-                        value={serviceForm.coverImage}
+                        value={serviceForm.cover_image}
                         onChange={(e) => {
-                          setServiceForm({...serviceForm, coverImage: e.target.value});
+                          setServiceForm({...serviceForm, cover_image: e.target.value});
                           setImagePreview(e.target.value);
                         }}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"

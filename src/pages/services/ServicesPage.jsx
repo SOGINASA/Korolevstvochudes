@@ -106,6 +106,7 @@ const ServicesPage = () => {
 
       if (servicesResponse.success && categoriesResponse.success) {
         // Преобразуем данные с сервера в формат, ожидаемый компонентом
+        console.log(servicesResponse)
         const transformedServices = servicesResponse.services.map(service => ({
           id: service.id,
           title: service.title,
@@ -219,6 +220,7 @@ const ServicesPage = () => {
     ? servicesData 
     : servicesData.filter(service => service.category === activeFilter);
   // Функции модального окна (без изменений)
+  console.log(filteredServices)
   const openServiceModal = (service, imageIndex = 0) => {
     setSelectedService(service);
     setCurrentImageIndex(imageIndex);
@@ -828,7 +830,7 @@ const ServicesPage = () => {
                     <>
                       <div className="flex-shrink-0 w-48 h-32 rounded-xl overflow-hidden relative">
                         <img
-                          src={service.coverImage}
+                          src={service.coverImage ? service.coverImage : service.images[0]}
                           alt={service.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           
