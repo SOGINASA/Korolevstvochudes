@@ -768,7 +768,7 @@ const ServicesPage = () => {
                     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden h-full flex flex-col">
                       <div className="relative h-64 overflow-hidden flex-shrink-0">
                         <img
-                          src={service.coverImage}
+                          src={service.coverImage ? (service.coverImage != "" ? (service.coverImage) : service.images[0]) : service.images[0]}
                           alt={service.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           
