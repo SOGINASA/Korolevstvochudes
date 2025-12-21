@@ -17,8 +17,8 @@ export const SettingsProvider = ({ children }) => {
     // Дефолтные значения
     company_name: 'Королевство Чудес',
     company_email: 'info@prazdnikvdom.kz',
-    company_phone: '+7 (777) 123-45-67',
-    whatsapp_phone: '+7 (777) 987-65-43',
+    company_phone: '8 (705) 519 5222',
+    whatsapp_phone: '8 (705) 519 5222',
     company_address: 'г. Петропавловск, ул. Ленина, 123',
     company_description: 'Профессиональная организация праздников и мероприятий',
     social_instagram: 'https://instagram.com/korolevstvo_chudes',

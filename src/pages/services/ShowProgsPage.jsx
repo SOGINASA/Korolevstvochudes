@@ -1020,7 +1020,7 @@ const ShowProgramsPage = () => {
                     <Phone className="w-8 h-8" />
                   </motion.div>
                   <h3 className="font-semibold mb-2">Позвоните прямо сейчас</h3>
-                  <p className="text-purple-100">+7 (7152) 123-456</p>
+                  <p className="text-purple-100">8 (705) 519 5222</p>
                   <p className="text-sm text-purple-200">Работаем 24/7</p>
                 </motion.div>
                 

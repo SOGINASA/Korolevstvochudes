@@ -11,8 +11,8 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 const ProcessSection = () => {
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
-  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
-  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
+  const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const steps = [
     {
       id: 1,
