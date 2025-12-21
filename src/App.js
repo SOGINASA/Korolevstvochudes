@@ -28,6 +28,12 @@ import CorporateEventsPage from './pages/services/CorporateEventsPage';
 import AnniversaryCelebrationsPage from './pages/services/AnniversaryCelebrationsPage';
 import ShowProgsPage from './pages/services/ShowProgsPage';
 import QuestsPage from './pages/services/QuestsPage';
+import AnimatorsPage from './pages/services/AnimatorsPage';
+import AnimatorBirthdayPage from './pages/services/AnimatorBirthdayPage';
+import AnimatorAtHomePage from './pages/services/AnimatorAtHomePage';
+import AnimatorInCafePage from './pages/services/AnimatorInCafePage';
+import AnimatorsKindergartenPage from './pages/services/AnimatorsKindergartenPage';
+import AnimatorsSchoolPage from './pages/services/AnimatorsSchoolPage';
 
 // Другие страницы
 import PortfolioPage from './pages/PortfolioPage';
@@ -70,10 +76,59 @@ function App() {
                 <Route path="/" element={<MainLayout />}>
                   <Route index element={<HomePage />} />
                   
-                  {/* О компании */}
-                  <Route path="o-kompanii" element={<AboutPage />} />
+                  {/* ========== ОСНОВНЫЕ СТРАНИЦЫ ========== */}
+                  <Route path="ceny" element={<PricingPage />} />
+                  <Route path="otzyvy" element={<ReviewsPage />} />
+                  <Route path="kejsy" element={<PortfolioPage />} />
+                  <Route path="blog" element={<BlogPage />} />
+                  <Route path="blog/:slug" element={<BlogPage />} />
+                  <Route path="kontakty" element={<ContactsPage />} />
                   
-                  {/* Услуги */}
+                  {/* ========== АНИМАТОРЫ В ПЕТРОПАВЛОВСКЕ ========== */}
+                  <Route path="animatory-petropavlovsk" element={<AnimatorsPage />} />
+                  <Route path="animatory-na-den-rozhdeniya" element={<AnimatorBirthdayPage />} />
+                  <Route path="animatory-dlya-detej" element={<ChildrenPartiesPage />} />
+                  <Route path="animatory-v-detskij-sad" element={<AnimatorsKindergartenPage />} />
+                  <Route path="animatory-v-shkolu" element={<AnimatorsSchoolPage />} />
+                  <Route path="animator-na-dom" element={<AnimatorAtHomePage />} />
+                  <Route path="animator-v-kafe" element={<AnimatorInCafePage />} />
+                  
+                  {/* ========== ПЕРСОНАЖИ ========== */}
+                  <Route path="personazhi" element={<ServicesPage />} />
+                  <Route path="spajder-men-animator" element={<ChildrenPartiesPage />} />
+                  <Route path="elsa-anna-holodnoe-serdce" element={<ChildrenPartiesPage />} />
+                  <Route path="barboskiny-animatory" element={<ChildrenPartiesPage />} />
+                  <Route path="transformery-animator" element={<ChildrenPartiesPage />} />
+                  <Route path="princessy-disnej" element={<ChildrenPartiesPage />} />
+                  <Route path="edinorog-animator" element={<ChildrenPartiesPage />} />
+                  
+                  {/* ========== ШОУ-ПРОГРАММЫ ========== */}
+                  <Route path="shou-programmy" element={<ShowProgsPage />} />
+                  <Route path="bumazhnoe-shou" element={<ShowProgsPage />} />
+                  <Route path="shou-mylnyh-puzyrej" element={<ShowProgsPage />} />
+                  <Route path="nauchnoe-shou" element={<ShowProgsPage />} />
+                  <Route path="shou-slaymov" element={<ShowProgsPage />} />
+                  <Route path="krioshou" element={<ShowProgsPage />} />
+                  
+                  {/* ========== ПРАЗДНИКИ И ПОВОДЫ ========== */}
+                  <Route path="prazdniki" element={<ServicesPage />} />
+                  <Route path="den-rozhdeniya-rebenka" element={<ChildrenPartiesPage />} />
+                  <Route path="vypusknoj-detskij-sad" element={<ChildrenPartiesPage />} />
+                  <Route path="vypusknoj-4-klass" element={<ChildrenPartiesPage />} />
+                  <Route path="novyj-god-dlya-detej" element={<ChildrenPartiesPage />} />
+                  <Route path="utrenniki" element={<ChildrenPartiesPage />} />
+                  <Route path="prazdnik-pod-klyuch" element={<ChildrenPartiesPage />} />
+                  
+                  {/* ========== ИНФОРМАЦИЯ ========== */}
+                  <Route path="o-nas" element={<AboutPage />} />
+                  <Route path="faq" element={<FaqPage />} />
+                  <Route path="politika-konfidencialnosti" element={<FaqPage />} />
+                  
+                  {/* ========== СТАРЫЕ РОУТЫ (для обратной совместимости и редиректов) ========== */}
+                  <Route path="o-kompanii" element={<AboutPage />} />
+                  <Route path="portfolio" element={<PortfolioPage />} />
+                  <Route path="tseny" element={<PricingPage />} />
+                  <Route path="otzyvy-klientov" element={<ReviewsPage />} />
                   <Route path="uslugi" element={<ServicesPage />} />
                   <Route path="uslugi/detskie-prazdniki" element={<ChildrenPartiesPage />} />
                   <Route path="uslugi/svadby" element={<WeddingsPage />} />
@@ -81,26 +136,8 @@ function App() {
                   <Route path="uslugi/yubilei-torzhestva" element={<AnniversaryCelebrationsPage />} />
                   <Route path="uslugi/shou-programmy" element={<ShowProgsPage />} />
                   <Route path="uslugi/kvesty-igry" element={<QuestsPage />} />
-                  
-                  {/* Портфолио */}
-                  <Route path="portfolio" element={<PortfolioPage />} />
-                  
-                  {/* Цены */}
-                  <Route path="tseny" element={<PricingPage />} />
-                  
-                  {/* Блог */}
-                  <Route path="blog" element={<BlogPage />} />
-                  <Route path="blog/:slug" element={<BlogPage />} />
-                  
-                  {/* Отзывы */}
-                  <Route path="otzyvy-klientov" element={<ReviewsPage />} />
-                  
-                  {/* Контакты */}
-                  <Route path="kontakty" element={<ContactsPage />} />
-                  
-                  {/* FAQ страница */}
-                  <Route path="faq" element={<FaqPage />} />
 
+                  {/* ========== ТЕХНИЧЕСКИЕ СТРАНИЦЫ ========== */}
                   <Route path="about-itshechka" element={<AboutITshechka />} />
                   
                   {/* 404 страница должна быть последней */}

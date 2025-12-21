@@ -98,18 +98,18 @@ const HeroSection = () => {
             className="max-w-4xl mx-auto"
           >
             {/* Главный заголовок */}
-            <motion.h1 
+            <motion.h2 
               className="heading-1 mb-6 text-shadow-lg"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Создаём{' '}
+              Детские праздники{' '}
               <span className="gradient-text bg-gradient-to-r from-primary-300 via-secondary-300 to-accent-300 bg-clip-text text-transparent">
-                незабываемые праздники
+                под ключ
               </span>{' '}
               в Петропавловске
-            </motion.h1>
+            </motion.h2>
 
             {/* Подзаголовок */}
             <motion.p 
@@ -118,9 +118,7 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              От детских дней рождения до свадеб мечты — более{' '}
-              <span className="text-secondary-300 font-semibold">1000 счастливых клиентов</span>{' '}
-              доверили нам свои самые важные моменты
+              Аниматоры, персонажи и шоу-программы для детей от 3 до 12 лет
             </motion.p>
 
             {/* CTA кнопки */}
@@ -138,11 +136,10 @@ const HeroSection = () => {
               </button>
               
               <Link
-                to="/portfolio"
+                to="/ceny"
                 className="btn-outline border-white text-white hover:bg-white hover:text-gray-900 text-lg px-8 py-4 w-full sm:w-auto flex items-center justify-center gap-2"
               >
-                <Play size={20} />
-                Посмотреть портфолио
+                Узнать цены
               </Link>
             </motion.div>
 

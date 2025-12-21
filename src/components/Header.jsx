@@ -82,7 +82,7 @@ const Header = () => {
   const navItems = [
     { name: 'Главная', path: '/' },
     { name: 'Портфолио', path: '/portfolio' },
-    { name: 'Услуги', path: '/uslugi' },
+    { name: 'Услуги', path: '/animatory-petropavlovsk' },
     { name: 'Отзывы', path: '/otzyvy-klientov' },
     { name: 'О нас', path: '/o-kompanii' },
     { name: 'Контакты', path: '/kontakty' },
