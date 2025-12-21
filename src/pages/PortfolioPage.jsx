@@ -693,7 +693,7 @@ const closeBookingModal = () => {
                         <span className="text-2xl">📞</span>
                       </div>
                       <h3 className="font-semibold mb-2">Позвоните нам</h3>
-                      <p className="text-primary-100">+7 (7152) 123-456</p>
+                      <p className="text-primary-100">8 (705) 519 5222</p>
                     </div>
                     
                     <div className="text-center">

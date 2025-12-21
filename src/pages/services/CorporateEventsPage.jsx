@@ -916,7 +916,7 @@ const CorporateEventsPage = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <Phone size={20} />
-                +7 (7152) 123-456
+                8 (705) 519 5222
               </motion.button>
               <motion.button 
                 className="bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"

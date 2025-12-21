@@ -1011,7 +1011,7 @@ const WeddingsPage = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold mb-2">Контакты:</h4>
-                    <p className="text-pink-100">+7 (7152) 123-456</p>
+                    <p className="text-pink-100">8 (705) 519 5222</p>
                     <p className="text-pink-100">wedding@prazdnikvdom.kz</p>
                   </div>
                 </div>

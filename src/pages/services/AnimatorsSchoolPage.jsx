@@ -24,8 +24,8 @@ import { useSettings } from '../../contexts/SettingsContext';
 
 const AnimatorsSchoolPage = () => {
   const { settings } = useSettings();
-  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
-  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
+  const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
 
   const advantages = [
     {

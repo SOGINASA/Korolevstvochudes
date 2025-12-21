@@ -137,7 +137,7 @@ const BookingForm = ({ serviceId = null, onSuccess = null }) => {
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
               errors.phone ? 'border-red-500' : 'border-gray-300'
             }`}
-            placeholder="+7 (777) 123-45-67"
+            placeholder="8 (705) 519 5222"
           />
           {errors.phone && (
             <p className="mt-1 text-sm text-red-600">{errors.phone}</p>

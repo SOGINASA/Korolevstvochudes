@@ -294,7 +294,7 @@ const FaqPage = () => {
               <h3 className="font-semibold text-gray-900 mb-2">Телефон</h3>
               <p className="text-gray-600 text-sm mb-3">Звоните в любое время</p>
               <a href="tel:+77152123456" className="text-purple-600 font-medium hover:text-purple-700">
-                +7 (7152) 123-456
+                8 (705) 519 5222
               </a>
             </div>
 
@@ -316,7 +316,7 @@ const FaqPage = () => {
               <h3 className="font-semibold text-gray-900 mb-2">WhatsApp</h3>
               <p className="text-gray-600 text-sm mb-3">Онлайн консультация</p>
               <a href="https://wa.me/77779876543" className="text-green-600 font-medium hover:text-green-700">
-                +7 (777) 987-65-43
+                8 (705) 519 5222
               </a>
             </div>
 

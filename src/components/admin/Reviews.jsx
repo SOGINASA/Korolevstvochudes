@@ -615,7 +615,7 @@ const Reviews = ({
                     value={reviewForm.phone}
                     onChange={(e) => setReviewForm({...reviewForm, phone: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="+7 (777) 123-45-67"
+                    placeholder="8 (705) 519 5222"
                   />
                 </div>
               </div>

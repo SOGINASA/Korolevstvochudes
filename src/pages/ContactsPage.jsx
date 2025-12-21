@@ -44,11 +44,11 @@ const ContactsPage = () => {
   const { settings, loading: settingsLoading, error: settingsError } = useSettings();
   const getCompanyName = () => settings?.company_name || 'Королевство Чудес';
   const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
-  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
-  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (7152) 123-456';
+  const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
   const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
-  const getWhatsAppPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
+  const getWhatsAppPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
 
   // Контактная информация
   const contactInfo = {
@@ -61,7 +61,7 @@ const ContactsPage = () => {
       id: 1,
       name: 'Главный офис',
       address: 'ул. Конституции, 15, офис 201',
-      phone: '+7 (7152) 123-456',
+      phone: '8 (705) 519 5222',
       hours: '9:00 - 21:00',
       services: ['Консультации', 'Заключение договоров', 'Просмотр реквизита'],
       coordinates: { lat: 54.8684, lng: 69.1398 },
@@ -85,7 +85,7 @@ const ContactsPage = () => {
       id: 1,
       name: 'Анна Петрова',
       position: 'Директор компании',
-      phone: '+7 (7152) 123-456',
+      phone: '8 (705) 519 5222',
       email: 'director@prazdnikvdom.kz',
       image: 'https://images.unsplash.com/photo-1494790108755-2616b612b743?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
       description: 'Опыт в event-индустрии более 10 лет'
