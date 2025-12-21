@@ -41,7 +41,7 @@ import PricingPage from './pages/PricingPage';
 import ContactsPage from './pages/ContactsPage';
 import BlogPage from './pages/BlogPage';
 import ReviewsPage from './pages/ReviewsPage';
-import FaqPage from './pages/FaqPage';
+import FaqPage from './pages/services/FaqPage';
 import AboutITshechka from './pages/AboutITshechka';
 
 // 404 страница
