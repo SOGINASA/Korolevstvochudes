@@ -35,6 +35,8 @@ import AnimatorInCafePage from './pages/services/AnimatorInCafePage';
 import AnimatorsKindergartenPage from './pages/services/AnimatorsKindergartenPage';
 import AnimatorsSchoolPage from './pages/services/AnimatorsSchoolPage';
 
+import SitemapPage from './pages/services/SiteMap';
+
 // Другие страницы
 import PortfolioPage from './pages/PortfolioPage';
 import PricingPage from './pages/PricingPage';
@@ -123,6 +125,7 @@ function App() {
                   <Route path="o-nas" element={<AboutPage />} />
                   <Route path="faq" element={<FaqPage />} />
                   <Route path="politika-konfidencialnosti" element={<FaqPage />} />
+                  <Route path="sitemap" element={<SitemapPage />} />
                   
                   {/* ========== СТАРЫЕ РОУТЫ (для обратной совместимости и редиректов) ========== */}
                   <Route path="o-kompanii" element={<AboutPage />} />
