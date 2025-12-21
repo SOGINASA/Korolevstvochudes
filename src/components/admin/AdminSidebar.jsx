@@ -9,8 +9,9 @@ import {
   Settings, 
   Users,
   Sparkles,
-  Package, // Добавить импорт
-  User
+  Package,
+  User,
+  UserCircle
 } from 'lucide-react';
 
 const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
@@ -22,15 +23,16 @@ const AdminSidebar = ({ admin, activeTab, onTabChange }) => {
     { id: 'leads', icon: User, label: 'Лиды' },
     { id: 'reviews', icon: Star, label: 'Отзывы' },
     { id: 'blog', icon: PenTool, label: 'Блог' },
-    { id: 'services', icon: Sparkles, label: 'Услуги' },
+    { id: 'animators', icon: UserCircle, label: 'Аниматоры' },
+    { id: 'services', icon: Sparkles, label: 'Шоу' },
     ...(admin?.role === 'super_admin' || admin?.role === 'admin' 
       ? [{ id: 'admins', icon: Users, label: 'Администраторы' }] 
       : []),
     { id: 'settings', icon: Settings, label: 'Настройки' }
-];
+  ];
 
   return (
-    <aside className="w-64 bg-white shadow-sm h-[calc(100vh)] sticky top">
+    <aside className="w-64 bg-white shadow-sm h-[calc(100vh)] sticky top-0">
       <nav className="p-4">
         <ul className="space-y-2">
           {menuItems.map(item => (

@@ -20,6 +20,7 @@ import LeadsPage from '../components/admin/LeadsPage';
 import AdminsManagement from '../components/admin/AdminsManagement';
 import Settings from '../components/admin/Settings';
 import Warehouse from '../components/admin/Warehouse';
+import Animators from '../components/admin/Animators'; // ИСПРАВЛЕНО: правильный путь
 
 import { Package } from 'lucide-react';
 
@@ -727,6 +728,8 @@ const handleBlogPageChange = async (newPage, filters = {}) => {
         return <Blog {...commonProps} />;
       case 'promotions': 
         return <Promotions {...commonProps} />;
+      case 'animators':
+        return <Animators showNotification={showNotification} />; // ДОБАВЛЕНО
       case 'services': 
         return <Services {...commonProps} />;
       case 'admins': 

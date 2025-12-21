@@ -278,8 +278,8 @@ const Services = ({ showNotification }) => {
         showNotification('Ошибка: ' + result.error, 'error');
       }
     } catch (error) {
-      console.error('Ошибка при сохранении услуги:', error);
-      showNotification('Ошибка при сохранении услуги', 'error');
+      console.error('Ошибка при сохранении шоу:', error);
+      showNotification('Ошибка при сохранении шоу', 'error');
     } finally {
       setSubmitLoading(false);
     }
@@ -339,14 +339,14 @@ const Services = ({ showNotification }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление услугами</h2>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление шоу</h2>
         <button 
           onClick={() => setShowAddService(true)}
           className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
           disabled={loading}
         >
           <Plus className="h-4 w-4" />
-          <span>Добавить услугу</span>
+          <span>Добавить шоу</span>
         </button>
       </div>
 
@@ -356,7 +356,7 @@ const Services = ({ showNotification }) => {
           <div className="flex items-center">
             <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500 mr-2 lg:mr-3 flex-shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Всего услуг</p>
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Всего шоу</p>
               <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.total_services}</p>
             </div>
           </div>
@@ -947,7 +947,7 @@ const Services = ({ showNotification }) => {
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      <span>{editingService ? 'Обновить услугу' : 'Сохранить услугу'}</span>
+                      <span>{editingService ? 'Обновить шоу' : 'Сохранить шоу'}</span>
                     </>
                   )}
                 </button>

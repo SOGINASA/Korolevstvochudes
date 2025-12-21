@@ -14,14 +14,15 @@ import {
   CheckCircle,
   ArrowRight,
   Sparkles,
-  Clock
+  Clock,
+  Gift
 } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
 
 const AnimatorsPage = () => {
   const { settings } = useSettings();
-  const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
-  const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
+  const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
 
   const locations = [
     {
@@ -80,6 +81,33 @@ const AnimatorsPage = () => {
       number: '3',
       title: 'Завершение',
       description: 'Спокойные активности, поздравление и фотосессия'
+    }
+  ];
+
+  const showPrograms = [
+    {
+      title: 'Шоу мыльных пузырей',
+      description: 'Магическое представление с гигантскими мыльными пузырями',
+      price: 'от 15 000 ₸',
+      link: '/shou-mylnyh-puzyrej'
+    },
+    {
+      title: 'Научное шоу',
+      description: 'Увлекательные опыты и эксперименты для детей',
+      price: 'от 20 000 ₸',
+      link: '/nauchnoe-shou'
+    },
+    {
+      title: 'Шоу фокусов',
+      description: 'Профессиональный фокусник с иллюзионным представлением',
+      price: 'от 15 000 ₸',
+      link: '/shou-fokusov'
+    },
+    {
+      title: 'Бумажное шоу',
+      description: 'Яркое шоу с конфетти и бумажными спецэффектами',
+      price: 'от 10 000 ₸',
+      link: '/bumazhnoe-shou'
     }
   ];
 
@@ -235,6 +263,66 @@ const AnimatorsPage = () => {
                 className="inline-flex items-center gap-2 btn-primary"
               >
                 Все персонажи
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Шоу-программы */}
+        <section className="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+          <div className="container-custom">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-4">
+              Шоу-программы
+            </h2>
+            <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+              Добавьте к программе яркое шоу, которое удивит и порадует детей
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {showPrograms.map((show, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Link
+                    to={show.link}
+                    className="block bg-white rounded-2xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-purple-100 h-full"
+                  >
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4">
+                      <Gift className="w-7 h-7 text-white" />
+                    </div>
+                    
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      {show.title}
+                    </h3>
+                    
+                    <p className="text-gray-600 text-sm mb-4">
+                      {show.description}
+                    </p>
+
+                    <div className="text-purple-600 font-semibold mb-3">
+                      {show.price}
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 text-purple-600 font-semibold text-sm">
+                      Подробнее
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="text-center mt-8">
+              <Link
+                to="/shou-programmy"
+                className="inline-flex items-center gap-2 btn-outline"
+              >
+                Все шоу-программы
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
