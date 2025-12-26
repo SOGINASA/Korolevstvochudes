@@ -33,10 +33,14 @@ const Animators = ({ showNotification }) => {
     image: '',
     link: '',
     popular: false,
+    active: true,
     program_includes: '',
     suitable_for: '',
     advantages: '',
-    related_characters: ''
+    related_characters: '',
+    meta_title: '',
+    meta_description: '',
+    meta_keywords: ''
   });
 
   const categories = [
@@ -56,11 +60,10 @@ const Animators = ({ showNotification }) => {
   const loadAnimators = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/animators`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setAnimators(data.animators || []);
+      const result = await apiService.getAdminAnimators();
+
+      if (result.success) {
+        setAnimators(result.animators || []);
       } else {
         showNotification('Ошибка загрузки аниматоров', 'error');
       }
@@ -74,11 +77,10 @@ const Animators = ({ showNotification }) => {
 
   const loadStats = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/animators/stats`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setStats(data.stats || { total: 0, active: 0, popular: 0 });
+      const result = await apiService.getAnimatorsStats();
+
+      if (result.success) {
+        setStats(result.stats || { total: 0, active: 0, popular: 0 });
       }
     } catch (error) {
       console.error('Ошибка загрузки статистики:', error);
@@ -147,23 +149,11 @@ const Animators = ({ showNotification }) => {
     setSubmitLoading(true);
 
     try {
-      const url = editingAnimator 
-        ? `${API_BASE_URL}/animators/${editingAnimator.id}`
-        : `${API_BASE_URL}/animators`;
-      
-      const method = editingAnimator ? 'PUT' : 'POST';
+      const result = editingAnimator
+        ? await apiService.updateAnimator(editingAnimator.id, animatorForm)
+        : await apiService.createAnimator(animatorForm);
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(animatorForm)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         showNotification(
           editingAnimator ? 'Аниматор успешно обновлен' : 'Аниматор успешно добавлен',
           'success'
@@ -173,7 +163,7 @@ const Animators = ({ showNotification }) => {
         loadAnimators();
         loadStats();
       } else {
-        showNotification(data.error || 'Ошибка сохранения', 'error');
+        showNotification(result.error || 'Ошибка сохранения', 'error');
       }
     } catch (error) {
       console.error('Ошибка сохранения:', error);
@@ -189,18 +179,14 @@ const Animators = ({ showNotification }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/animators/${id}`, {
-        method: 'DELETE'
-      });
+      const result = await apiService.deleteAnimator(id);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         showNotification('Аниматор удален', 'success');
         loadAnimators();
         loadStats();
       } else {
-        showNotification('Ошибка удаления', 'error');
+        showNotification(result.error || 'Ошибка удаления', 'error');
       }
     } catch (error) {
       console.error('Ошибка удаления:', error);
@@ -214,17 +200,21 @@ const Animators = ({ showNotification }) => {
       name: animator.name || '',
       title: animator.title || '',
       description: animator.description || '',
-      age: animator.age || '',
+      age: animator.age_range || animator.age || '',
       price: animator.price || '',
       duration: animator.duration || '',
       category: animator.category || 'superheroes',
       image: animator.image || '',
       link: animator.link || '',
       popular: animator.popular || false,
+      active: animator.active !== undefined ? animator.active : true,
       program_includes: animator.program_includes || '',
       suitable_for: animator.suitable_for || '',
       advantages: animator.advantages || '',
-      related_characters: animator.related_characters || ''
+      related_characters: animator.related_characters || '',
+      meta_title: animator.meta_title || '',
+      meta_description: animator.meta_description || '',
+      meta_keywords: animator.meta_keywords || ''
     });
     setImagePreview(animator.image || null);
     setShowAddAnimator(true);
@@ -242,10 +232,14 @@ const Animators = ({ showNotification }) => {
       image: '',
       link: '',
       popular: false,
+      active: true,
       program_includes: '',
       suitable_for: '',
       advantages: '',
-      related_characters: ''
+      related_characters: '',
+      meta_title: '',
+      meta_description: '',
+      meta_keywords: ''
     });
     setEditingAnimator(null);
     setImagePreview(null);
@@ -352,7 +346,7 @@ const Animators = ({ showNotification }) => {
               
               {animator.image ? (
                 <img
-                  src={animator.image}
+                  src={apiService.getImageUrl(animator.image)}
                   alt={animator.name}
                   className="w-full h-full object-cover"
                 />
@@ -545,10 +539,10 @@ const Animators = ({ showNotification }) => {
                   Изображение персонажа
                 </label>
                 
-                {imagePreview && (
+                {(imagePreview || animatorForm.image) && (
                   <div className="mb-4">
                     <img
-                      src={imagePreview}
+                      src={imagePreview || apiService.getImageUrl(animatorForm.image)}
                       alt="Preview"
                       className="w-full h-64 object-cover rounded-lg"
                     />

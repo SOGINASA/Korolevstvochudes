@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Phone, 
+import {
+  Phone,
   MessageCircle,
   ArrowRight,
   Sparkles,
   Clock,
   Filter,
-  Search
+  Search,
+  Loader2
 } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
+import { apiService } from '../../services/api';
 
 const AllAnimatorsPage = () => {
   const { settings } = useSettings();
@@ -20,170 +22,57 @@ const AllAnimatorsPage = () => {
 
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [animators, setAnimators] = useState([]);
+  const [categories, setCategories] = useState([{ id: 'all', name: 'Все персонажи' }]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = [
-    { id: 'all', name: 'Все персонажи' },
-    { id: 'superheroes', name: 'Супергерои' },
-    { id: 'princesses', name: 'Принцессы' },
-    { id: 'cartoons', name: 'Мультфильмы' },
-    { id: 'fantasy', name: 'Фэнтези' },
-    { id: 'animals', name: 'Животные' }
-  ];
+  // Загрузка данных
+  useEffect(() => {
+    loadAnimators();
+    loadCategories();
+  }, [selectedCategory, searchQuery]);
 
-  const animators = [
-    {
-      id: 1,
-      name: 'Человек-паук',
-      title: 'Аниматор Человек-паук в Петропавловске',
-      description: 'Любимый супергерой всех мальчишек. Активные игры, квесты и приключения в стиле комиксов Marvel.',
-      price: 'от 15 000 ₸',
-      age: '4-12 лет',
-      category: 'superheroes',
-      image: '/images/animators/spiderman.jpg', // Placeholder
-      link: '/spiderman-animator',
-      popular: true
-    },
-    {
-      id: 2,
-      name: 'Эльза и Анна',
-      title: 'Аниматоры Эльза и Анна в Петропавловске',
-      description: 'Сестры из "Холодного сердца". Волшебные игры, песни и танцы в зимней сказке.',
-      price: 'от 25 000 ₸',
-      age: '3-10 лет',
-      category: 'princesses',
-      image: '/images/animators/elsa-anna.jpg',
-      link: '/elsa-anna-holodnoe-serdce',
-      popular: true
-    },
-    {
-      id: 3,
-      name: 'Барбоскины',
-      title: 'Аниматоры Барбоскины в Петропавловске',
-      description: 'Веселая семейка из популярного мультсериала. Добрые игры и конкурсы для малышей.',
-      price: 'от 15 000 ₸',
-      age: '3-8 лет',
-      category: 'cartoons',
-      image: '/images/animators/barboskiny.jpg',
-      link: '/barboskiny-animatory',
-      popular: true
-    },
-    {
-      id: 4,
-      name: 'Трансформер',
-      title: 'Аниматор Трансформер в Петропавловске',
-      description: 'Робот-герой из вселенной Трансформеров. Динамичная программа с боевыми играми.',
-      price: 'от 20 000 ₸',
-      age: '5-12 лет',
-      category: 'superheroes',
-      image: '/images/animators/transformer.jpg',
-      link: '/transformery-animator',
-      popular: false
-    },
-    {
-      id: 5,
-      name: 'Принцессы Disney',
-      title: 'Принцессы Disney аниматоры в Петропавловске',
-      description: 'Белль, Золушка, Рапунцель и другие принцессы. Волшебные истории и бал.',
-      price: 'от 15 000 ₸',
-      age: '3-10 лет',
-      category: 'princesses',
-      image: '/images/animators/disney-princesses.jpg',
-      link: '/princessy-disnej',
-      popular: true
-    },
-    {
-      id: 6,
-      name: 'Единорог',
-      title: 'Аниматор Единорог в Петропавловске',
-      description: 'Волшебный единорог для сказочного праздника. Игры в волшебном королевстве.',
-      price: 'от 15 000 ₸',
-      age: '3-8 лет',
-      category: 'fantasy',
-      image: '/images/animators/unicorn.jpg',
-      link: '/edinorog-animator',
-      popular: true
-    },
-    {
-      id: 7,
-      name: 'Бэтмен',
-      title: 'Аниматор Бэтмен в Петропавловске',
-      description: 'Темный рыцарь Готэма. Детективные квесты и супергеройские миссии.',
-      price: 'от 15 000 ₸',
-      age: '5-12 лет',
-      category: 'superheroes',
-      image: '/images/animators/batman.jpg',
-      link: '/betmen-animator',
-      popular: false
-    },
-    {
-      id: 8,
-      name: 'Маша и Медведь',
-      title: 'Аниматоры Маша и Медведь в Петропавловске',
-      description: 'Озорная Маша и добрый Медведь. Веселые приключения из любимого мультфильма.',
-      price: 'от 25 000 ₸',
-      age: '2-7 лет',
-      category: 'cartoons',
-      image: '/images/animators/masha-medved.jpg',
-      link: '/masha-medved-animatory',
-      popular: true
-    },
-    {
-      id: 9,
-      name: 'Фиксики',
-      title: 'Аниматоры Фиксики в Петропавловске',
-      description: 'Нолик, Симка и их друзья. Познавательные игры и технические загадки.',
-      price: 'от 20 000 ₸',
-      age: '4-10 лет',
-      category: 'cartoons',
-      image: '/images/animators/fixiki.jpg',
-      link: '/fiksiki-animatory',
-      popular: false
-    },
-    {
-      id: 10,
-      name: 'Леди Баг и Супер-Кот',
-      title: 'Аниматоры Леди Баг и Супер-Кот в Петропавловске',
-      description: 'Супергерои Парижа. Миссии по спасению города от злодеев.',
-      price: 'от 25 000 ₸',
-      age: '5-12 лет',
-      category: 'superheroes',
-      image: '/images/animators/ladybug.jpg',
-      link: '/ledi-bag-super-kot',
-      popular: true
-    },
-    {
-      id: 11,
-      name: 'Пони',
-      title: 'Аниматор Пони в Петропавловске',
-      description: 'Милые пони из Эквестрии. Дружба, магия и радужные приключения.',
-      price: 'от 15 000 ₸',
-      age: '3-9 лет',
-      category: 'fantasy',
-      image: '/images/animators/pony.jpg',
-      link: '/poni-animator',
-      popular: false
-    },
-    {
-      id: 12,
-      name: 'Щенячий патруль',
-      title: 'Аниматоры Щенячий патруль в Петропавловске',
-      description: 'Команда смелых щенков-спасателей. Миссии по спасению и помощи.',
-      price: 'от 20 000 ₸',
-      age: '3-7 лет',
-      category: 'cartoons',
-      image: '/images/animators/paw-patrol.jpg',
-      link: '/schenachij-patrul',
-      popular: true
+  const loadAnimators = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+
+      if (selectedCategory !== 'all') {
+        params.category = selectedCategory;
+      }
+
+      if (searchQuery) {
+        params.search = searchQuery;
+      }
+
+      const result = await apiService.getAnimators(params);
+
+      if (result.success) {
+        setAnimators(result.animators || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки аниматоров:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  // Фильтрация
-  const filteredAnimators = animators.filter(animator => {
-    const matchesCategory = selectedCategory === 'all' || animator.category === selectedCategory;
-    const matchesSearch = animator.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         animator.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const loadCategories = async () => {
+    try {
+      const result = await apiService.getAnimatorCategories();
+
+      if (result.success && result.categories) {
+        setCategories([
+          { id: 'all', name: 'Все персонажи' },
+          ...result.categories
+        ]);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+    }
+  };
+
+  const filteredAnimators = animators;
 
   return (
     <>
@@ -275,8 +164,14 @@ const AllAnimatorsPage = () => {
         {/* Каталог аниматоров */}
         <section className="py-16 bg-gray-50">
           <div className="container-custom">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredAnimators.map((animator, index) => (
+            {/* Индикатор загрузки */}
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredAnimators.map((animator, index) => (
                 <motion.div
                   key={animator.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -285,7 +180,7 @@ const AllAnimatorsPage = () => {
                   viewport={{ once: true }}
                 >
                   <Link
-                    to={animator.link}
+                    to={`/animator/${animator.id}`}
                     className="block bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 h-full"
                   >
                     {/* Изображение */}
@@ -295,11 +190,19 @@ const AllAnimatorsPage = () => {
                           ПОПУЛЯРНЫЙ
                         </div>
                       )}
-                      
-                      {/* Placeholder для изображения */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Sparkles className="w-20 h-20 text-purple-400 opacity-50" />
-                      </div>
+
+                      {/* Изображение или placeholder */}
+                      {animator.image ? (
+                        <img
+                          src={apiService.getImageUrl(animator.image)}
+                          alt={animator.name}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Sparkles className="w-20 h-20 text-purple-400 opacity-50" />
+                        </div>
+                      )}
                       
                       {/* Градиент overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -321,7 +224,7 @@ const AllAnimatorsPage = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Clock className="w-4 h-4" />
-                          <span>{animator.age}</span>
+                          <span>{animator.age_range}</span>
                         </div>
                         <div className="text-purple-600 font-bold">
                           {animator.price}
@@ -336,10 +239,11 @@ const AllAnimatorsPage = () => {
                   </Link>
                 </motion.div>
               ))}
-            </div>
+              </div>
+            )}
 
             {/* Если ничего не найдено */}
-            {filteredAnimators.length === 0 && (
+            {!loading && filteredAnimators.length === 0 && (
               <div className="text-center py-16">
                 <Sparkles className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">

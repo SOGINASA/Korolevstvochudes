@@ -73,9 +73,9 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   // Категории услуг
   const categories = [
-    { 
-      id: 'children', 
-      name: 'Детские праздники', 
+    {
+      id: 'children',
+      name: 'Детские праздники',
       iconComponent: Baby,
       iconColor: 'text-purple-600',
       bgColor: 'bg-purple-50',
@@ -84,9 +84,20 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 15,
       packages: generateDefaultPackages('85000')
     },
-    { 
-      id: 'weddings', 
-      name: 'Свадьбы', 
+    {
+      id: 'animator',
+      name: 'Аниматоры',
+      iconComponent: Users,
+      iconColor: 'text-green-600',
+      bgColor: 'bg-green-50',
+      hoverBgColor: 'hover:bg-green-100',
+      textColor: 'text-green-700',
+      count: 5,
+      packages: generateDefaultPackages('25000')
+    },
+    {
+      id: 'weddings',
+      name: 'Свадьбы',
       iconComponent: Heart,
       iconColor: 'text-pink-600',
       bgColor: 'bg-pink-50',
@@ -95,9 +106,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 8,
       packages: generateDefaultPackages('400000')
     },
-    { 
-      id: 'corporate', 
-      name: 'Корпоративы', 
+    {
+      id: 'corporate',
+      name: 'Корпоративы',
       iconComponent: Briefcase,
       iconColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -106,9 +117,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 12,
       packages: generateDefaultPackages('200000')
     },
-    { 
-      id: 'anniversaries', 
-      name: 'Юбилеи', 
+    {
+      id: 'anniversaries',
+      name: 'Юбилеи',
       iconComponent: Cake,
       iconColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
@@ -117,9 +128,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 10,
       packages: generateDefaultPackages('150000')
     },
-    { 
-      id: 'shows', 
-      name: 'Шоу-программы', 
+    {
+      id: 'shows',
+      name: 'Шоу-программы',
       iconComponent: Sparkles,
       iconColor: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -281,6 +292,7 @@ const BookingModal = ({ isOpen, onClose }) => {
         name: bookingForm.clientName || '',
         phone: formatPhoneNumber(bookingForm.clientPhone),
         email: bookingForm.clientEmail || null,
+        service_id: selectedService?.id || null,
         service_title: selectedService?.title || null,
         event_date: formatDate(bookingForm.selectedDate),
         event_time: formatTime(bookingForm.selectedTime),

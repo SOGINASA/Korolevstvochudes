@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Phone, 
+import {
+  Phone,
   MessageCircle,
   CheckCircle,
   ArrowRight,
@@ -17,55 +17,82 @@ import {
   Star,
   Gift,
   Music,
-  Camera
+  Camera,
+  Loader2
 } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
+import { apiService } from '../../services/api';
 import BookingModal from '../../components/BookingModal';
-
-// Это шаблон для страницы персонажа
-// Для каждого персонажа нужно создать отдельный файл с этой структурой
 
 const SpidermanAnimatorPage = () => {
   const { settings } = useSettings();
+  const { id } = useParams();
+  const navigate = useNavigate();
   const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
 
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [animator, setAnimator] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Данные персонажа (меняются для каждого персонажа)
-  const character = {
-    name: 'Человек-паук',
-    title: 'Аниматор Человек-паук на детский праздник',
-    description: 'Аниматор Человек-паук от агентства «Королевство Чудес» — один из самых популярных персонажей для детских праздников в Петропавlovске. Программа подойдёт для детей от 4 до 10 лет и включает активные игры, сюжетные задания и фотосессию с любимым героем.',
-    age: '4-10 лет',
-    price: '15 000',
-    duration: '1-2 часа',
-    image: '/images/animators/spiderman.jpg',
-    category: 'Супергерои'
+  // Загрузка данных аниматора
+  useEffect(() => {
+    loadAnimator();
+  }, [id]);
+
+  const loadAnimator = async () => {
+    try {
+      setLoading(true);
+      const result = await apiService.getAnimator(id);
+
+      if (result.success) {
+        setAnimator(result.animator);
+        // Увеличиваем счетчик просмотров
+        await apiService.incrementAnimatorViews(result.animator.id);
+      } else {
+        // Если не найден, перенаправляем на страницу всех аниматоров
+        navigate('/animatory-dlya-detej');
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки аниматора:', error);
+      navigate('/animatory-dlya-detej');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const programIncludes = [
-    {
-      icon: Sparkles,
-      title: 'Сюжетные игры с Человеком-пауком',
-      description: 'Ребята станут командой супергероев и будут выполнять миссии'
-    },
-    {
-      icon: Users,
-      title: 'Активные конкурсы',
-      description: 'Эстафеты, соревнования и задания на ловкость и смекалку'
-    },
-    {
-      icon: Music,
-      title: 'Музыкальное сопровождение',
-      description: 'Тематическая музыка из фильмов и мультфильмов про Человека-паука'
-    },
-    {
-      icon: Camera,
-      title: 'Фотографии с персонажем',
-      description: 'Профессиональная фотосессия с любимым супергероем'
-    }
-  ];
+  // Показываем загрузку
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+      </div>
+    );
+  }
+
+  // Если данные не загружены
+  if (!animator) {
+    return null;
+  }
+
+  const character = {
+    name: animator.name,
+    title: animator.title,
+    description: animator.description,
+    age: animator.age_range,
+    price: animator.price,
+    duration: animator.duration,
+    image: animator.image,
+    category: animator.category
+  };
+
+  // Программа - используем данные из API или дефолтные
+  const programIncludesText = animator.program_includes || 'Сюжетные игры, активные конкурсы, музыкальное сопровождение, фотосессия';
+  const programIncludes = programIncludesText.split(',').map((item, index) => ({
+    icon: [Sparkles, Users, Music, Camera][index % 4],
+    title: item.trim(),
+    description: ''
+  }));
 
   const suitableFor = [
     {
@@ -94,35 +121,30 @@ const SpidermanAnimatorPage = () => {
     }
   ];
 
-  const advantages = [
-    'Профессиональный костюм супергероя',
-    'Опытный аниматор с актерскими навыками',
-    'Программа адаптируется под возраст детей',
-    'Все игры и реквизит включены в стоимость',
-    'Выезд по всему Петропавlovску',
-    'Пунктуальность и ответственность'
-  ];
+  // Преимущества - используем данные из API или дефолтные
+  const advantagesText = animator.advantages || 'Профессиональный костюм, Опытный аниматор, Программа адаптируется под возраст, Все игры включены';
+  const advantages = advantagesText.split(',').map(item => item.trim());
 
-  const relatedCharacters = [
-    { name: 'Бэтмен', link: '/betmen-animator' },
-    { name: 'Железный человек', link: '/zheleznyj-chelovek' },
-    { name: 'Супермен', link: '/supermen-animator' },
-    { name: 'Трансформер', link: '/transformery-animator' }
-  ];
+  // Похожие персонажи - используем данные из API или дефолтные
+  const relatedText = animator.related_characters || '';
+  const relatedCharacters = relatedText ? relatedText.split(',').map(name => ({
+    name: name.trim(),
+    link: '#'
+  })) : [];
 
   return (
     <>
       <Helmet>
-        <title>Аниматор Человек-паук в Петропавlovске | Королевство Чудес</title>
-        <meta 
-          name="description" 
-          content="Закажите аниматора Человек-паук в Петропавlovске. Программа для детей 4-10 лет с играми, конкурсами и фотосессией. Цена от 15 000 ₸." 
+        <title>{animator.meta_title || `${animator.title} | Королевство Чудес`}</title>
+        <meta
+          name="description"
+          content={animator.meta_description || animator.description}
         />
-        <meta 
-          name="keywords" 
-          content="аниматор человек-паук, спайдермен аниматор, супергерой на праздник, человек паук петропавловск" 
+        <meta
+          name="keywords"
+          content={animator.meta_keywords || `аниматор ${animator.name}, ${animator.category}, петропавловск`}
         />
-        <link rel="canonical" href="https://prazdnikvdom.kz/spajder-men-animator/" />
+        <link rel="canonical" href={`https://prazdnikvdom.kz/${animator.slug}/`} />
       </Helmet>
 
       <div className="overflow-hidden">
@@ -187,11 +209,19 @@ const SpidermanAnimatorPage = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="relative"
               >
-                {/* Placeholder для фото персонажа */}
+                {/* Фото персонажа */}
                 <div className="relative h-96 bg-gradient-to-br from-red-400 to-blue-400 rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Sparkles className="w-32 h-32 text-white opacity-50" />
-                  </div>
+                  {character.image ? (
+                    <img
+                      src={apiService.getImageUrl(character.image)}
+                      alt={character.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles className="w-32 h-32 text-white opacity-50" />
+                    </div>
+                  )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
                     <h3 className="text-2xl font-bold text-white">{character.name}</h3>
                   </div>
@@ -315,7 +345,7 @@ const SpidermanAnimatorPage = () => {
                 Стоимость
               </h2>
               <p className="text-xl text-gray-700 mb-8">
-                Стоимость аниматора Человек-паук — от {character.price} ₸. 
+                Стоимость аниматора {character.name} — от {character.price} ₸.
                 Цена зависит от продолжительности программы и дополнительных услуг.
               </p>
 
@@ -391,7 +421,7 @@ const SpidermanAnimatorPage = () => {
           <div className="container-custom">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Заказать Человека-паука в Петропавlovске
+                Заказать {character.name} в Петропавловске
               </h2>
               <p className="text-xl mb-8 text-red-100">
                 Оставьте заявку — мы свяжемся с вами и уточним детали праздника
@@ -446,10 +476,9 @@ const SpidermanAnimatorPage = () => {
       </div>
 
       {/* Модальное окно бронирования */}
-      <BookingModal 
+      <BookingModal
         isOpen={isBookingModalOpen}
         onClose={() => setIsBookingModalOpen(false)}
-        prefilledService={character.name}
       />
     </>
   );

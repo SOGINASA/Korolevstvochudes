@@ -96,8 +96,10 @@ function App() {
                   <Route path="animatory-v-shkolu" element={<AnimatorsSchoolPage />} />
                   <Route path="animator-na-dom" element={<AnimatorAtHomePage />} />
                   <Route path="animator-v-kafe" element={<AnimatorInCafePage />} />
-                  <Route path="spiderman-animator" element={<SpidermanAnimatorPage />} />
-                  
+
+                  {/* Динамический роут для страниц аниматоров по ID */}
+                  <Route path="animator/:id" element={<SpidermanAnimatorPage />} />
+
                   {/* ========== ПЕРСОНАЖИ ========== */}
                   <Route path="personazhi" element={<ServicesPage />} />
                   <Route path="spajder-men-animator" element={<ChildrenPartiesPage />} />

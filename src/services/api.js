@@ -1,6 +1,22 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/api';
+const STATIC_BASE_URL = (process.env.REACT_APP_API_URL.slice(0, -4)  || 'http://127.0.0.1:5000/api').slice(0, -4);
 
 class ApiService {
+
+  // Получить полный URL для изображения
+  getImageUrl(imagePath) {
+    if (!imagePath) return null;
+    // Если это уже полный URL, возвращаем как есть
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath;
+    }
+    // Если это относительный путь от static
+    if (imagePath.startsWith('/static/')) {
+      return `${STATIC_BASE_URL}${imagePath}`;
+    }
+    // Если это просто путь к файлу
+    return `${STATIC_BASE_URL}/static/${imagePath}`;
+  }
 
   setToken(token) {
     if (token) {
@@ -1797,6 +1813,330 @@ async setItemCategories(itemId, categoryIds) {
       const response = await this.request(`/leads/funnel?period=${period}`);
       return { success: true, ...response };
     } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ============ МЕТОДЫ ДЛЯ АНИМАТОРОВ ============
+
+  // ========== ПУБЛИЧНЫЕ МЕТОДЫ ==========
+
+  // Получить список аниматоров с фильтрацией
+  async getAnimators(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/animators${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить одного аниматора по ID
+  async getAnimator(animatorId) {
+    try {
+      const response = await this.request(`/animators/${animatorId}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить аниматора по URL slug
+  async getAnimatorBySlug(slug) {
+    try {
+      const response = await this.request(`/animators/slug/${slug}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить популярных аниматоров
+  async getPopularAnimators(limit = 6) {
+    try {
+      const response = await this.request(`/animators/popular?limit=${limit}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить аниматоров по категории
+  async getAnimatorsByCategory(category, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/animators/category/${category}${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Поиск аниматоров
+  async searchAnimators(query, params = {}) {
+    try {
+      const searchParams = new URLSearchParams({
+        q: query,
+        ...params
+      });
+
+      const response = await this.request(`/animators/search?${searchParams}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ========== АДМИНИСТРАТИВНЫЕ МЕТОДЫ ==========
+
+  // Получить всех аниматоров для админки (включая неактивные)
+  async getAdminAnimators(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/animators/admin${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Создать нового аниматора
+  async createAnimator(animatorData) {
+    try {
+      // Очищаем данные перед отправкой
+      const cleanData = {
+        name: animatorData.name?.trim(),
+        title: animatorData.title?.trim(),
+        category: animatorData.category?.trim(),
+        age_range: animatorData.age?.trim() || animatorData.age_range?.trim(),
+        description: animatorData.description?.trim(),
+        price: animatorData.price?.trim(),
+        duration: animatorData.duration?.trim(),
+        image: animatorData.image?.trim(),
+        popular: Boolean(animatorData.popular),
+        active: animatorData.active !== undefined ? Boolean(animatorData.active) : true,
+        program_includes: animatorData.program_includes?.trim(),
+        suitable_for: animatorData.suitable_for?.trim(),
+        advantages: animatorData.advantages?.trim(),
+        related_characters: animatorData.related_characters?.trim(),
+        meta_title: animatorData.meta_title?.trim(),
+        meta_description: animatorData.meta_description?.trim(),
+        meta_keywords: animatorData.meta_keywords?.trim()
+      };
+
+      // Удаляем undefined/null значения
+      Object.keys(cleanData).forEach(key =>
+        (cleanData[key] === undefined || cleanData[key] === null) && delete cleanData[key]
+      );
+
+      const response = await this.request('/animators/admin', {
+        method: 'POST',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Обновить аниматора
+  async updateAnimator(animatorId, animatorData) {
+    try {
+      // Очищаем данные перед отправкой
+      const cleanData = {
+        name: animatorData.name?.trim(),
+        title: animatorData.title?.trim(),
+        category: animatorData.category?.trim(),
+        age_range: animatorData.age?.trim() || animatorData.age_range?.trim(),
+        description: animatorData.description?.trim(),
+        price: animatorData.price?.trim(),
+        duration: animatorData.duration?.trim(),
+        image: animatorData.image?.trim(),
+        popular: Boolean(animatorData.popular),
+        active: animatorData.active !== undefined ? Boolean(animatorData.active) : true,
+        program_includes: animatorData.program_includes?.trim(),
+        suitable_for: animatorData.suitable_for?.trim(),
+        advantages: animatorData.advantages?.trim(),
+        related_characters: animatorData.related_characters?.trim(),
+        meta_title: animatorData.meta_title?.trim(),
+        meta_description: animatorData.meta_description?.trim(),
+        meta_keywords: animatorData.meta_keywords?.trim()
+      };
+
+      // Удаляем undefined/null значения
+      Object.keys(cleanData).forEach(key =>
+        (cleanData[key] === undefined || cleanData[key] === null) && delete cleanData[key]
+      );
+
+      const response = await this.request(`/animators/admin/${animatorId}`, {
+        method: 'PUT',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Удалить аниматора
+  async deleteAnimator(animatorId) {
+    try {
+      const response = await this.request(`/animators/admin/${animatorId}`, {
+        method: 'DELETE',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить статистику аниматоров
+  async getAnimatorsStats() {
+    try {
+      const response = await this.request('/animators/admin/stats');
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Переключить популярность аниматора
+  async toggleAnimatorPopular(animatorId) {
+    try {
+      const response = await this.request(`/animators/admin/${animatorId}/toggle-popular`, {
+        method: 'PATCH',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Переключить активность аниматора
+  async toggleAnimatorActive(animatorId) {
+    try {
+      const response = await this.request(`/animators/admin/${animatorId}/toggle-active`, {
+        method: 'PATCH',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Массовое удаление аниматоров
+  async bulkDeleteAnimators(animatorIds) {
+    try {
+      const response = await this.request('/animators/admin/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({ animator_ids: animatorIds }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Массовое обновление аниматоров
+  async bulkUpdateAnimators(animatorIds, updateData) {
+    try {
+      const response = await this.request('/animators/admin/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify({
+          animator_ids: animatorIds,
+          update_data: updateData
+        }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Экспорт аниматоров в CSV
+  async exportAnimators(filters = {}) {
+    try {
+      const params = new URLSearchParams(filters);
+      const response = await this.request(`/animators/admin/export?${params}`, {
+        headers: {
+          'Accept': 'text/csv',
+        }
+      });
+
+      // Если response - это текст CSV, создаем blob
+      if (typeof response === 'string') {
+        const blob = new Blob([response], { type: 'text/csv' });
+        return { success: true, blob };
+      }
+
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить аниматоров с расширенными фильтрами
+  async getAnimatorsWithFilters(filters = {}) {
+    const params = {
+      page: filters.page || 1,
+      per_page: filters.perPage || 20,
+      category: filters.category,
+      age_range: filters.ageRange,
+      popular: filters.popular,
+      active: filters.active,
+      search: filters.search,
+      sort_by: filters.sortBy || 'name',
+      sort_order: filters.sortOrder || 'asc'
+    };
+
+    // Удаляем undefined значения
+    Object.keys(params).forEach(key =>
+      params[key] === undefined && delete params[key]
+    );
+
+    const queryString = new URLSearchParams(params).toString();
+
+    try {
+      const response = await this.request(`/animators/admin${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить категории аниматоров
+  async getAnimatorCategories() {
+    try {
+      const response = await this.request('/animators/categories');
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Увеличить счетчик просмотров аниматора
+  async incrementAnimatorViews(animatorId) {
+    try {
+      const response = await this.request(`/animators/${animatorId}`, {
+        method: 'POST',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      // Не критичная ошибка, можно проигнорировать
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Увеличить счетчик бронирований аниматора
+  async incrementAnimatorBookings(animatorId) {
+    try {
+      const response = await this.request(`/animators/${animatorId}/booking`, {
+        method: 'POST',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      // Не критичная ошибка, можно проигнорировать
       return { success: false, error: error.message };
     }
   }

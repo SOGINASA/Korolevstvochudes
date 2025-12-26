@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Home, 
-  Cake, 
-  UtensilsCrossed, 
-  School, 
-  Building, 
-  Phone, 
+import {
+  Home,
+  Cake,
+  UtensilsCrossed,
+  School,
+  Building,
+  Phone,
   MessageCircle,
   Star,
   CheckCircle,
@@ -18,11 +18,31 @@ import {
   Gift
 } from 'lucide-react';
 import { useSettings } from '../../contexts/SettingsContext';
+import { apiService } from '../../services/api';
 
 const AnimatorsPage = () => {
   const { settings } = useSettings();
   const getCompanyPhone = () => settings?.company_phone || '+7 (7152) 123-456';
   const getWhatsappPhone = () => settings?.whatsapp_phone || '+7 (777) 987-65-43';
+
+  const [characters, setCharacters] = useState([]);
+
+  // Загрузка популярных аниматоров
+  useEffect(() => {
+    loadPopularAnimators();
+  }, []);
+
+  const loadPopularAnimators = async () => {
+    try {
+      const result = await apiService.getPopularAnimators(6);
+
+      if (result.success) {
+        setCharacters(result.animators || []);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки аниматоров:', error);
+    }
+  };
 
   const locations = [
     {
@@ -57,14 +77,6 @@ const AnimatorsPage = () => {
     }
   ];
 
-  const characters = [
-    { name: 'Человек-паук', link: '/spajder-men-animator' },
-    { name: 'Эльза и Анна', link: '/elsa-anna-holodnoe-serdce' },
-    { name: 'Барбоскины', link: '/barboskiny-animatory' },
-    { name: 'Трансформеры', link: '/transformery-animator' },
-    { name: 'Принцессы Disney', link: '/princessy-disnej' },
-    { name: 'Единорог', link: '/edinorog-animator' }
-  ];
 
   const processSteps = [
     {
@@ -243,8 +255,8 @@ const AnimatorsPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {characters.map((character, index) => (
                 <Link
-                  key={index}
-                  to={character.link}
+                  key={character.id || index}
+                  to={`/animator/${character.id}`}
                   className="group bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 text-center hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-purple-100"
                 >
                   <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
