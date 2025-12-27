@@ -44,6 +44,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [submittedBooking, setSubmittedBooking] = useState(null);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
   // Функция для генерации пакетов по умолчанию
@@ -195,6 +196,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const closeBookingForm = () => {
     setShowCategorySelect(false);
     setBookingSuccess(false);
+    setSubmittedBooking(null);
     setBookingStep(1);
     setSelectedService(null);
     setBookingForm({
@@ -227,6 +229,14 @@ const BookingModal = ({ isOpen, onClose }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Конвертация минут в формат HH:MM для отображения
+  const minutesToTime = (minutes) => {
+    if (!minutes && minutes !== 0) return '-';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
   // Отправка заявки
@@ -286,7 +296,7 @@ const BookingModal = ({ isOpen, onClose }) => {
 
         return null;
       };
-      console.log(bookingForm)
+
       // Данные для отправки
       const bookingData = {
         name: bookingForm.clientName || '',
@@ -301,7 +311,6 @@ const BookingModal = ({ isOpen, onClose }) => {
         location: bookingForm.location || null,
         message: bookingForm.specialRequests
       };
-      console.log('Booking Data:', bookingData)
 
       // Валидация
       if (!bookingData.name.trim()) {
@@ -314,8 +323,10 @@ const BookingModal = ({ isOpen, onClose }) => {
 
       // Отправка на сервер
       const result = await apiService.createBooking(bookingData);
-      
+
       if (result.success) {
+        // Сохраняем данные успешной заявки для отображения
+        setSubmittedBooking(result.booking);
         setBookingSuccess(true);
         setBookingStep(3);
         
@@ -680,7 +691,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                         </div>
                         
                         {/* CSS стили */}
-                        <style jsx>{`
+                        <style>{`
                           .slider::-webkit-slider-thumb {
                             appearance: none;
                             height: 20px;
@@ -691,7 +702,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                             border: 3px solid white;
                             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                           }
-                          
+
                           .slider::-moz-range-thumb {
                             height: 20px;
                             width: 20px;
@@ -701,11 +712,11 @@ const BookingModal = ({ isOpen, onClose }) => {
                             border: 3px solid white;
                             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                           }
-                          
+
                           .slider:focus {
                             outline: none;
                           }
-                          
+
                           .slider:focus::-webkit-slider-thumb {
                             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
                           }
@@ -770,9 +781,9 @@ const BookingModal = ({ isOpen, onClose }) => {
                         <div className="bg-purple-50 rounded-xl p-4">
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
-                            <p>Услуга: {selectedService?.title || 'Не выбрана'}</p>
-                            <p>Дата: {bookingForm.selectedDate ? new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
-                            <p>Время: {bookingForm.selectedTime || '-'}</p>
+                            <p>Услуга: {submittedBooking?.service_title || selectedService?.title || 'Не выбрана'}</p>
+                            <p>Дата: {submittedBooking?.event_date ? new Date(submittedBooking.event_date).toLocaleDateString('ru-RU') : '-'}</p>
+                            <p>Время: {submittedBooking?.event_time || '-'}</p>
                           </div>
                         </div>
                       </>
@@ -795,7 +806,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Время:</span>
-                              <span className="font-medium">{bookingForm.selectedTime || '-'}</span>
+                              <span className="font-medium">{minutesToTime(bookingForm.selectedTime)}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Пакет:</span>
