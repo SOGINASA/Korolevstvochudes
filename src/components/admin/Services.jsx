@@ -177,10 +177,10 @@ const Services = ({ showNotification }) => {
         sort_order: 'desc'
       };
 
-      const result = await apiService.getAdminServices(params);
+      const result = await apiService.getAdminShows(params);
       
       if (result.success) {
-        setAdminServices(result.services || []);
+        setAdminServices(result.shows || []);
         setPagination(result.pagination || {});
       } else {
         showNotification('Ошибка загрузки услуг: ' + result.error, 'error');
@@ -196,7 +196,7 @@ const Services = ({ showNotification }) => {
   // Загрузка статистики
   const loadStats = async () => {
     try {
-      const result = await apiService.getServicesStats();
+      const result = await apiService.getShowsStats();
       if (result.success) {
         setStats({
           total_services: result.total_services || 0,
@@ -248,24 +248,37 @@ const Services = ({ showNotification }) => {
     setSubmitLoading(true);
     
     try {
-      // Подготавливаем данные для отправки
+      // Подготавливаем данные для отправки (маппим поля на backend формат)
       const serviceData = {
-        ...serviceForm,
-        rating: parseFloat(serviceForm.rating) || 5.0
+        title: serviceForm.title,
+        category: serviceForm.category,
+        duration: serviceForm.duration,
+        minAudience: serviceForm.minGuests,  // Маппинг на backend поле
+        rating: parseFloat(serviceForm.rating) || 5.0,
+        price: serviceForm.price,
+        priceDescription: serviceForm.price_description,
+        description: serviceForm.description,
+        features: serviceForm.features,
+        suitableFor: serviceForm.subcategories,  // Маппинг на backend поле
+        coverImage: serviceForm.cover_image,
+        images: serviceForm.images,
+        featured: serviceForm.featured,
+        tags: serviceForm.tags,
+        status: serviceForm.status
       };
 
       let result;
       if (editingService) {
-        // Обновление существующей услуги
-        result = await apiService.updateService(editingService.id, serviceData);
+        // Обновление существующего шоу
+        result = await apiService.updateShow(editingService.id, serviceData);
         if (result.success) {
-          showNotification('Услуга успешно обновлена', 'success');
+          showNotification('Шоу успешно обновлено', 'success');
         }
       } else {
-        // Создание новой услуги
-        result = await apiService.createService(serviceData);
+        // Создание нового шоу
+        result = await apiService.createShow(serviceData);
         if (result.success) {
-          showNotification('Услуга успешно создана', 'success');
+          showNotification('Шоу успешно создано', 'success');
         }
       }
 
@@ -314,17 +327,17 @@ const Services = ({ showNotification }) => {
     }
 
     try {
-      const result = await apiService.deleteService(serviceId);
+      const result = await apiService.deleteShow(serviceId);
       if (result.success) {
-        showNotification('Услуга успешно удалена', 'success');
+        showNotification('Шоу успешно удалено', 'success');
         loadServices(); // Перезагружаем список
         loadStats(); // Обновляем статистику
       } else {
         showNotification('Ошибка при удалении: ' + result.error, 'error');
       }
     } catch (error) {
-      console.error('Ошибка при удалении услуги:', error);
-      showNotification('Ошибка при удалении услуги', 'error');
+      console.error('Ошибка при удалении шоу:', error);
+      showNotification('Ошибка при удалении шоу', 'error');
     }
   };
 

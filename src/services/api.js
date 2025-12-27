@@ -2140,6 +2140,217 @@ async setItemCategories(itemId, categoryIds) {
       return { success: false, error: error.message };
     }
   }
+
+  // ============ МЕТОДЫ ДЛЯ ШОУ-ПРОГРАММ ============
+
+  // ========== ПУБЛИЧНЫЕ МЕТОДЫ ==========
+
+  // Получить список шоу-программ с фильтрацией
+  async getShows(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/shows${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить одно шоу по ID
+  async getShow(showId) {
+    try {
+      const response = await this.request(`/shows/${showId}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить категории шоу
+  async getShowCategories() {
+    try {
+      const response = await this.request('/shows/categories');
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить популярные шоу
+  async getFeaturedShows(limit = 6) {
+    try {
+      const response = await this.request(`/shows/featured?limit=${limit}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // ========== АДМИНИСТРАТИВНЫЕ МЕТОДЫ ==========
+
+  // Получить все шоу для админки (включая неактивные)
+  async getAdminShows(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    try {
+      const response = await this.request(`/shows/admin${queryString ? `?${queryString}` : ''}`);
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Создать новое шоу
+  async createShow(showData) {
+    try {
+      // Очищаем данные перед отправкой
+      const cleanData = {
+        title: showData.title?.trim(),
+        category: showData.category?.trim(),
+        duration: showData.duration?.trim(),
+        minAudience: showData.minAudience?.trim(),
+        rating: parseFloat(showData.rating) || 5.0,
+        price: showData.price?.trim(),
+        priceDescription: showData.priceDescription?.trim(),
+        description: showData.description?.trim(),
+        features: showData.features || [],
+        suitableFor: showData.suitableFor || [],
+        coverImage: showData.coverImage?.trim(),
+        images: showData.images || [],
+        videos: showData.videos || [],
+        featured: Boolean(showData.featured),
+        tags: showData.tags || [],
+        status: showData.status || 'active'
+      };
+
+      // Обрабатываем строковые значения, разделенные запятыми
+      if (typeof cleanData.features === 'string') {
+        cleanData.features = cleanData.features.split(',').map(f => f.trim()).filter(f => f);
+      }
+      if (typeof cleanData.suitableFor === 'string') {
+        cleanData.suitableFor = cleanData.suitableFor.split(',').map(s => s.trim()).filter(s => s);
+      }
+      if (typeof cleanData.tags === 'string') {
+        cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+      }
+      if (typeof cleanData.images === 'string') {
+        cleanData.images = cleanData.images.split(',').map(i => i.trim()).filter(i => i);
+      }
+      if (typeof cleanData.videos === 'string') {
+        cleanData.videos = cleanData.videos.split(',').map(v => v.trim()).filter(v => v);
+      }
+
+      const response = await this.request('/shows/admin', {
+        method: 'POST',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Обновить шоу
+  async updateShow(showId, showData) {
+    try {
+      // Очищаем данные перед отправкой
+      const cleanData = {
+        title: showData.title?.trim(),
+        category: showData.category?.trim(),
+        duration: showData.duration?.trim(),
+        minAudience: showData.minAudience?.trim(),
+        rating: parseFloat(showData.rating) || 5.0,
+        price: showData.price?.trim(),
+        priceDescription: showData.priceDescription?.trim(),
+        description: showData.description?.trim(),
+        features: showData.features || [],
+        suitableFor: showData.suitableFor || [],
+        coverImage: showData.coverImage?.trim(),
+        images: showData.images || [],
+        videos: showData.videos || [],
+        featured: Boolean(showData.featured),
+        tags: showData.tags || [],
+        status: showData.status || 'active'
+      };
+
+      // Обрабатываем строковые значения, разделенные запятыми
+      if (typeof cleanData.features === 'string') {
+        cleanData.features = cleanData.features.split(',').map(f => f.trim()).filter(f => f);
+      }
+      if (typeof cleanData.suitableFor === 'string') {
+        cleanData.suitableFor = cleanData.suitableFor.split(',').map(s => s.trim()).filter(s => s);
+      }
+      if (typeof cleanData.tags === 'string') {
+        cleanData.tags = cleanData.tags.split(',').map(t => t.trim()).filter(t => t);
+      }
+      if (typeof cleanData.images === 'string') {
+        cleanData.images = cleanData.images.split(',').map(i => i.trim()).filter(i => i);
+      }
+      if (typeof cleanData.videos === 'string') {
+        cleanData.videos = cleanData.videos.split(',').map(v => v.trim()).filter(v => v);
+      }
+
+      const response = await this.request(`/shows/admin/${showId}`, {
+        method: 'PUT',
+        body: JSON.stringify(cleanData),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Удалить шоу
+  async deleteShow(showId) {
+    try {
+      const response = await this.request(`/shows/admin/${showId}`, {
+        method: 'DELETE',
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Получить статистику шоу
+  async getShowsStats() {
+    try {
+      const response = await this.request('/shows/admin/stats');
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Массовое обновление шоу
+  async bulkUpdateShows(showIds, updateData) {
+    try {
+      const response = await this.request('/shows/admin/bulk-update', {
+        method: 'POST',
+        body: JSON.stringify({
+          show_ids: showIds,
+          update_data: updateData
+        }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Массовое удаление шоу
+  async bulkDeleteShows(showIds) {
+    try {
+      const response = await this.request('/shows/admin/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({
+          show_ids: showIds
+        }),
+      });
+      return { success: true, ...response };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 }
 
 export const apiService = new ApiService();
