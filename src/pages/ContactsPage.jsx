@@ -47,7 +47,7 @@ const ContactsPage = () => {
   const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
-  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Жумабаева 107';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
 
   // Контактная информация
@@ -60,7 +60,7 @@ const ContactsPage = () => {
     {
       id: 1,
       name: 'Главный офис',
-      address: 'ул. Конституции, 15, офис 201',
+      address: 'ул. Жумабаева 107',
       phone: '8 (705) 519 5222',
       hours: '9:00 - 21:00',
       services: ['Консультации', 'Заключение договоров', 'Просмотр реквизита'],
@@ -70,8 +70,8 @@ const ContactsPage = () => {
     {
       id: 2,
       name: 'Склад реквизита',
-      address: 'ул. Промышленная, 42',
-      phone: '+7 (7152) 123-457',
+      address: 'ул. Жумабаева 107',
+      phone: '8 (705) 519 5444',
       hours: '10:00 - 18:00',
       services: ['Хранение костюмов', 'Подготовка реквизита', 'Выдача оборудования'],
       coordinates: { lat: 54.8584, lng: 69.1298 },
@@ -354,7 +354,7 @@ const ContactsPage = () => {
                         <MapPin className="w-6 h-6 text-primary-500" />
                         <div>
                           <div className="font-semibold text-gray-900">Наш офис</div>
-                          <div className="text-sm text-gray-600">ул. Конституции, 15</div>
+                          <div className="text-sm text-gray-600">ул. Жумабаева 107</div>
                         </div>
                       </div>
                     </div>

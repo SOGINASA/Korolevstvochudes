@@ -46,7 +46,7 @@ const Header = () => {
   const getCompanyDescription = () => settings?.company_description || 'Праздничное агентство';
   const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
-  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Жумабаева 107';
   const getWhatsAppPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
 
   // Функции для работы с модалом бронирования
@@ -138,7 +138,7 @@ const Header = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin size={14} />
-                <span>{getCompanyAddress()}</span>
+                <span>г. Петропавловск, ул. Жумабаева 107</span>
               </div>
             </div>
             <div className="flex items-center space-x-4">

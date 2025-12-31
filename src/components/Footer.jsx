@@ -17,10 +17,10 @@ const Footer = () => {
   const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
   const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
-  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Жумабаева 107';
 
   const mainLinks = [
-    { name: 'Главная', path: '/' },
+    { name: 'Агентство праздника-Королевство чудес', path: '/' },
     { name: 'Аниматоры', path: '/animatory-petropavlovsk' },
     { name: 'Персонажи', path: '/personazhi' },
     { name: 'Цены', path: '/ceny' },
@@ -173,7 +173,7 @@ const Footer = () => {
                 <MapPin className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-gray-300">
-                    {getCompanyAddress()}
+                    г. Петропавловск, ул. Жумабаева 107
                   </p>
                   <p className="text-sm text-gray-400">Офис</p>
                 </div>
