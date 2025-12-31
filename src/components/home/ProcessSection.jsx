@@ -189,7 +189,7 @@ const ProcessSection = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="tel:+77152123456"
+                href="tel:87055195222"
                 className="btn-primary flex items-center justify-center gap-2"
               >
                 <MessageCircle size={20} />

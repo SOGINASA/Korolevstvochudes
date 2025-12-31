@@ -71,7 +71,7 @@ const ContactsPage = () => {
       id: 2,
       name: 'Склад реквизита',
       address: 'ул. Промышленная, 42',
-      phone: '+7 (7152) 123-457',
+      phone: '8 (705) 519 5222',
       hours: '10:00 - 18:00',
       services: ['Хранение костюмов', 'Подготовка реквизита', 'Выдача оборудования'],
       coordinates: { lat: 54.8584, lng: 69.1298 },
@@ -94,7 +94,7 @@ const ContactsPage = () => {
       id: 2,
       name: 'Дмитрий Сидоров',
       position: 'Руководитель отдела',
-      phone: '+7 (7152) 123-458',
+      phone: '8 (705) 519 5222',
       email: 'manager@prazdnikvdom.kz',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
       description: 'Специалист по корпоративным мероприятиям'
@@ -103,7 +103,7 @@ const ContactsPage = () => {
       id: 3,
       name: 'Мария Иванова',
       position: 'Креативный директор',
-      phone: '+7 (7152) 123-459',
+      phone: '8 (705) 519 5222',
       email: 'creative@prazdnikvdom.kz',
       image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
       description: 'Создает уникальные концепции праздников'
