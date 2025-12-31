@@ -34,6 +34,8 @@ import AnimatorAtHomePage from './pages/services/AnimatorAtHomePage';
 import AnimatorInCafePage from './pages/services/AnimatorInCafePage';
 import AnimatorsKindergartenPage from './pages/services/AnimatorsKindergartenPage';
 import AnimatorsSchoolPage from './pages/services/AnimatorsSchoolPage';
+import AllAnimatorsPage from './pages/services/AllAnimatorsPage';
+import SpidermanAnimatorPage from './pages/services/SpidermanAnimatorPage';
 
 import SitemapPage from './pages/services/SiteMap';
 
@@ -89,12 +91,15 @@ function App() {
                   {/* ========== АНИМАТОРЫ В ПЕТРОПАВЛОВСКЕ ========== */}
                   <Route path="animatory-petropavlovsk" element={<AnimatorsPage />} />
                   <Route path="animatory-na-den-rozhdeniya" element={<AnimatorBirthdayPage />} />
-                  <Route path="animatory-dlya-detej" element={<ChildrenPartiesPage />} />
+                  <Route path="animatory-dlya-detej" element={<AllAnimatorsPage />} />
                   <Route path="animatory-v-detskij-sad" element={<AnimatorsKindergartenPage />} />
                   <Route path="animatory-v-shkolu" element={<AnimatorsSchoolPage />} />
                   <Route path="animator-na-dom" element={<AnimatorAtHomePage />} />
                   <Route path="animator-v-kafe" element={<AnimatorInCafePage />} />
-                  
+
+                  {/* Динамический роут для страниц аниматоров по ID */}
+                  <Route path="animator/:id" element={<SpidermanAnimatorPage />} />
+
                   {/* ========== ПЕРСОНАЖИ ========== */}
                   <Route path="personazhi" element={<ServicesPage />} />
                   <Route path="spajder-men-animator" element={<ChildrenPartiesPage />} />

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Grid, 
-  List, 
-  Heart, 
-  Eye, 
+import {
+  Grid,
+  List,
+  Heart,
+  Eye,
   Clock,
   Users,
   Star,
@@ -19,8 +19,13 @@ import {
   Zap,
   Award,
   Phone,
-  MessageCircle
+  MessageCircle,
+  Loader2,
+  ShoppingCart
 } from 'lucide-react';
+import { apiService } from '../../services/api';
+import { useSettings } from '../../contexts/SettingsContext';
+import BookingModal from '../../components/BookingModal';
 
 const ShowProgramsPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -28,9 +33,40 @@ const ShowProgramsPage = () => {
   const [selectedShow, setSelectedShow] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [showsData, setShowsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
-  // Данные шоу-программ
-  const showsData = [
+  const { settings } = useSettings();
+  const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
+
+  // Загрузка шоу-программ из API
+  useEffect(() => {
+    const fetchShows = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await apiService.getShows({ status: 'active' });
+
+        if (response.success && response.shows) {
+          setShowsData(response.shows);
+        } else {
+          setError('Не удалось загрузить шоу-программы');
+        }
+      } catch (err) {
+        console.error('Error fetching shows:', err);
+        setError('Ошибка при загрузке шоу-программ');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShows();
+  }, []);
+
+  // Моковые данные для fallback (если API не вернет данные)
+  const mockShowsData = [
     {
       id: 1,
       title: 'Огненное шоу "Драконы стихий"',
@@ -429,10 +465,40 @@ const ShowProgramsPage = () => {
           </div>
         </section>
 
+        {/* Индикатор загрузки */}
+        {loading && (
+          <section className="py-12">
+            <div className="container-custom">
+              <div className="flex flex-col items-center justify-center gap-4 py-20">
+                <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+                <p className="text-gray-600 text-lg">Загружаем шоу-программы...</p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Сообщение об ошибке */}
+        {error && !loading && (
+          <section className="py-12">
+            <div className="container-custom">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 text-lg mb-4">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Попробовать снова
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Шоу-программы сетка */}
-        <section className="py-12">
-          <div className="container-custom">
-            <AnimatePresence mode="wait">
+        {!loading && !error && (
+          <section className="py-12">
+            <div className="container-custom">
+              <AnimatePresence mode="wait">
               <motion.div
                 key={activeFilter + viewMode}
                 initial={{ opacity: 0, y: 20 }}
@@ -636,6 +702,7 @@ const ShowProgramsPage = () => {
             )}
           </div>
         </section>
+        )}
 
         {/* Модальное окно деталей шоу */}
         <AnimatePresence>
@@ -844,16 +911,25 @@ const ShowProgramsPage = () => {
 
                     {/* CTA кнопки */}
                     <div className="space-y-3">
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsBookingModalOpen(true);
+                        }}
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
                       >
+                        <ShoppingCart size={20} />
                         Заказать это шоу
                       </motion.button>
-                      <motion.button 
+                      <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`https://wa.me/${getWhatsappPhone().replace(/\D/g, '')}`, '_blank');
+                        }}
                         className="w-full border-2 border-purple-600 text-purple-600 py-4 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-300"
                       >
                         Получить консультацию
@@ -990,18 +1066,22 @@ const ShowProgramsPage = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg"
+                  onClick={() => setIsBookingModalOpen(true)}
+                  className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
                 >
+                  <ShoppingCart size={24} />
                   Заказать шоу со скидкой
                 </motion.button>
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300"
+                  onClick={() => window.open(`https://wa.me/${getWhatsappPhone().replace(/\D/g, '')}`, '_blank')}
+                  className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300 flex items-center justify-center gap-2"
                 >
+                  <MessageCircle size={24} />
                   Бесплатная консультация
                 </motion.button>
               </div>
@@ -1072,6 +1152,12 @@ const ShowProgramsPage = () => {
           </div>
         </section>
       </div>
+
+      {/* Модальное окно бронирования */}
+      <BookingModal
+        isOpen={isBookingModalOpen}
+        onClose={() => setIsBookingModalOpen(false)}
+      />
     </>
   );
 };

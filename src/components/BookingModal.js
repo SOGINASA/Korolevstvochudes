@@ -44,6 +44,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [submittedBooking, setSubmittedBooking] = useState(null);
   const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
 
   // Функция для генерации пакетов по умолчанию
@@ -73,9 +74,9 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   // Категории услуг
   const categories = [
-    { 
-      id: 'children', 
-      name: 'Детские праздники', 
+    {
+      id: 'children',
+      name: 'Детские праздники',
       iconComponent: Baby,
       iconColor: 'text-purple-600',
       bgColor: 'bg-purple-50',
@@ -84,9 +85,20 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 15,
       packages: generateDefaultPackages('85000')
     },
-    { 
-      id: 'weddings', 
-      name: 'Свадьбы', 
+    {
+      id: 'animator',
+      name: 'Аниматоры',
+      iconComponent: Users,
+      iconColor: 'text-green-600',
+      bgColor: 'bg-green-50',
+      hoverBgColor: 'hover:bg-green-100',
+      textColor: 'text-green-700',
+      count: 5,
+      packages: generateDefaultPackages('25000')
+    },
+    {
+      id: 'weddings',
+      name: 'Свадьбы',
       iconComponent: Heart,
       iconColor: 'text-pink-600',
       bgColor: 'bg-pink-50',
@@ -95,9 +107,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 8,
       packages: generateDefaultPackages('400000')
     },
-    { 
-      id: 'corporate', 
-      name: 'Корпоративы', 
+    {
+      id: 'corporate',
+      name: 'Корпоративы',
       iconComponent: Briefcase,
       iconColor: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -106,9 +118,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 12,
       packages: generateDefaultPackages('200000')
     },
-    { 
-      id: 'anniversaries', 
-      name: 'Юбилеи', 
+    {
+      id: 'anniversaries',
+      name: 'Юбилеи',
       iconComponent: Cake,
       iconColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50',
@@ -117,9 +129,9 @@ const BookingModal = ({ isOpen, onClose }) => {
       count: 10,
       packages: generateDefaultPackages('150000')
     },
-    { 
-      id: 'shows', 
-      name: 'Шоу-программы', 
+    {
+      id: 'shows',
+      name: 'Шоу-программы',
       iconComponent: Sparkles,
       iconColor: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -184,6 +196,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const closeBookingForm = () => {
     setShowCategorySelect(false);
     setBookingSuccess(false);
+    setSubmittedBooking(null);
     setBookingStep(1);
     setSelectedService(null);
     setBookingForm({
@@ -216,6 +229,14 @@ const BookingModal = ({ isOpen, onClose }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Конвертация минут в формат HH:MM для отображения
+  const minutesToTime = (minutes) => {
+    if (!minutes && minutes !== 0) return '-';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
   // Отправка заявки
@@ -275,12 +296,13 @@ const BookingModal = ({ isOpen, onClose }) => {
 
         return null;
       };
-      console.log(bookingForm)
+
       // Данные для отправки
       const bookingData = {
         name: bookingForm.clientName || '',
         phone: formatPhoneNumber(bookingForm.clientPhone),
         email: bookingForm.clientEmail || null,
+        service_id: selectedService?.id || null,
         service_title: selectedService?.title || null,
         event_date: formatDate(bookingForm.selectedDate),
         event_time: formatTime(bookingForm.selectedTime),
@@ -289,7 +311,6 @@ const BookingModal = ({ isOpen, onClose }) => {
         location: bookingForm.location || null,
         message: bookingForm.specialRequests
       };
-      console.log('Booking Data:', bookingData)
 
       // Валидация
       if (!bookingData.name.trim()) {
@@ -302,8 +323,10 @@ const BookingModal = ({ isOpen, onClose }) => {
 
       // Отправка на сервер
       const result = await apiService.createBooking(bookingData);
-      
+
       if (result.success) {
+        // Сохраняем данные успешной заявки для отображения
+        setSubmittedBooking(result.booking);
         setBookingSuccess(true);
         setBookingStep(3);
         
@@ -668,7 +691,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                         </div>
                         
                         {/* CSS стили */}
-                        <style jsx>{`
+                        <style>{`
                           .slider::-webkit-slider-thumb {
                             appearance: none;
                             height: 20px;
@@ -679,7 +702,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                             border: 3px solid white;
                             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                           }
-                          
+
                           .slider::-moz-range-thumb {
                             height: 20px;
                             width: 20px;
@@ -689,11 +712,11 @@ const BookingModal = ({ isOpen, onClose }) => {
                             border: 3px solid white;
                             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                           }
-                          
+
                           .slider:focus {
                             outline: none;
                           }
-                          
+
                           .slider:focus::-webkit-slider-thumb {
                             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
                           }
@@ -758,9 +781,9 @@ const BookingModal = ({ isOpen, onClose }) => {
                         <div className="bg-purple-50 rounded-xl p-4">
                           <h4 className="font-semibold text-purple-900 mb-2">Детали заявки:</h4>
                           <div className="space-y-1 text-sm text-purple-700">
-                            <p>Услуга: {selectedService?.title || 'Не выбрана'}</p>
-                            <p>Дата: {bookingForm.selectedDate ? new Date(bookingForm.selectedDate).toLocaleDateString('ru-RU') : '-'}</p>
-                            <p>Время: {bookingForm.selectedTime || '-'}</p>
+                            <p>Услуга: {submittedBooking?.service_title || selectedService?.title || 'Не выбрана'}</p>
+                            <p>Дата: {submittedBooking?.event_date ? new Date(submittedBooking.event_date).toLocaleDateString('ru-RU') : '-'}</p>
+                            <p>Время: {submittedBooking?.event_time || '-'}</p>
                           </div>
                         </div>
                       </>
@@ -783,7 +806,7 @@ const BookingModal = ({ isOpen, onClose }) => {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Время:</span>
-                              <span className="font-medium">{bookingForm.selectedTime || '-'}</span>
+                              <span className="font-medium">{minutesToTime(bookingForm.selectedTime)}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Пакет:</span>

@@ -221,7 +221,7 @@ const FaqPage = () => {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Телефон</h3>
               <p className="text-gray-600 text-sm mb-3">Звоните в любое время</p>
-              <a href="tel:+77152123456" className="text-purple-600 font-medium hover:text-purple-700">
+              <a href="tel:87055195222" className="text-purple-600 font-medium hover:text-purple-700">
                 8 (705) 519 5222
               </a>
             </div>

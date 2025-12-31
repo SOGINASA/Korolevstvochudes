@@ -177,10 +177,10 @@ const Services = ({ showNotification }) => {
         sort_order: 'desc'
       };
 
-      const result = await apiService.getAdminServices(params);
+      const result = await apiService.getAdminShows(params);
       
       if (result.success) {
-        setAdminServices(result.services || []);
+        setAdminServices(result.shows || []);
         setPagination(result.pagination || {});
       } else {
         showNotification('Ошибка загрузки услуг: ' + result.error, 'error');
@@ -196,7 +196,7 @@ const Services = ({ showNotification }) => {
   // Загрузка статистики
   const loadStats = async () => {
     try {
-      const result = await apiService.getServicesStats();
+      const result = await apiService.getShowsStats();
       if (result.success) {
         setStats({
           total_services: result.total_services || 0,
@@ -248,24 +248,37 @@ const Services = ({ showNotification }) => {
     setSubmitLoading(true);
     
     try {
-      // Подготавливаем данные для отправки
+      // Подготавливаем данные для отправки (маппим поля на backend формат)
       const serviceData = {
-        ...serviceForm,
-        rating: parseFloat(serviceForm.rating) || 5.0
+        title: serviceForm.title,
+        category: serviceForm.category,
+        duration: serviceForm.duration,
+        minAudience: serviceForm.minGuests,  // Маппинг на backend поле
+        rating: parseFloat(serviceForm.rating) || 5.0,
+        price: serviceForm.price,
+        priceDescription: serviceForm.price_description,
+        description: serviceForm.description,
+        features: serviceForm.features,
+        suitableFor: serviceForm.subcategories,  // Маппинг на backend поле
+        coverImage: serviceForm.cover_image,
+        images: serviceForm.images,
+        featured: serviceForm.featured,
+        tags: serviceForm.tags,
+        status: serviceForm.status
       };
 
       let result;
       if (editingService) {
-        // Обновление существующей услуги
-        result = await apiService.updateService(editingService.id, serviceData);
+        // Обновление существующего шоу
+        result = await apiService.updateShow(editingService.id, serviceData);
         if (result.success) {
-          showNotification('Услуга успешно обновлена', 'success');
+          showNotification('Шоу успешно обновлено', 'success');
         }
       } else {
-        // Создание новой услуги
-        result = await apiService.createService(serviceData);
+        // Создание нового шоу
+        result = await apiService.createShow(serviceData);
         if (result.success) {
-          showNotification('Услуга успешно создана', 'success');
+          showNotification('Шоу успешно создано', 'success');
         }
       }
 
@@ -278,8 +291,8 @@ const Services = ({ showNotification }) => {
         showNotification('Ошибка: ' + result.error, 'error');
       }
     } catch (error) {
-      console.error('Ошибка при сохранении услуги:', error);
-      showNotification('Ошибка при сохранении услуги', 'error');
+      console.error('Ошибка при сохранении шоу:', error);
+      showNotification('Ошибка при сохранении шоу', 'error');
     } finally {
       setSubmitLoading(false);
     }
@@ -314,17 +327,17 @@ const Services = ({ showNotification }) => {
     }
 
     try {
-      const result = await apiService.deleteService(serviceId);
+      const result = await apiService.deleteShow(serviceId);
       if (result.success) {
-        showNotification('Услуга успешно удалена', 'success');
+        showNotification('Шоу успешно удалено', 'success');
         loadServices(); // Перезагружаем список
         loadStats(); // Обновляем статистику
       } else {
         showNotification('Ошибка при удалении: ' + result.error, 'error');
       }
     } catch (error) {
-      console.error('Ошибка при удалении услуги:', error);
-      showNotification('Ошибка при удалении услуги', 'error');
+      console.error('Ошибка при удалении шоу:', error);
+      showNotification('Ошибка при удалении шоу', 'error');
     }
   };
 
@@ -339,14 +352,14 @@ const Services = ({ showNotification }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление услугами</h2>
+        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Управление шоу</h2>
         <button 
           onClick={() => setShowAddService(true)}
           className="flex items-center justify-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
           disabled={loading}
         >
           <Plus className="h-4 w-4" />
-          <span>Добавить услугу</span>
+          <span>Добавить шоу</span>
         </button>
       </div>
 
@@ -356,7 +369,7 @@ const Services = ({ showNotification }) => {
           <div className="flex items-center">
             <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500 mr-2 lg:mr-3 flex-shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs lg:text-sm font-medium text-gray-600">Всего услуг</p>
+              <p className="text-xs lg:text-sm font-medium text-gray-600">Всего шоу</p>
               <p className="text-lg lg:text-2xl font-bold text-gray-900">{stats.total_services}</p>
             </div>
           </div>
@@ -947,7 +960,7 @@ const Services = ({ showNotification }) => {
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      <span>{editingService ? 'Обновить услугу' : 'Сохранить услугу'}</span>
+                      <span>{editingService ? 'Обновить шоу' : 'Сохранить шоу'}</span>
                     </>
                   )}
                 </button>
