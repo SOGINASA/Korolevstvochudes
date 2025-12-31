@@ -1006,7 +1006,7 @@ const WeddingsPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto text-left">
                   <div>
                     <h4 className="font-semibold mb-2">Наш офис:</h4>
-                    <p className="text-pink-100">ул. Конституции, 15, Петропавловск</p>
+                    <p className="text-pink-100">ул. Магжана Жумабаева 107, Петропавловск</p>
                     <p className="text-pink-100">Ежедневно с 9:00 до 21:00</p>
                   </div>
                   <div>

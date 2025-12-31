@@ -118,7 +118,7 @@ const Settings = ({ showNotification }) => {
           onChange={(e) => updateLocalSetting('company_address', e.target.value)}
           rows={3}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="г. Петропавловск, ул. Ленина, 123"
+          placeholder="г. Петропавловск, ул. Магжана Жумабаева 107"
         />
       </div>
 

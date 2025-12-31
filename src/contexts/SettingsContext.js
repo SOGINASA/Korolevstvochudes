@@ -19,7 +19,7 @@ export const SettingsProvider = ({ children }) => {
     company_email: 'info@prazdnikvdom.kz',
     company_phone: '8 (705) 519 5222',
     whatsapp_phone: '8 (705) 519 5222',
-    company_address: 'г. Петропавловск, ул. Ленина, 123',
+    company_address: 'г. Петропавловск, ул. Магжана Жумабаева 107',
     company_description: 'Профессиональная организация праздников и мероприятий',
     social_instagram: 'https://instagram.com/korolevstvo_chudes',
     social_facebook: '',

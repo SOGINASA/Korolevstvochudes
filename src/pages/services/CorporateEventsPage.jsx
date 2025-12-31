@@ -930,7 +930,7 @@ const CorporateEventsPage = () => {
 
             <div className="flex items-center justify-center gap-2 text-blue-200">
               <MapPin size={16} />
-              <span className="text-sm">г. Петропавловск, ул. Конституции Казахстана, 35</span>
+              <span className="text-sm">г. Петропавловск, ул. Магжана Жумабаева 107</span>
             </div>
           </motion.div>
         </div>

@@ -940,7 +940,7 @@ const ChildrenPartiesPage = () => {
                     <MapPin className="w-8 h-8" />
                   </div>
                   <h3 className="font-semibold mb-2">Приезжайте в офис</h3>
-                  <p className="text-primary-100">ул. Конституции, 15</p>
+                  <p className="text-primary-100">ул. Магжана Жумабаева 107</p>
                 </div>
               </div>
 

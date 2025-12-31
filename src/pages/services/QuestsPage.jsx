@@ -1044,7 +1044,7 @@ const QuestsGamesPage = () => {
                     <span className="text-2xl">📍</span>
                   </div>
                   <h3 className="font-semibold mb-2">Приезжайте в офис</h3>
-                  <p className="text-indigo-100">ул. Конституции, 15</p>
+                  <p className="text-indigo-100">ул. Магжана Жумабаева 107</p>
                 </motion.div>
               </div>
             </motion.div>

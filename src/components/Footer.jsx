@@ -17,7 +17,7 @@ const Footer = () => {
   const getWhatsappPhone = () => settings?.whatsapp_phone || '8 (705) 519 5222';
   const getCompanyPhone = () => settings?.company_phone || '8 (705) 519 5222';
   const getCompanyEmail = () => settings?.company_email || 'info@prazdnikvdom.kz';
-  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Конституции, 15';
+  const getCompanyAddress = () => settings?.company_address || 'г. Петропавловск, ул. Магжана Жумабаева 107';
 
   const mainLinks = [
     { name: 'Главная', path: '/' },

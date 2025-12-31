@@ -1132,7 +1132,7 @@ const ShowProgramsPage = () => {
                     <span className="text-2xl">📍</span>
                   </motion.div>
                   <h3 className="font-semibold mb-2">Наш офис</h3>
-                  <p className="text-purple-100">ул. Конституции, 15</p>
+                  <p className="text-purple-100">ул. Магжана Жумабаева 107</p>
                   <p className="text-sm text-purple-200">Петропавловск</p>
                 </motion.div>
               </div>
