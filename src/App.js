@@ -10,6 +10,7 @@ import { SettingsProvider } from './contexts/SettingsContext';
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
 import SEOHead from './components/SEOHead';
+import YandexMetrika from './components/YandexMetrika';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
