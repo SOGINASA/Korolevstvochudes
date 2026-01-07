@@ -52,7 +52,7 @@ const ContactsPage = () => {
 
   // Контактная информация
   const contactInfo = {
-    workingHours: 'Ежедневно с 9:00 до 21:00'
+    workingHours: 'Ежедневно с 10:00 до 19:00'
   };
 
   // Офисы и локации
@@ -62,7 +62,7 @@ const ContactsPage = () => {
       name: 'Главный офис',
       address: 'ул. Магжана Жумабаева 107',
       phone: '8 (705) 519 5222',
-      hours: '9:00 - 21:00',
+      hours: '10:00 - 19:00',
       services: ['Консультации', 'Заключение договоров', 'Просмотр реквизита'],
       coordinates: { lat: 54.8684, lng: 69.1398 },
       image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
@@ -72,7 +72,7 @@ const ContactsPage = () => {
       name: 'Склад реквизита',
       address: 'ул. Магжана Жумабаева 107',
       phone: '8 (705) 519 5222',
-      hours: '10:00 - 18:00',
+      hours: '10:00 - 19:00',
       services: ['Хранение костюмов', 'Подготовка реквизита', 'Выдача оборудования'],
       coordinates: { lat: 54.8584, lng: 69.1298 },
       image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
@@ -620,7 +620,7 @@ const ContactsPage = () => {
                               <a href={`tel:${settings.company_phone}`} className="text-primary-600 hover:text-primary-700">
                                 {settings.company_phone}
                               </a>
-                              <p className="text-sm text-gray-600">Звонки принимаем с 9:00 до 21:00</p>
+                              <p className="text-sm text-gray-600">Звонки принимаем с 10:00 до 19:00</p>
                             </div>
                           </div>
                         </motion.div>
@@ -657,7 +657,7 @@ const ContactsPage = () => {
                             </div>
                             <div>
                               <h3 className="font-semibold text-gray-900">Адрес офиса</h3>
-                              <p className="text-accent-600">{getCompanyAddress()}</p>
+                              <p className="text-accent-600">ул. Жумабаева 107</p>
                               <p className="text-sm text-gray-600">У нас есть несколько отделений</p>
                             </div>
                           </div>
